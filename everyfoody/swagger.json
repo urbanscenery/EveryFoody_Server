@@ -1,0 +1,512 @@
+{
+  "swagger": "2.0",
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "host": "petstore.swagger.io",
+  "basePath": "/v2",
+  "info":
+  {
+    "description": "Dream comes Truck!!<!-- ReDoc-Inject: <security-definitions> -->\n",
+    "version": "1.0.0",
+    "title": "EveryFoody",
+    "x-logo":
+    {
+      "url": "https://s3.ap-northeast-2.amazonaws.com/everyfoody/everyfoody.png"
+    }
+  },
+  "tags": [
+  {
+    "name": "login",
+    "description": "로그인 API"
+  },
+  {
+    "name": "member",
+    "description": "EveryFoody 회원관리 API"
+  }],
+  "x-tagGroups": [
+  {
+    "name": "General",
+    "tags": [
+      "login"
+    ]
+  }],
+  "securityDefinitions":
+  {
+    "petstore_auth":
+    {
+      "description": "Get access to data while protecting your account credentials.\nOAuth2 is also a safer and more secure way to give you access.\n",
+      "type": "oauth2",
+      "authorizationUrl": "http://petstore.swagger.io/api/oauth/dialog",
+      "flow": "implicit",
+      "scopes":
+      {
+        "write:pets": "modify pets in your account",
+        "read:pets": "read your pets"
+      }
+    },
+    "api_key":
+    {
+      "description": "For this sample, you can use the api key `special-key` to test the authorization filters.\n",
+      "type": "apiKey",
+      "name": "api_key",
+      "in": "header"
+    }
+  },
+  "paths":
+  {
+    "/login":
+    {
+      "post":
+      {
+        "tags": [
+          "login"
+        ],
+        "summary": "관리자 페이지 로그인",
+        "description": "관리자 ID로 관리자 페이지에 로그인합니다.",
+        "operationId": "login",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/xml",
+          "application/json"
+        ],
+        "parameters": [
+        {
+          "in": "body",
+          "name": "body",
+          "description": "관리자 페이지에 로그인하기 위한 ID, Password 입력",
+          "required": true,
+          "schema":
+          {
+            "$ref": "#/definitions/ID"
+          }
+        }],
+        "responses":
+        {
+          "201":
+          {
+            "description": "로그인 성공",
+            "schema":
+            {
+              "type": "object",
+              "properties":
+              {
+                "status":
+                {
+                  "type": "string",
+                  "example": "success"
+                },
+                "message":
+                {
+                  "type": "string",
+                  "example": "OK"
+                }
+              }
+            }
+          },
+          "405-1":
+          {
+            "description": "등록되지 않은 ID",
+            "schema":
+            {
+              "type": "object",
+              "properties":
+              {
+                "status":
+                {
+                  "type": "string",
+                  "example": "fail"
+                },
+                "message":
+                {
+                  "type": "string",
+                  "example": "unregisted ID"
+                }
+              }
+            }
+          },
+          "405-2":
+          {
+            "description": "pwd 틀림",
+            "schema":
+            {
+              "type": "object",
+              "properties":
+              {
+                "status":
+                {
+                  "type": "string",
+                  "example": "fail"
+                },
+                "message":
+                {
+                  "type": "string",
+                  "example": "unmatched password"
+                }
+              }
+            }
+          }
+        },
+
+        "security": [
+        {
+          "petstore_auth": [
+            "write:pets",
+            "read:pets"
+          ]
+        }],
+        "x-code-samples":
+        {
+          "lang": "JavaScript",
+          "source": "console.log('Hello World');"
+        }
+      }
+    }
+  },
+  "definitions":
+  {
+    "ID":
+    {
+      "type": "object",
+      "properties":
+      {
+        "id":
+        {
+          "description": "관리자 ID",
+          "type": "string",
+          "minLength": 1
+        },
+        "pwd":
+        {
+          "description": "관리자 비밀번호",
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Category":
+    {
+      "type": "object",
+      "properties":
+      {
+        "id":
+        {
+          "description": "Category ID",
+          "allOf": [
+          {
+            "$ref": "#/definitions/Id"
+          }]
+        },
+        "name":
+        {
+          "description": "Category name",
+          "type": "string",
+          "minLength": 1
+        },
+        "sub":
+        {
+          "description": "Test Sub Category",
+          "type": "object",
+          "properties":
+          {
+            "prop1":
+            {
+              "type": "string",
+              "description": "Dumb Property"
+            }
+          }
+        }
+      },
+      "xml":
+      {
+        "name": "Category"
+      }
+    },
+    "Dog":
+    {
+      "description": "A representation of a dog",
+      "allOf": [
+      {
+        "$ref": "#/definitions/Pet"
+      },
+      {
+        "type": "object",
+        "properties":
+        {
+          "packSize":
+          {
+            "type": "integer",
+            "format": "int32",
+            "description": "The size of the pack the dog is from",
+            "default": 1,
+            "minimum": 1
+          }
+        },
+        "required": [
+          "packSize"
+        ]
+      }]
+    },
+    "HoneyBee":
+    {
+      "description": "A representation of a honey bee",
+      "allOf": [
+      {
+        "$ref": "#/definitions/Pet"
+      },
+      {
+        "type": "object",
+        "properties":
+        {
+          "honeyPerDay":
+          {
+            "type": "number",
+            "description": "Average amount of honey produced per day in ounces",
+            "example": 3.14
+          }
+        },
+        "required": [
+          "honeyPerDay"
+        ]
+      }]
+    },
+    "Id":
+    {
+      "type": "integer",
+      "format": "int64"
+    },
+    "Order":
+    {
+      "type": "object",
+      "properties":
+      {
+        "id":
+        {
+          "description": "Order ID",
+          "allOf": [
+          {
+            "$ref": "#/definitions/Id"
+          }]
+        },
+        "petId":
+        {
+          "description": "Pet ID",
+          "allOf": [
+          {
+            "$ref": "#/definitions/Id"
+          }]
+        },
+        "quantity":
+        {
+          "type": "integer",
+          "format": "int32",
+          "minimum": 1,
+          "default": 1
+        },
+        "shipDate":
+        {
+          "description": "Estimated ship date",
+          "type": "string",
+          "format": "date-time"
+        },
+        "status":
+        {
+          "type": "string",
+          "description": "Order Status",
+          "enum": [
+            "placed",
+            "approved",
+            "delivered"
+          ]
+        },
+        "complete":
+        {
+          "description": "Indicates whenever order was completed or not",
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "xml":
+      {
+        "name": "Order"
+      }
+    },
+    "Pet":
+    {
+      "type": "object",
+      "required": [
+        "name",
+        "photoUrls"
+      ],
+      "discriminator": "petType",
+      "properties":
+      {
+        "id":
+        {
+          "description": "Pet ID",
+          "allOf": [
+          {
+            "$ref": "#/definitions/Id"
+          }]
+        },
+        "category":
+        {
+          "description": "Categories this pet belongs to",
+          "allOf": [
+          {
+            "$ref": "#/definitions/Category"
+          }]
+        },
+        "name":
+        {
+          "description": "The name given to a pet",
+          "type": "string",
+          "example": "Guru"
+        },
+        "photoUrls":
+        {
+          "description": "The list of URL to a cute photos featuring pet",
+          "type": "array",
+          "xml":
+          {
+            "name": "photoUrl",
+            "wrapped": true
+          },
+          "items":
+          {
+            "type": "string",
+            "format": "url"
+          }
+        },
+        "tags":
+        {
+          "description": "Tags attached to the pet",
+          "type": "array",
+          "xml":
+          {
+            "name": "tag",
+            "wrapped": true
+          },
+          "items":
+          {
+            "$ref": "#/definitions/Tag"
+          }
+        },
+        "status":
+        {
+          "type": "string",
+          "description": "Pet status in the store",
+          "enum": [
+            "available",
+            "pending",
+            "sold"
+          ]
+        },
+        "petType":
+        {
+          "description": "Type of a pet",
+          "type": "string"
+        }
+      },
+      "xml":
+      {
+        "name": "Pet"
+      }
+    },
+    "Tag":
+    {
+      "type": "object",
+      "properties":
+      {
+        "id":
+        {
+          "description": "Tag ID",
+          "allOf": [
+          {
+            "$ref": "#/definitions/Id"
+          }]
+        },
+        "name":
+        {
+          "description": "Tag name",
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "xml":
+      {
+        "name": "Tag"
+      }
+    },
+    "User":
+    {
+      "type": "object",
+      "properties":
+      {
+        "id":
+        {
+          "description": "User ID",
+          "$ref": "#/definitions/Id"
+        },
+        "username":
+        {
+          "description": "User supplied username",
+          "type": "string",
+          "minLength": 4,
+          "example": "John78"
+        },
+        "firstName":
+        {
+          "description": "User first name",
+          "type": "string",
+          "minLength": 1,
+          "example": "John"
+        },
+        "lastName":
+        {
+          "description": "User last name",
+          "type": "string",
+          "minLength": 1,
+          "example": "Smith"
+        },
+        "email":
+        {
+          "description": "User email address",
+          "type": "string",
+          "format": "email",
+          "example": "john.smith@example.com"
+        },
+        "password":
+        {
+          "type": "string",
+          "description": "User password, MUST contain a mix of upper and lower case letters, as well as digits",
+          "format": "password",
+          "minLength": 8,
+          "pattern": "(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])",
+          "example": "drowssaP123"
+        },
+        "phone":
+        {
+          "description": "User phone number in international format",
+          "type": "string",
+          "pattern": "^\\+(?:[0-9]-?){6,14}[0-9]$",
+          "example": "+1-202-555-0192",
+          "x-nullable": true
+        },
+        "userStatus":
+        {
+          "description": "User status",
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "xml":
+      {
+        "name": "User"
+      }
+    }
+  }
+}
