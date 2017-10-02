@@ -4,8 +4,8 @@
     "http",
     "https"
   ],
-  "host": "petstore.swagger.io",
-  "basePath": "/v2",
+  "host": "220.230.114.8:3444",
+  "basePath": "/",
   "info":
   {
     "description": "Dream comes Truck!!<!-- ReDoc-Inject: <security-definitions> -->\n",
@@ -18,18 +18,22 @@
   },
   "tags": [
   {
-    "name": "login",
-    "description": "로그인 API"
+    "name": "sign",
+    "description": "로그인, 회원가입 API"
   },
   {
-    "name": "member",
-    "description": "EveryFoody 회원관리 API"
+    "name": "main",
+    "description": "메인페이지 API"
   }],
   "x-tagGroups": [
   {
-    "name": "General",
+    "name": "sign page",
     "tags": [
-      "login"
+      "sign"
+    ],
+    "name": "main page",
+    "tags": [
+      "main"
     ]
   }],
   "securityDefinitions":
@@ -56,16 +60,16 @@
   },
   "paths":
   {
-    "/login":
+    "/signin":
     {
       "post":
       {
         "tags": [
-          "login"
+          "sign"
         ],
-        "summary": "관리자 페이지 로그인",
-        "description": "관리자 ID로 관리자 페이지에 로그인합니다.",
-        "operationId": "login",
+        "summary": "이용자/사업자 통합 로그인",
+        "description": "Facebook / Kakao로 로그인합니다.",
+        "operationId": "sign in",
         "consumes": [
           "application/json"
         ],
@@ -77,11 +81,35 @@
         {
           "in": "body",
           "name": "body",
-          "description": "관리자 페이지에 로그인하기 위한 ID, Password 입력",
+          "description": "유저 로그인을 하기 위한 email, uid, category 전달",
           "required": true,
           "schema":
           {
-            "$ref": "#/definitions/ID"
+            "type": "object",
+            "properties":
+            {
+              "email":
+              {
+                "description": "페이스북 or 카카오톡 id",
+                "type": "string",
+                "minLength": 1,
+                "example" : "everyfoody@gmail.com"
+              },
+              "uid":
+              {
+                "description": "발급된 uid",
+                "type": "string",
+                "minLength": 1,
+                "example" : "10985781390487"
+              },
+              "category":
+              {
+                "description": "Facebook/Kakao 구분, Facebook : 1 Kakao : 2",
+                "type": "integer",
+                "minLength": 1,
+                "example" : 1
+              }
+            }
           }
         }],
         "responses":
@@ -97,40 +125,118 @@
                 "status":
                 {
                   "type": "string",
+                  "description" : "성공 알림",
                   "example": "success"
+                },
+                "data":
+                {
+                  "type": "object",
+                  "properties":
+                  {
+                    "token":
+                    {
+                      "description": "발급된 JWT토큰",
+                      "type": "string",
+                      "example": "10cz90u3tbn10udfhbfk1j3rbkdf9df"
+                    },
+                    "name":
+                    {
+                      "description": "이용자가 등록한 이름",
+                      "type": "string",
+                      "example": "김연태"
+                    },
+                    "category":
+                    {
+                      "description": "이용자/사업자 구분, 이용자 : 1 사업자 : 2",
+                      "type": "integer",
+                      "example": 1
+                    }
+                  }
+
                 },
                 "message":
                 {
                   "type": "string",
+                  "description" : "성공했으므로 특별한 메세지 X",
                   "example": "OK"
                 }
               }
             }
           },
-          "405-1":
+          "405":
           {
-            "description": "등록되지 않은 ID",
+            "description": "unregistrated ID",
             "schema":
-            {
-              "type": "object",
-              "properties":
               {
-                "status":
-                {
-                  "type": "string",
-                  "example": "fail"
-                },
-                "message":
-                {
-                  "type": "string",
-                  "example": "unregisted ID"
-                }
+                "$ref":"#/definitions/failMessage"
+              }
+          }
+        }
+      }
+    },
+    "/signup/user":
+    {
+      "post":
+      {
+        "tags": [
+          "sign"
+        ],
+        "summary": "이용자 회원가입",
+        "description": "Facebook / Kakao로 이용자 회원가입을 합니다.",
+        "operationId": "users sign up",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/xml",
+          "application/json"
+        ],
+        "parameters": [
+        {
+          "in": "body",
+          "name": "body",
+          "description": "유저 회원가입을 하기 위한 email, uid, name, category 전달",
+          "required": true,
+          "schema":
+          {
+            "type": "object",
+            "properties":
+            {
+              "email":
+              {
+                "description": "페이스북 or 카카오톡 id",
+                "type": "string",
+                "minLength": 1,
+                "example" : "everyfoody@gmail.com"
+              },
+              "uid":
+              {
+                "description": "발급된 uid",
+                "type": "string",
+                "minLength": 1,
+                "example" : "10985781390487"
+              },
+              "name":
+              {
+                "description" : "유저가 적은 이름",
+                "type": "string",
+                "minLength" : 1
+              },
+              "category":
+              {
+                "description": "Facebook/Kakao 구분, Facebook : 1 Kakao : 2",
+                "type": "integer",
+                "minLength": 1,
+                "example" : 1
               }
             }
-          },
-          "405-2":
+          }
+        }],
+        "responses":
+        {
+          "201":
           {
-            "description": "pwd 틀림",
+            "description": "이용자 회원가입 성공",
             "schema":
             {
               "type": "object",
@@ -139,33 +245,129 @@
                 "status":
                 {
                   "type": "string",
-                  "example": "fail"
+                  "description" : "성공 알림",
+                  "example": "success"
                 },
                 "message":
                 {
                   "type": "string",
-                  "example": "unmatched password"
+                  "description" : "성공했으므로 특별한 메세지 X",
+                  "example": "OK"
                 }
               }
             }
           }
-        },
-
-        "security": [
+        }
+      }
+    },
+    "/signup/owner":
+    {
+      "post":
+      {
+        "tags": [
+          "sign"
+        ],
+        "summary": "사업자 회원가입",
+        "description": "Facebook / Kakao로 사업자 회원가입을 합니다.",
+        "operationId": "owner signup",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/xml",
+          "application/json"
+        ],
+        "parameters": [
         {
-          "petstore_auth": [
-            "write:pets",
-            "read:pets"
-          ]
+          "in": "body",
+          "name": "body",
+          "description": "사업자 회원가입을 하기 위한 정보 전달",
+          "required": true,
+          "schema":
+          {
+            "type": "object",
+            "properties":
+            {
+              "email":
+              {
+                "description": "페이스북 or 카카오톡 id",
+                "type": "string",
+                "minLength": 1,
+                "example" : "everyfoody@gmail.com"
+              },
+              "uid":
+              {
+                "description": "발급된 uid",
+                "type": "string",
+                "minLength": 1,
+                "example" : "10985781390487"
+              },
+              "name":
+              {
+                "description" : "사업자가 적은 이름",
+                "type": "string",
+                "minLength" : 1,
+                "example" : "김연태"
+              },
+              "store_name":
+              {
+                "description" : "사업자등록상 상호이름",
+                "type": "string",
+                "minLength" : 1,
+                "example" : "에브리푸디"
+              },
+              "regist_number":
+              {
+                "description" : "사업자의 사업자등록번호, xxx-xx-xxxxx 폼",
+                "type": "string",
+                "pattern": "^([0-9]{3})-([0-9]{2})-([0-9]{5})$",
+                "example": "202-55-50192",
+                "minLength" : 1
+              },
+              "category":
+              {
+                "description": "Facebook/Kakao 구분, Facebook : 1 Kakao : 2",
+                "type": "integer",
+                "minLength": 1,
+                "example" : 1
+              }
+            }
+          }
         }],
-        "x-code-samples":
+        "responses":
         {
-          "lang": "JavaScript",
-          "source": "console.log('Hello World');"
+          "201":
+          {
+            "description": "사업자 회원가입 성공",
+            "schema":
+            {
+              "type": "object",
+              "properties":
+              {
+                "status":
+                {
+                  "type": "string",
+                  "description" : "성공 알림",
+                  "example": "success"
+                },
+                "message":
+                {
+                  "type": "string",
+                  "description" : "성공했으므로 특별한 메세지 X",
+                  "example": "OK"
+                }
+              }
+            }
+          }
         }
       }
     }
   },
+
+
+
+
+
   "definitions":
   {
     "ID":
@@ -223,6 +425,23 @@
       "xml":
       {
         "name": "Category"
+      }
+    },
+    "failMessage":
+    {
+      "type": "object",
+      "properties":
+      {
+        "status":
+        {
+          "type": "string",
+          "example": "fail"
+        },
+        "message":
+        {
+          "type": "string",
+          "example": "fail reason"
+        }
       }
     },
     "Dog":
