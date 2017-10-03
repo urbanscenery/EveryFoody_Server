@@ -4,18 +4,24 @@ var router = express.Router();
 /* GET users listing. */
 router.get('/basic/:storeID', function(req, res) {
 
-  var store_name = req.params.storeID;
-  var owner_email = req.body.owner_email;
+  var storeID = req.params.storeID;
 
   res.status(200).send({
-    msg: "basic infomation success",
+    status: "success",
     data: {
-      storeinfo: {
+      storeInfo: {
+        storeID : 7,
+        storeName : "동수네",
+        storeImageURL : "imageURL",
+        facebookURL : "facebookURL",
+        twitterURL : "twitterURL",
+        instagramURL : "instagram URL",
         opentime: "12:00 ~ 18:00",
         breaktime: "15:00 ~ 16:00",
         phone: "010-1111-1111",
-        hashtag: "#이동수#존잘#개멋#존멋"
-
+        hashtag: "#이동수#존잘#개멋#존멋",
+        bookmarked : 0,
+        reservationCount : 5
       },
       review: [{
           nickname: "이동수",
@@ -30,17 +36,17 @@ router.get('/basic/:storeID', function(req, res) {
           imageURL: "ddd"
         }
       ]
-    }
+    },
+    msg : "successful loading basic store information"
   });
 });
 
 router.get('/menu/:storeID', function(req, res) {
 
-  var store_name = req.params.storeID;
-  var owner_email = req.body.owner_email;
+  var storeID = req.params.storeID;
 
   res.status(200).send({
-    msg: "menu infomation success",
+    status: "success",
     data: {
       menuinfo: [{
           imageURL: "dddd",
@@ -53,7 +59,8 @@ router.get('/menu/:storeID', function(req, res) {
           title: "문어숙회"
         }
       ]
-    }
+    },
+    msg : "successful loading menu information"
   });
 });
 
