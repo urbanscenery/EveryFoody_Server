@@ -7,6 +7,11 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var infomation = require('./routes/truck/index');
+var bookmark = require('./routes/bookmark/index');
+var region = require('./routes/main/index');
+var review = require('./routes/review/index');
+var login = require('./routes/login');
 var api = require('./routes/apireference');
 
 var app = express();
@@ -23,9 +28,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
+app.use('/truck/infomation',infomation);
+app.use('/main/region', region);
+app.use('/bookmark', bookmark);
 app.use('/users', users);
-app.use('/api', api);
+app.use('/review', review);
+app.use('/login', login);
+
+
 app.use('/swagger.json', function(req, res) {
   res.json(require('./swagger.json'));
 });
