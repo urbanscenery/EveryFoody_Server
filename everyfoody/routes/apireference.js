@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs');
 var path = require('path');
 
-var redoc = path.join(__dirname, './views/redoc.html');
+var redoc = path.join(__dirname, '../views/redoc.html');
 
 router.get('/', function(req,res){
 	fs.readFile(redoc, 'utf-8',function(err, result){

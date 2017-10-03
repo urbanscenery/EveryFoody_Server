@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var registration = require('./registration');
+var main = require('./main');
 
 
-router.use('/registration', registration);
+router.use('/main', main);
 
 
 module.exports = router;

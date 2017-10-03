@@ -8,21 +8,19 @@ const bcrypt = require('bcrypt');
 const moment = require('moment');
 const saltRounds = 10;
 
-//이용자 로그인
-router.post('/signin', function(req, res){
+//로그인 더미데이터
+router.post('/', function(req, res){
 	
-	res.status(200).send({
-		msg : "success",
-		data : "" 
+	res.status(201).send({
+		status : "success",
+		data : {
+			token : "ThisIsDummyData",
+			name : "김연태",
+			category : 1
+		},
+		msg : "successful customer facebook login" 
 	})
 });
 
-router.post('/signup',function(req,res){
-
-	res.status(200),send({
-		msg : "signup success",
-		data : ""
-	})
-});
 
 module.exports = router;
