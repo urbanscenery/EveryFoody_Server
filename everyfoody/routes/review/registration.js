@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 /* GET users listing. */
-router.get('/list', function(req, res, next) {
+router.get('/registration/:storeID', function(req, res, next) {
 
   var user_email = req.body.user_email;
   var owner_email = req.body.owner_email;

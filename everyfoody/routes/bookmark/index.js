@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var bookmark = require('./bookmark');
+var list = require('./list');
 
 
-router.use('/bookmark', bookmark);
+router.use('/list', list);
 
 
 module.exports = router;

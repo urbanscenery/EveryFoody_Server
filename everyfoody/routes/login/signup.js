@@ -28,12 +28,18 @@ function chkTaxID(str){
 
 //이용자 회원가입
 router.post('/customer', function(req, res){
-
+  res.status(201).send({
+    status : "success",
+    msg : "successful customer signup"
+  })
 });
 
 //사업자 회원가입
 router.post('/owner', function(req, res){
-
+  res.status(201).send({
+    status : "success",
+    msg : "successful owner signup"
+  })
 });
 
 module.exports = router;
