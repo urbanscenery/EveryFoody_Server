@@ -75,6 +75,8 @@ router.post('/modification/:store_name', function(req, res, next) {
     }
   });
 });
+
+// 현재 회의 필요 -> 수정 부분 문제 많
 router.get('/compelete/:store_name', function(req, res, next) {
 
   var store_name = req.params.store_name;
@@ -128,11 +130,11 @@ router.get('/compelete/:store_name', function(req, res, next) {
       })
     },
     function(connection, callback) {
-      let setStoreMenuQuery = 'update menu'
+      let setStoreMenuQuery = 'update menu  '
     }
   ]
   res.status(200).send({
-      msg: " infomation modifiy is success",
+      msg: "infomation modifiy is success",
       data: ""
     
   });
