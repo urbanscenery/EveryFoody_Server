@@ -59,6 +59,8 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
             status: "fail",
             msg: "get store data error"
           });
+          connection.release();
+          callback("get store data err : " + err, null);
         } else {
           let dataList = [];
           let userLatitude = req.params.latitude;

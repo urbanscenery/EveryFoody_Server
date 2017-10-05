@@ -355,16 +355,16 @@
         }
       }
     },
-    "/main/:location/:count" :
+    "/main/lists/:location/:latitude/:longitude" :
     {
       "get" :
       {
         "tags": [
           "main"
         ],
-        "summary": "EveryFoody 메인화면",
-        "description": "비로그인시 메인화면에서 예약작업 불가.",
-        "operationId": "main",
+        "summary": "위치별 푸드트럭리스트",
+        "description": "GPS기반 구별 푸드트럭 리스트 정보",
+        "operationId": "basicInfo",
         "consumes": [
           "application/json"
         ],
@@ -378,63 +378,28 @@
           "name": "JWT token",
           "description": "사용자 인증을 위한 token",
           "required": true,
-          "type" : "string",
-          "schema":
-          {
-            "type": "string",
-            "properties":
-            {
-              "token":
-              {
-                "description": "JWT token",
-                "type": "string",
-                "minLength": 1,
-                "example" : "ThisIsDummyToken120985713804ufdhjl;aefuoj"
-              }
-            }
-          }
+          "type" : "string"
         },
         {
           "in": "query",
           "name": "location",
-          "description": "사용자가 선택한 지도내 위치",
+          "description": "위치 구분값, 1 : 강서양천영등포구로, 2 : 은평마포서대문, 3 : 종로중구용산, 4 : 도봉강북성북노원, 5 : 동대문중랑성동광진, 6 : 동작관악금천, 7 : 서초강남, 8 : 강동송파",
           "required": true,
-          "type" : "string",
-          "schema":
-          {
-            "type": "object",
-            "properties":
-            {
-              "location":
-              {
-                "description": "사용자가 선택한 위치",
-                "type": "string",
-                "minLength": 1,
-                "example" : "North2"
-              }
-            }
-          }
+          "type" : "integer"
         },
         {
           "in": "query",
-          "name": "count",
-          "description": "사용자가 몇번이나 호출했는지 횟수, 1회당 10개 푸드트럭 호",
+          "name": "latitude",
+          "description": "사용자의 위도",
           "required": true,
-          "type" : "string",
-          "schema":
-          {
-            "type": "object",
-            "properties":
-            {
-              "count" :
-              {
-                "description" : "사용자가 몇번이나 호출했는지, 1회당 10개푸드트럭",
-                "type" : "integer",
-                "minLength" : 1,
-                "example" : 1
-              }
-            }
-          }
+          "type" : "double"
+        },
+        {
+          "in": "query",
+          "name": "longitude",
+          "description": "사용자의 경도",
+          "required": true,
+          "type" : "double"
         }],
         "responses":
         {
@@ -459,50 +424,41 @@
                     "type" : "object",
                     "properties" : 
                     {
-                      "address" :
+                      "storeID" :
                       {
-                        "type" : "string",
-                        "description" : "중간 카테고리 주소",
-                        "example" : "서울시 마포구"
+                        "type" : "integer",
+                        "description" : "푸드트럭 인덱스용 푸드트럭ID",
+                        "example" : 13
                       },
-                      "storeInfo" : {
-                        "type" : "array",
-                        "items" : {
-                          "type" : "object",
-                          "properties" : 
-                          {
-                            "storeID" : 
-                            {
-                              "type" : "int",
-                              "description" : "푸드트럭 등록 ID",
-                              "example" : 18
-                            },
-                            "storeName" : 
-                            {
-                              "type" : "string",
-                              "description" : "푸드트럭 이름",
-                              "example" : "dongsu's store"
-                            },
-                            "storeImageURL" :
-                            {
-                              "type" : "string",
-                              "description" : "푸드트럭 이미지 URL",
-                              "example" : "aaa"
-                            },
-                            "reservationCount" :
-                            {
-                              "type" : "integer",
-                              "description" : "예약대기자수",
-                              "example" : 5
-                            },
-                            "distance" : 
-                            {
-                              "type" : "integer",
-                              "description" : "푸드트럭까지 거리, 단위 m",
-                              "example" : 280
-                            }
-                          }
-                        }
+                      "storeName" : {
+                        "type" : "string",
+                        "description" : "푸드트럭 이름",
+                        "example" : "김준영의 푸드트럭"
+                      },
+                      "storeImage" : {
+                        "type" : "string",
+                        "description" : "푸드트럭 사진 URL",
+                        "example" : "image url"
+                      },
+                      "reservationCount" : {
+                        "type" : "integer",
+                        "description" : "푸드트럭 예약자 현황",
+                        "example" : 8
+                      },
+                      "storeLocation" : {
+                        "type" : "string",
+                        "description" : "푸드트럭 위치",
+                        "example" : "서울시 마포구 상수동 65"
+                      },
+                      "storeDistance" : {
+                        "type" : "double",
+                        "description" : "푸드트럭까지 거리. 단위 : m or Km",
+                        "example" : 980
+                      },
+                      "storeDistanceUnit" : {
+                        "type" : "string",
+                        "description" : "푸드트럭까지 거리단위, 'm' or 'Km'",
+                        "example" : "m"
                       }
                     }
                   }
@@ -511,10 +467,97 @@
                 {
                   "type": "string",
                   "description" : "푸드트럭정보 로딩 성공 메세지",
-                  "example": "successful 1st loading"
+                  "example": "successful load store list"
                 }
               }
             }
+          },
+          "500":
+          {
+            "description": "get connection error \nuser authorization error \nget store data error",
+            "schema":
+              {
+                "$ref":"#/definitions/failMessage"
+              }
+          }
+        }      
+      }
+    },
+    "/main/sidemenu" :
+    {
+      "get" :
+      {
+        "tags": [
+          "main"
+        ],
+        "summary": "사이드메뉴열기",
+        "description": "사이드메뉴에서 예약갯수, 즐겨찾기갯수 받아오기.",
+        "operationId": "basicInfo",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/xml",
+          "application/json"
+        ],
+        "parameters": [
+        {
+          "in": "header",
+          "name": "JWT token",
+          "description": "사용자 인증을 위한 token",
+          "required": true,
+          "type" : "string"
+        }],
+        "responses":
+        {
+          "200":
+          {
+            "description": "예약갯수, 즐겨찾기갯수 받아오기성공",
+            "schema":
+            {
+              "type": "object",
+              "properties":
+              {
+                "status":
+                {
+                  "type": "string",
+                  "description" : "성공 알림",
+                  "example": "success"
+                },
+                "data" :
+                {
+                  "type" : "object",
+                    "properties" : 
+                    {
+                      "reservationCount" :
+                      {
+                        "type" : "integer",
+                        "description" : "자신이 예약한 예약 갯수",
+                        "example" : 3
+                      },
+                      "bookmarkCount" : {
+                        "type" : "integer",
+                        "description" : "자신이 즐겨찾기한 푸드트럭 갯수",
+                        "example" : 7
+                      }
+                    }
+                },
+                "msg":
+                {
+                  "type": "string",
+                  "description" : "예약, 즐겨찾기 갯수 로딩 성공 메세지",
+                  "example": "successful load sidemenu list"
+                }
+              }
+            }
+          },
+          "500":
+          {
+            "description": "get connection error \nuser authorization error \nget reservation data error \nget bookmark data error",
+            "schema":
+              {
+                "$ref":"#/definitions/failMessage"
+              }
           }
         }      
       }
@@ -837,170 +880,6 @@
                   "type": "string",
                   "description" : "북마크 추가/제거 성공 메세지",
                   "example": "successful add / delete bookmark list"
-                }
-              }
-            }
-          }
-        }      
-      }
-    },
-    "/store/info/basic/:storeID" :
-    {
-      "get" :
-      {
-        "tags": [
-          "store detail"
-        ],
-        "summary": "가게 기본정보",
-        "description": "푸드트럭 상세정보보기 기본화면",
-        "operationId": "basicInfo",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/xml",
-          "application/json"
-        ],
-        "parameters": [
-        {
-          "in": "header",
-          "name": "JWT token",
-          "description": "사용자 인증을 위한 token",
-          "required": true,
-          "type" : "string",
-          "schema":
-          {
-            "type": "string",
-            "properties":
-            {
-              "token":
-              {
-                "description": "JWT token",
-                "type": "string",
-                "minLength": 1,
-                "example" : "ThisIsDummyToken120985713804ufdhjl;aefuoj"
-              }
-            }
-          }
-        },
-        {
-          "in": "query",
-          "name": "storeID",
-          "description": "상세보기할 가게 ID",
-          "required": true,
-          "type" : "string",
-          "schema":
-          {
-            "type": "object",
-            "properties":
-            {
-              "location":
-              {
-                "description": "사용자가 선택한 위치",
-                "type": "string",
-                "minLength": 1,
-                "example" : "North2"
-              }
-            }
-          }
-        },
-        {
-          "in": "query",
-          "name": "count",
-          "description": "사용자가 몇번이나 호출했는지 횟수, 1회당 10개 푸드트럭 호",
-          "required": true,
-          "type" : "string",
-          "schema":
-          {
-            "type": "object",
-            "properties":
-            {
-              "count" :
-              {
-                "description" : "사용자가 몇번이나 호출했는지, 1회당 10개푸드트럭",
-                "type" : "integer",
-                "minLength" : 1,
-                "example" : 1
-              }
-            }
-          }
-        }],
-        "responses":
-        {
-          "200":
-          {
-            "description": "가까운 위치별로 10개씩 제공된 푸드트럭 정보",
-            "schema":
-            {
-              "type": "object",
-              "properties":
-              {
-                "status":
-                {
-                  "type": "string",
-                  "description" : "성공 알림",
-                  "example": "success"
-                },
-                "data" :
-                {
-                  "type" : "array",
-                  "items" : {
-                    "type" : "object",
-                    "properties" : 
-                    {
-                      "address" :
-                      {
-                        "type" : "string",
-                        "description" : "중간 카테고리 주소",
-                        "example" : "서울시 마포구"
-                      },
-                      "storeInfo" : {
-                        "type" : "array",
-                        "items" : {
-                          "type" : "object",
-                          "properties" : 
-                          {
-                            "storeID" : 
-                            {
-                              "type" : "int",
-                              "description" : "푸드트럭 등록 ID",
-                              "example" : 18
-                            },
-                            "storeName" : 
-                            {
-                              "type" : "string",
-                              "description" : "푸드트럭 이름",
-                              "example" : "dongsu's store"
-                            },
-                            "storeImageURL" :
-                            {
-                              "type" : "string",
-                              "description" : "푸드트럭 이미지 URL",
-                              "example" : "aaa"
-                            },
-                            "reservationCount" :
-                            {
-                              "type" : "integer",
-                              "description" : "예약대기자수",
-                              "example" : 5
-                            },
-                            "distance" : 
-                            {
-                              "type" : "integer",
-                              "description" : "푸드트럭까지 거리, 단위 m",
-                              "example" : 280
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "msg":
-                {
-                  "type": "string",
-                  "description" : "푸드트럭정보 로딩 성공 메세지",
-                  "example": "successful 1st loading"
                 }
               }
             }

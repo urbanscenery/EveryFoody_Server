@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
-var main = require('./main');
+var main = require('./mainlist');
+var sidemenu = require('./sidemenu');
 
 
-router.use('/main', main);
+router.use('/lists', main);
+router.use('/sidemenu', sidemenu);
 
 
 module.exports = router;
