@@ -218,7 +218,7 @@ router.delete('/menu/remove/:menu_id', function(req, res, next) {
   });
 });
 
-router.post('/menu/addition', function(req, res, next) {
+router.put('/menu/addition', function(req, res, next) {
 
   var menu_name = req.body.menu_name;
   var menu_price = req.body.menu_price;
@@ -279,7 +279,7 @@ router.post('/menu/addition', function(req, res, next) {
   });
 });
 
-router.post('/menu/modification/:menu_id', function(req, res, next) {
+router.put('/menu/modification/:menu_id', function(req, res, next) {
 
   var menu_name = req.body.menu_name;
   var menu_price = req.body.menu_price;
