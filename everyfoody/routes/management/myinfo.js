@@ -1,21 +1,23 @@
-var express = require('express');
-var router = express.Router();
+const async = require('async');
 const mysql = require('mysql');
-const acync = require('async');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const pool = require('../config/db_pool')
+const pool = require('../../config/db_pool')
+var express = require('express');
+var router = express.Router();
+
 
 /* GET users listing. */
 router.post('/modification/:store_name', function(req, res, next) {
 
+  console.log("access in modification")
   var store_name = req.params.store_name;
   var owner_email = req.body.owner_email;
 
   let taskArray = [
   // 1. connection setting
     function(callback) {
-      pool.getConnection(function(err, conneciton) {
+      pool.getConnection(function(err, connection) {
         if(err) callback("getConneciton error : "+ err, null);
         else callback(null, connection);
       })
@@ -64,7 +66,7 @@ router.post('/modification/:store_name', function(req, res, next) {
         callback(null, "successful send data");
       }
   ];
-  async.waterfall(task_array, function(err, result) {
+  async.waterfall(taskArray, function(err, result) {
     if (err){
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
@@ -130,13 +132,18 @@ router.get('/compelete/:store_name', function(req, res, next) {
       })
     },
     function(connection, callback) {
-      let setStoreMenuQuery = 'update menu  '
+      // let setStoreMenuQuery = 'update menu set    '
     }
   ]
-  res.status(200).send({
-      msg: "infomation modifiy is success",
-      data: ""
-    
+  async.waterfall(taskArray, function(err, result) {
+    if (err){
+      err = moment().format('MM/DDahh:mm:ss//') + err;
+      console.log(err);
+    }
+    else{
+      result = moment().format('MM/DDahh:mm:ss//') + result;
+      console.log(result);
+    }
   });
 });
 router.get('/remove/:store_name', function(req, res, next) {

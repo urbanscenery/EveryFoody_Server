@@ -1,9 +1,9 @@
 var express = require('express');
 var router = express.Router();
-var main = require('./main');
+var myinfo = require('./myinfo');
 
 
-router.use('/main', main);
+router.use('/myinfo', myinfo);
 
 
 module.exports = router;
