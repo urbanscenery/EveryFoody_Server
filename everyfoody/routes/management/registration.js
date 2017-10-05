@@ -1,8 +1,11 @@
 const mysql = require('mysql');
-const acync = require('async');
+const async = require('async');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const pool = require('../config/db_pool')
+const aws = require('aws-sdk');
+const multer = require('multer');
+const multerS3 = require('multer-s3');
+const pool = require('../../config/db_pool')
 var express = require('express');
 var router = express.Router();
 
@@ -19,9 +22,8 @@ const upload = multer({
 });
 
 
-router.get('/registration/:store_name',uploade.single('image') function(req, res, next) {
-  
-	var store_name = req.params.store_name;
+router.put('/store', upload.single('image'), function(req, res, next) {
+
 	var authURL = req.file.location;
 	let taskArray = [
 		function(callback){
@@ -30,9 +32,22 @@ router.get('/registration/:store_name',uploade.single('image') function(req, res
 				else callback(null, connection)
 			});
 		},
-		function(connection, callback) {
-			let setOwnerQuery = 'UPDATE owner SET owner_storename = ?, owner_authURL= ? where owner_email = ?';
-			connection.query(setOwnerQuery, [store_name, authURL, owner_email], function(err) {
+		function(connection, callback){
+	      let token = req.headers.token;
+	      jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
+	        if(err){
+	          res.status(501).send({
+	            msg : "501 user authorication error"
+	          });
+	          connection.realease();
+	          callback("JWT decoded err : "+ err, null) ;
+	        }
+	        else callback(null, decoded.userID, connection);
+	      })
+    	},
+		function(owner_id, connection, callback) {
+			let setOwnerQuery = 'insert into owner(owner_id, owner_storename, owner_authURL) values (?, ?, ?)';
+			connection.query(setOwnerQuery, [owner_id, store_name, authURL], function(err) {
 				if(err) {
 					res.status(501).send({
 						msg : "ownerinfo update error"
@@ -51,7 +66,7 @@ router.get('/registration/:store_name',uploade.single('image') function(req, res
 		}
 	];
 
-	async.waterfall(task_array, function(err, result) {
+	async.waterfall(taskArray, function(err, result) {
 	    if (err){
 	      err = moment().format('MM/DDahh:mm:ss//') + err;
 	      console.log(err);
@@ -63,14 +78,12 @@ router.get('/registration/:store_name',uploade.single('image') function(req, res
   	});
 });
 
-router.get('/location/:store_name', function(req, res, next) {
+router.put('/location', function(req, res, next) {
   
-  	var owner_email = req.body.owner_email;
 	var opentruck_latitude = req.body.opentruck_latitude;
 	var opentruck_longitude = req.body.opentruck_longitude;
-	var opentruck = req.body.store_name;
 	
-	let tastArray =[
+	let taskArray =[
 		function(callback) {
 			pool.getConnection(function(err, connection) {
 				if(err) {
@@ -81,27 +94,40 @@ router.get('/location/:store_name', function(req, res, next) {
 				else callback(null, connection);
 			})
 		},
-		function(conneciton,callback) {
-			let setLocationQuery = 'INSERT INTO opentruck VALUES(?,?,?,?)';
-			connection.query(setLocationQuery, [owner_email,opentruck_latitude,opentruck_longitude,opentruck], function(err) {
+		function(connection, callback){
+	      let token = req.headers.token;
+	      jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
+	        if(err){
+	          res.status(501).send({
+	            msg : "501 user authorication error"
+	          });
+	          connection.realease();
+	          callback("JWT decoded err : "+ err, null) ;
+	        }
+	        else callback(null, decoded.userID, connection);
+	      })
+    	},
+		function(owner_id, connection, callback) {
+			let setLocationQuery = 'INSERT INTO opentruck VALUES(?,?,?)';
+			connection.query(setLocationQuery, [owner_id, opentruck_latitude, opentruck_longitude], function(err) {
 				if(err) {
 					res.status(500).send({
 						msg : "truck opening error"
 					})
 					connection.release();
-					callback(null,"insert opening error");
+					callback(null,"insert opening error"+err);
 				}
 				else {
 					res.status(200).send({
 						msg : "truck opening success"
 					})
 					connection.release();
-					callback(null,"insert opening success");
+					callback(null,"insert opening success"+err);
 				}
 			})			
 		}
 	];
-	async.waterfall(task_array, function(err, result) {
+	async.waterfall(taskArray, function(err, result) {
 	    if (err){
 	      err = moment().format('MM/DDahh:mm:ss//') + err;
 	      console.log(err);
