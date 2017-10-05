@@ -26,8 +26,16 @@
     "description": "메인페이지 API"
   },
   {
-    "name" : "store detail",
-    "description" : "가게 상세페이지 API"
+    "name": "reservation",
+    "description": "예약관련 API"
+  },
+  {
+    "name": "bookmark",
+    "description": "즐겨찾기관련 API"
+  },
+  {
+    "name": "store detail",
+    "description": "가게 상세페이지 API"
   }],
   "x-tagGroups": [
   {
@@ -39,8 +47,16 @@
     "tags": [
       "main"
     ],
-    "name" : "store detail",
-    "tags" : [
+    "name": "reservation page",
+    "tags": [
+      "reservation"
+    ],
+    "name": "bookmark page",
+    "tags": [
+      "bookmark"
+    ],
+    "name": "store detail",
+    "tags": [
       "store detail"
     ]
   }],
@@ -101,21 +117,21 @@
                 "description": "페이스북 or 카카오톡 id",
                 "type": "string",
                 "minLength": 1,
-                "example" : "everyfoody@gmail.com"
+                "example": "everyfoody@gmail.com"
               },
               "uid":
               {
                 "description": "발급된 uid",
                 "type": "string",
                 "minLength": 1,
-                "example" : "10985781390487"
+                "example": "10985781390487"
               },
               "category":
               {
                 "description": "Facebook/Kakao 구분, Facebook : 1 Kakao : 2",
                 "type": "integer",
                 "minLength": 1,
-                "example" : 1
+                "example": 1
               }
             }
           }
@@ -133,7 +149,7 @@
                 "status":
                 {
                   "type": "string",
-                  "description" : "성공 알림",
+                  "description": "성공 알림",
                   "example": "success"
                 },
                 "data":
@@ -165,7 +181,7 @@
                 "msg":
                 {
                   "type": "string",
-                  "description" : "로그인 성공 알림메세지",
+                  "description": "로그인 성공 알림메세지",
                   "example": "successful customer facebook login"
                 }
               }
@@ -175,9 +191,9 @@
           {
             "description": "unregistrated ID",
             "schema":
-              {
-                "$ref":"#/definitions/failMessage"
-              }
+            {
+              "$ref": "#/definitions/failMessage"
+            }
           }
         }
       }
@@ -215,27 +231,27 @@
                 "description": "페이스북 or 카카오톡 id",
                 "type": "string",
                 "minLength": 1,
-                "example" : "everyfoody@gmail.com"
+                "example": "everyfoody@gmail.com"
               },
               "uid":
               {
                 "description": "발급된 uid",
                 "type": "string",
                 "minLength": 1,
-                "example" : "10985781390487"
+                "example": "10985781390487"
               },
               "name":
               {
-                "description" : "유저가 적은 이름",
+                "description": "유저가 적은 이름",
                 "type": "string",
-                "minLength" : 1
+                "minLength": 1
               },
               "category":
               {
                 "description": "Facebook/Kakao 구분, Facebook : 1 Kakao : 2",
                 "type": "integer",
                 "minLength": 1,
-                "example" : 1
+                "example": 1
               }
             }
           }
@@ -253,13 +269,13 @@
                 "status":
                 {
                   "type": "string",
-                  "description" : "성공 알림",
+                  "description": "성공 알림",
                   "example": "success"
                 },
                 "msg":
                 {
                   "type": "string",
-                  "description" : "회원가입 성공 알림 메세지",
+                  "description": "회원가입 성공 알림 메세지",
                   "example": "successful customer signup"
                 }
               }
@@ -301,28 +317,28 @@
                 "description": "페이스북 or 카카오톡 id",
                 "type": "string",
                 "minLength": 1,
-                "example" : "everyfoody@gmail.com"
+                "example": "everyfoody@gmail.com"
               },
               "uid":
               {
                 "description": "발급된 uid",
                 "type": "string",
                 "minLength": 1,
-                "example" : "10985781390487"
+                "example": "10985781390487"
               },
               "name":
               {
-                "description" : "사업자가 적은 이름",
+                "description": "사업자가 적은 이름",
                 "type": "string",
-                "minLength" : 1,
-                "example" : "김연태"
+                "minLength": 1,
+                "example": "김연태"
               },
               "category":
               {
                 "description": "Facebook/Kakao 구분, Facebook : 1 Kakao : 2",
                 "type": "integer",
                 "minLength": 1,
-                "example" : 1
+                "example": 1
               }
             }
           }
@@ -340,13 +356,13 @@
                 "status":
                 {
                   "type": "string",
-                  "description" : "성공 알림",
+                  "description": "성공 알림",
                   "example": "success"
                 },
                 "msg":
                 {
                   "type": "string",
-                  "description" : "사업자 회원가입 성공알림 메세지",
+                  "description": "사업자 회원가입 성공알림 메세지",
                   "example": "successful owner signup"
                 }
               }
@@ -355,9 +371,9 @@
         }
       }
     },
-    "/main/lists/:location/:latitude/:longitude" :
+    "/main/lists/:location/:latitude/:longitude":
     {
-      "get" :
+      "get":
       {
         "tags": [
           "main"
@@ -378,28 +394,28 @@
           "name": "JWT token",
           "description": "사용자 인증을 위한 token",
           "required": true,
-          "type" : "string"
+          "type": "string"
         },
         {
           "in": "query",
           "name": "location",
           "description": "위치 구분값, 1 : 강서양천영등포구로, 2 : 은평마포서대문, 3 : 종로중구용산, 4 : 도봉강북성북노원, 5 : 동대문중랑성동광진, 6 : 동작관악금천, 7 : 서초강남, 8 : 강동송파",
           "required": true,
-          "type" : "integer"
+          "type": "integer"
         },
         {
           "in": "query",
           "name": "latitude",
           "description": "사용자의 위도",
           "required": true,
-          "type" : "double"
+          "type": "double"
         },
         {
           "in": "query",
           "name": "longitude",
           "description": "사용자의 경도",
           "required": true,
-          "type" : "double"
+          "type": "double"
         }],
         "responses":
         {
@@ -414,51 +430,58 @@
                 "status":
                 {
                   "type": "string",
-                  "description" : "성공 알림",
+                  "description": "성공 알림",
                   "example": "success"
                 },
-                "data" :
+                "data":
                 {
-                  "type" : "array",
-                  "items" : {
-                    "type" : "object",
-                    "properties" : 
+                  "type": "array",
+                  "items":
+                  {
+                    "type": "object",
+                    "properties":
                     {
-                      "storeID" :
+                      "storeID":
                       {
-                        "type" : "integer",
-                        "description" : "푸드트럭 인덱스용 푸드트럭ID",
-                        "example" : 13
+                        "type": "integer",
+                        "description": "푸드트럭 인덱스용 푸드트럭ID",
+                        "example": 13
                       },
-                      "storeName" : {
-                        "type" : "string",
-                        "description" : "푸드트럭 이름",
-                        "example" : "김준영의 푸드트럭"
+                      "storeName":
+                      {
+                        "type": "string",
+                        "description": "푸드트럭 이름",
+                        "example": "김준영의 푸드트럭"
                       },
-                      "storeImage" : {
-                        "type" : "string",
-                        "description" : "푸드트럭 사진 URL",
-                        "example" : "image url"
+                      "storeImage":
+                      {
+                        "type": "string",
+                        "description": "푸드트럭 사진 URL",
+                        "example": "image url"
                       },
-                      "reservationCount" : {
-                        "type" : "integer",
-                        "description" : "푸드트럭 예약자 현황",
-                        "example" : 8
+                      "reservationCount":
+                      {
+                        "type": "integer",
+                        "description": "푸드트럭 예약자 현황",
+                        "example": 8
                       },
-                      "storeLocation" : {
-                        "type" : "string",
-                        "description" : "푸드트럭 위치",
-                        "example" : "서울시 마포구 상수동 65"
+                      "storeLocation":
+                      {
+                        "type": "string",
+                        "description": "푸드트럭 위치",
+                        "example": "서울시 마포구 상수동 65"
                       },
-                      "storeDistance" : {
-                        "type" : "double",
-                        "description" : "푸드트럭까지 거리. 단위 : m or Km",
-                        "example" : 980
+                      "storeDistance":
+                      {
+                        "type": "double",
+                        "description": "푸드트럭까지 거리. 단위 : m or Km",
+                        "example": 980
                       },
-                      "storeDistanceUnit" : {
-                        "type" : "string",
-                        "description" : "푸드트럭까지 거리단위, 'm' or 'Km'",
-                        "example" : "m"
+                      "storeDistanceUnit":
+                      {
+                        "type": "string",
+                        "description": "푸드트럭까지 거리단위, 'm' or 'Km'",
+                        "example": "m"
                       }
                     }
                   }
@@ -466,7 +489,7 @@
                 "msg":
                 {
                   "type": "string",
-                  "description" : "푸드트럭정보 로딩 성공 메세지",
+                  "description": "푸드트럭정보 로딩 성공 메세지",
                   "example": "successful load store list"
                 }
               }
@@ -476,16 +499,16 @@
           {
             "description": "get connection error \nuser authorization error \nget store data error",
             "schema":
-              {
-                "$ref":"#/definitions/failMessage"
-              }
+            {
+              "$ref": "#/definitions/failMessage"
+            }
           }
-        }      
+        }
       }
     },
-    "/main/sidemenu" :
+    "/main/sidemenu":
     {
-      "get" :
+      "get":
       {
         "tags": [
           "main"
@@ -506,7 +529,7 @@
           "name": "JWT token",
           "description": "사용자 인증을 위한 token",
           "required": true,
-          "type" : "string"
+          "type": "string"
         }],
         "responses":
         {
@@ -521,31 +544,32 @@
                 "status":
                 {
                   "type": "string",
-                  "description" : "성공 알림",
+                  "description": "성공 알림",
                   "example": "success"
                 },
-                "data" :
+                "data":
                 {
-                  "type" : "object",
-                    "properties" : 
+                  "type": "object",
+                  "properties":
+                  {
+                    "reservationCount":
                     {
-                      "reservationCount" :
-                      {
-                        "type" : "integer",
-                        "description" : "자신이 예약한 예약 갯수",
-                        "example" : 3
-                      },
-                      "bookmarkCount" : {
-                        "type" : "integer",
-                        "description" : "자신이 즐겨찾기한 푸드트럭 갯수",
-                        "example" : 7
-                      }
+                      "type": "integer",
+                      "description": "자신이 예약한 예약 갯수",
+                      "example": 3
+                    },
+                    "bookmarkCount":
+                    {
+                      "type": "integer",
+                      "description": "자신이 즐겨찾기한 푸드트럭 갯수",
+                      "example": 7
                     }
+                  }
                 },
                 "msg":
                 {
                   "type": "string",
-                  "description" : "예약, 즐겨찾기 갯수 로딩 성공 메세지",
+                  "description": "예약, 즐겨찾기 갯수 로딩 성공 메세지",
                   "example": "successful load sidemenu list"
                 }
               }
@@ -555,23 +579,23 @@
           {
             "description": "get connection error \nuser authorization error \nget reservation data error \nget bookmark data error",
             "schema":
-              {
-                "$ref":"#/definitions/failMessage"
-              }
+            {
+              "$ref": "#/definitions/failMessage"
+            }
           }
-        }      
+        }
       }
     },
-    "/reservation/list" :
+    "/reservation/lists":
     {
-      "get" :
+      "get":
       {
         "tags": [
-          "main"
+          "reservation"
         ],
         "summary": "예약내역 리스트",
         "description": "드로워 - 예약내역 - 리스트",
-        "operationId": "main",
+        "operationId": "reservation lists",
         "consumes": [
           "application/json"
         ],
@@ -585,7 +609,7 @@
           "name": "JWT token",
           "description": "사용자 인증을 위한 token",
           "required": true,
-          "type" : "string",
+          "type": "string",
           "schema":
           {
             "type": "string",
@@ -596,7 +620,7 @@
                 "description": "JWT token",
                 "type": "string",
                 "minLength": 1,
-                "example" : "ThisIsDummyToken120985713804ufdhjl;aefuoj"
+                "example": "ThisIsDummyToken120985713804ufdhjl;aefuoj"
               }
             }
           }
@@ -614,52 +638,51 @@
                 "status":
                 {
                   "type": "string",
-                  "description" : "성공 알림",
+                  "description": "성공 알림",
                   "example": "success"
                 },
-                "data" :
+                "data":
                 {
-                  "type" : "array",
-                  "items" : {
-                    "type" : "object",
-                    "properties" : 
+                  "type": "object",
+                  "properties":
+                  {
+                    "store":
                     {
-                      "address" :
+                      "type": "array",
+                      "items":
                       {
-                        "type" : "string",
-                        "description" : "중간 카테고리 주소",
-                        "example" : "서울시 마포구"
-                      },
-                      "store" : {
-                        "type" : "array",
-                        "items" : {
-                          "type" : "object",
-                          "properties" : 
+                        "type": "object",
+                        "properties":
+                        {
+                          "storeID":
                           {
-                            "storeID" :
-                            {
-                              "type" : "integer",
-                              "description" : "푸드트럭 ID",
-                              "example" : 5
-                            },
-                            "storeName" : 
-                            {
-                              "type" : "string",
-                              "description" : "푸드트럭 이름",
-                              "example" : "dongsu's store"
-                            },
-                            "storeImageURL" :
-                            {
-                              "type" : "string",
-                              "description" : "푸드트럭 이미지 URL",
-                              "example" : "aaa"
-                            },
-                            "reservationTime" :
-                            {
-                              "type" : "string",
-                              "description" : "예약한 시간",
-                              "example" : "2017.10.05 18:00"
-                            }
+                            "type": "integer",
+                            "description": "푸드트럭 ID",
+                            "example": 5
+                          },
+                          "storeName":
+                          {
+                            "type": "string",
+                            "description": "푸드트럭 이름",
+                            "example": "dongsu's store"
+                          },
+                          "storeImageURL":
+                          {
+                            "type": "string",
+                            "description": "푸드트럭 이미지 URL",
+                            "example": "aaa"
+                          },
+                          "reservationCount":
+                          {
+                            "type": "integer",
+                            "description": "푸드트럭 대기자 명수",
+                            "example": 3
+                          },
+                          "reservationTime":
+                          {
+                            "type": "string",
+                            "description": "예약한 시간",
+                            "example": "2017.10.05 18:00"
                           }
                         }
                       }
@@ -669,18 +692,26 @@
                 "msg":
                 {
                   "type": "string",
-                  "description" : "예약정보 로딩 성공 메세지",
+                  "description": "예약정보 로딩 성공 메세지",
                   "example": "successful loading"
                 }
               }
             }
+          },
+          "500":
+          {
+            "description": "get connection error \nuser authorization error \nget reservation store data error",
+            "schema":
+            {
+              "$ref": "#/definitions/failMessage"
+            }
           }
-        }      
+        }
       }
     },
-    "/bookmark/list" :
+    "/bookmark/lists":
     {
-      "get" :
+      "get":
       {
         "tags": [
           "main"
@@ -701,7 +732,7 @@
           "name": "JWT token",
           "description": "사용자 인증을 위한 token",
           "required": true,
-          "type" : "string",
+          "type": "string",
           "schema":
           {
             "type": "string",
@@ -712,7 +743,7 @@
                 "description": "JWT token",
                 "type": "string",
                 "minLength": 1,
-                "example" : "ThisIsDummyToken120985713804ufdhjl;aefuoj"
+                "example": "ThisIsDummyToken120985713804ufdhjl;aefuoj"
               }
             }
           }
@@ -730,57 +761,60 @@
                 "status":
                 {
                   "type": "string",
-                  "description" : "성공 알림",
+                  "description": "성공 알림",
                   "example": "success"
                 },
-                "data" :
+                "data":
                 {
-                  "type" : "array",
-                  "items" : {
-                    "type" : "object",
-                    "properties" : 
+                  "type": "array",
+                  "items":
+                  {
+                    "type": "object",
+                    "properties":
                     {
-                      "address" :
+                      "address":
                       {
-                        "type" : "string",
-                        "description" : "중간 카테고리 주소",
-                        "example" : "서울시 마포구"
+                        "type": "string",
+                        "description": "중간 카테고리 주소",
+                        "example": "서울시 마포구"
                       },
-                      "store" : {
-                        "type" : "array",
-                        "items" : {
-                          "type" : "object",
-                          "properties" : 
+                      "store":
+                      {
+                        "type": "array",
+                        "items":
+                        {
+                          "type": "object",
+                          "properties":
                           {
-                            "storeID" :
+                            "storeID":
                             {
-                              "type" : "integer",
-                              "description" : "푸드트럭 ID",
-                              "example" : 5
+                              "type": "integer",
+                              "description": "푸드트럭 ID",
+                              "example": 5
                             },
-                            "storeName" : 
+                            "storeName":
                             {
-                              "type" : "string",
-                              "description" : "푸드트럭 이름",
-                              "example" : "dongsu's store"
+                              "type": "string",
+                              "description": "푸드트럭 이름",
+                              "example": "dongsu's store"
                             },
-                            "storeImageURL" :
+                            "storeImageURL":
                             {
-                              "type" : "string",
-                              "description" : "푸드트럭 이미지 URL",
-                              "example" : "aaa"
+                              "type": "string",
+                              "description": "푸드트럭 이미지 URL",
+                              "example": "aaa"
                             },
-                            "reservationCount" :
+                            "reservationCount":
                             {
-                              "type" : "integer",
-                              "description" : "예약대기자수",
-                              "example" : 5
+                              "type": "integer",
+                              "description": "예약대기자수",
+                              "example": 5
                             },
-                            "distance" : 
+                            "distance":
                             {
-                              "type" : "integer",
-                              "description" : "푸드트럭까지 거리, 단위 m",
-                              "example" : 280
+                              "type": "integer",
+                              "description": "푸드트럭까지 거리, 단위 m",
+                              "example": 280
                             }
                           }
                         }
@@ -791,18 +825,18 @@
                 "msg":
                 {
                   "type": "string",
-                  "description" : "북마크정보 로딩 성공 메세지",
+                  "description": "북마크정보 로딩 성공 메세지",
                   "example": "successful loading"
                 }
               }
             }
           }
-        }      
+        }
       }
     },
-    "/bookmark/compilation/:storeID" :
+    "/bookmark/compilation/:storeID":
     {
-      "put" :
+      "put":
       {
         "tags": [
           "main"
@@ -823,7 +857,7 @@
           "name": "JWT token",
           "description": "사용자 인증을 위한 token",
           "required": true,
-          "type" : "string",
+          "type": "string",
           "schema":
           {
             "type": "string",
@@ -834,7 +868,7 @@
                 "description": "JWT token",
                 "type": "string",
                 "minLength": 1,
-                "example" : "ThisIsDummyToken120985713804ufdhjl;aefuoj"
+                "example": "ThisIsDummyToken120985713804ufdhjl;aefuoj"
               }
             }
           }
@@ -844,7 +878,7 @@
           "name": "storeID",
           "description": "북마크 추가/제거할 가게 ID",
           "required": true,
-          "type" : "integer",
+          "type": "integer",
           "schema":
           {
             "type": "integer",
@@ -854,7 +888,7 @@
               {
                 "description": "storeID",
                 "type": "integer",
-                "example" : 123
+                "example": 123
               }
             }
           }
@@ -872,19 +906,19 @@
                 "status":
                 {
                   "type": "string",
-                  "description" : "성공 알림",
+                  "description": "성공 알림",
                   "example": "success"
                 },
                 "msg":
                 {
                   "type": "string",
-                  "description" : "북마크 추가/제거 성공 메세지",
+                  "description": "북마크 추가/제거 성공 메세지",
                   "example": "successful add / delete bookmark list"
                 }
               }
             }
           }
-        }      
+        }
       }
     }
   },
