@@ -87,8 +87,8 @@ router.post('/customer', function(req, res) {
     },
     //5. 회원가입 완료
     function(hashUID, connection, callback) {
-      let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?)';
-      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, hashUID, req.body.name, null], function(err) {
+      let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?)';
+      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, hashUID, 1, req.body.name, null, req.body.phone], function(err) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -188,8 +188,8 @@ router.post('/owner', function(req, res) {
     },
     //5. 회원가입 완료
     function(hashUID, connection, callback) {
-      let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?)';
-      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, hashUID, req.body.name, null], function(err) {
+      let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?)';
+      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, hashUID, 3, req.body.name, null, req.body.phone], function(err) {
         if (err) {
           res.status(500).send({
             status: "fail",

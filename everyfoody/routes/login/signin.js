@@ -78,6 +78,14 @@ router.post('/', function(req, res) {
     },
     //4. JWT토큰발행
     function(userData, callback) {
+    	let categoryString = "Facebook ";
+    	let statusString = "customer ";
+    	if(userData[0].user_category === 2){
+    		categoryString = "KAKAO ";
+    	}
+    	if(userData[0].user_status > 1){
+    		statusString = "owner ";
+    	}
       const secret = req.app.get('jwt-secret');
       let option = {
         algorithm: 'HS256',
@@ -92,10 +100,13 @@ router.post('/', function(req, res) {
 	    res.status(201).send({
 	    	status : "success",
 	    	data : {
-	    		token : token
+	    		token : token,
+	    		name : userData[0].user_nickname,
+	    		category : userData[0].user_status
 	    	},
-	    	msg : "successful login"
-	    })
+	    	msg : "successful "+statusString + categoryString +"login"
+	    });
+	    callback(null, "successful " + statusString + categoryString + "login");
     }
   ];
   async.waterfall(taskArray, function(err, result) {
