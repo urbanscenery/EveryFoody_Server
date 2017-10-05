@@ -709,12 +709,12 @@
         }
       }
     },
-    "/bookmark/lists":
+    "/bookmark/lists/:latitude/:longitude":
     {
       "get":
       {
         "tags": [
-          "main"
+          "bookmark"
         ],
         "summary": "즐겨찾기 리스트",
         "description": "드로워 - 즐겨찾기 - 리스트",
@@ -732,21 +732,21 @@
           "name": "JWT token",
           "description": "사용자 인증을 위한 token",
           "required": true,
-          "type": "string",
-          "schema":
-          {
-            "type": "string",
-            "properties":
-            {
-              "token":
-              {
-                "description": "JWT token",
-                "type": "string",
-                "minLength": 1,
-                "example": "ThisIsDummyToken120985713804ufdhjl;aefuoj"
-              }
-            }
-          }
+          "type": "string"
+        },
+        {
+          "in": "query",
+          "name": "latitude",
+          "description": "사용자의 위도",
+          "required": true,
+          "type": "double"
+        },
+        {
+          "in": "query",
+          "name": "longitude",
+          "description": "사용자의 경도",
+          "required": true,
+          "type": "double"
         }],
         "responses":
         {
@@ -772,52 +772,41 @@
                     "type": "object",
                     "properties":
                     {
-                      "address":
+                      "storeID":
+                      {
+                        "type": "integer",
+                        "description": "푸드트럭 ID",
+                        "example": 5
+                      },
+                      "storeName":
                       {
                         "type": "string",
-                        "description": "중간 카테고리 주소",
-                        "example": "서울시 마포구"
+                        "description": "푸드트럭 이름",
+                        "example": "dongsu's store"
                       },
-                      "store":
+                      "storeImageURL":
                       {
-                        "type": "array",
-                        "items":
-                        {
-                          "type": "object",
-                          "properties":
-                          {
-                            "storeID":
-                            {
-                              "type": "integer",
-                              "description": "푸드트럭 ID",
-                              "example": 5
-                            },
-                            "storeName":
-                            {
-                              "type": "string",
-                              "description": "푸드트럭 이름",
-                              "example": "dongsu's store"
-                            },
-                            "storeImageURL":
-                            {
-                              "type": "string",
-                              "description": "푸드트럭 이미지 URL",
-                              "example": "aaa"
-                            },
-                            "reservationCount":
-                            {
-                              "type": "integer",
-                              "description": "예약대기자수",
-                              "example": 5
-                            },
-                            "distance":
-                            {
-                              "type": "integer",
-                              "description": "푸드트럭까지 거리, 단위 m",
-                              "example": 280
-                            }
-                          }
-                        }
+                        "type": "string",
+                        "description": "푸드트럭 이미지 URL",
+                        "example": "aaa"
+                      },
+                      "reservationCount":
+                      {
+                        "type": "integer",
+                        "description": "예약대기자수",
+                        "example": 5
+                      },
+                      "storeDistance":
+                      {
+                        "type": "double",
+                        "description": "푸드트럭까지 거리. 닫혀있는경우 -1",
+                        "example": -1
+                      },
+                      "storeDistanceUnit":
+                      {
+                        "type": "string",
+                        "description": "푸드트럭까지 거리단위, 'm' or 'Km'",
+                        "example": "m"
                       }
                     }
                   }
@@ -826,7 +815,7 @@
                 {
                   "type": "string",
                   "description": "북마크정보 로딩 성공 메세지",
-                  "example": "successful loading"
+                  "example": "successful load bookmark store list"
                 }
               }
             }
@@ -836,10 +825,10 @@
     },
     "/bookmark/compilation/:storeID":
     {
-      "put":
+      "get":
       {
         "tags": [
-          "main"
+          "bookmark"
         ],
         "summary": "즐겨찾기 추가/제거",
         "description": "즐겨찾기 등록, 제거시 실행, 같은 API로 추가, 제거 여부는 서버가 판단합니다.",
@@ -857,41 +846,14 @@
           "name": "JWT token",
           "description": "사용자 인증을 위한 token",
           "required": true,
-          "type": "string",
-          "schema":
-          {
-            "type": "string",
-            "properties":
-            {
-              "token":
-              {
-                "description": "JWT token",
-                "type": "string",
-                "minLength": 1,
-                "example": "ThisIsDummyToken120985713804ufdhjl;aefuoj"
-              }
-            }
-          }
+          "type": "string"
         },
         {
           "in": "query",
           "name": "storeID",
           "description": "북마크 추가/제거할 가게 ID",
           "required": true,
-          "type": "integer",
-          "schema":
-          {
-            "type": "integer",
-            "properties":
-            {
-              "storeID":
-              {
-                "description": "storeID",
-                "type": "integer",
-                "example": 123
-              }
-            }
-          }
+          "type": "integer"
         }],
         "responses":
         {
@@ -913,7 +875,7 @@
                 {
                   "type": "string",
                   "description": "북마크 추가/제거 성공 메세지",
-                  "example": "successful add / delete bookmark list"
+                  "example": "successful regist / delete bookmark list"
                 }
               }
             }

@@ -4,7 +4,7 @@ const list = require('./list');
 const compilation = require('./compilation');
 
 
-router.use('/list', list);
+router.use('/lists', list);
 router.use('/compilation', compilation);
 
 
