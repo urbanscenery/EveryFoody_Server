@@ -7,6 +7,7 @@ var review = require('./review/index');
 var signin = require('./login/signin');
 var signup = require('./login/signup');
 var reservation = require('./reservation/index');
+var management = require('./management/index');
 var api = require('./apireference');
 
 router.use('/store',store);
@@ -16,6 +17,7 @@ router.use('/reservation', reservation);
 router.use('/review', review);
 router.use('/signin', signin);
 router.use('/signup', signup)
+router.use('/management', management);
 router.use('/api', api);
 
 
