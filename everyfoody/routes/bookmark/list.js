@@ -49,37 +49,49 @@ router.get('/:latitude/:longitude', function(req, res) {
     //3. location, GPS정보로 열린 푸드트럭정보 찾기
     function(userID, connection, callback) {
       console.log(userID);
-      let selectOpenStoreQuery = "select * "+
-        "from bookmarks mark "+
-        "inner join opentruck open "+
-        "on mark.owner_id = open.owner_id and mark.user_id = ? "+
-        "inner join owners tr "+
-        "on mark.owner_id = tr.owner_id "+
+      let selectMarkedStoreQuery = "select * " +
+        "from bookmarks mark " +
+        "inner join owners tr " +
+        "on mark.owner_id = tr.owner_id " +
         "where mark.user_id = ?";
-      connection.query(selectOpenStoreQuery, [userID, userID] ,function(err, openStoreData) {
+      connection.query(selectMarkedStoreQuery, [userID, userID], function(err, markedStoreData) {
         if (err) {
           res.status(500).send({
             status: "fail",
-            msg: "get open store data error"
+            msg: "get marked store data error"
           });
           connection.release();
-          callback("get open store data err : " + err, null);
+          callback("get marked store data err : " + err, null);
         } else {
           let dataList = [];
           let userLatitude = req.params.latitude;
           let userLongitude = req.params.longitude;
-          for (let i = 0, length = openStoreData.length; i < length; i++) {
-            let distanceData = distance(userLongitude, userLatitude, openStoreData[i].opentruck_latitude, openStoreData[i].opentruck_longitude);
-            let data = {
-              storeID: openStoreData[i].owner_id,
-              storeName: openStoreData[i].owner_storename,
-              storeImage: openStoreData[i].owner_imageURL,
-              reservationCount: openStoreData[i].owner_reservationCount,
-              storeLocation: openStoreData[i].owner_locationDetail,
-              storeDistance: distanceData.distance*1,
-              storeDistanceUnit: distanceData.unit
+          for (let i = 0, length = markedStoreData.length; i < length; i++) {
+            let data;
+            if (markedStoreData[i].owner_latitude === -1) {
+              data = {
+                storeID: markedStoreData[i].owner_id,
+                storeName: markedStoreData[i].owner_storename,
+                storeImage: markedStoreData[i].owner_imageURL,
+                reservationCount: markedStoreData[i].owner_reservationCount,
+                storeLocation: markedStoreData[i].owner_locationDetail,
+                storeDistance: -1,
+                storeDistanceUnit: "m"
+              }
+              dataList.push(data);
+            } else {
+              let distanceData = distance(userLongitude, userLatitude, markedStoreData[i].owner_latitude, markedStoreData[i].owner_longitude);
+              let data = {
+                storeID: markedStoreData[i].owner_id,
+                storeName: markedStoreData[i].owner_storename,
+                storeImage: markedStoreData[i].owner_imageURL,
+                reservationCount: markedStoreData[i].owner_reservationCount,
+                storeLocation: markedStoreData[i].owner_locationDetail,
+                storeDistance: distanceData.distance * 1,
+                storeDistanceUnit: distanceData.unit
+              }
+              dataList.push(data);
             }
-            dataList.push(data);
           }
           callback(null, dataList, userID, connection);
         }
@@ -88,7 +100,13 @@ router.get('/:latitude/:longitude', function(req, res) {
     //4. 거리순 정렬
     function(dataList, userID, connection, callback) {
       dataList.sort(function(a, b) { // 오름차순
-        if (a.storeDistanceUnit === 'Km' && b.storeDistanceUnit === 'm') {
+        if (a.storeDistance === -1 && b.storeDistance === -1) {
+          return -1;
+        } else if (a.storeDistance === -1 && b.storeDistance > 0) {
+          return 1;
+        } else if (a.storeDistance > 0 && b.storeDistance === -1) {
+          return -1;
+        } else if (a.storeDistanceUnit === 'Km' && b.storeDistanceUnit === 'm') {
           return 1;
         } else if (a.storeDistanceUnit === 'm' && b.storeDistanceUnit === 'Km') {
           return -1;
@@ -100,49 +118,15 @@ router.get('/:latitude/:longitude', function(req, res) {
       });
       callback(null, dataList, userID, connection);
     },
-    //5. location, GPS정보로 닫힌 푸드트럭정보 찾기
-    function(dataList, userID, connection, callback) {
-      let selectCloseStoreQuery = "select * "+
-        "from bookmarks mark "+
-        "inner join opentruck open "+
-        "on mark.owner_id != open.owner_id and mark.user_id = ? "+
-        "inner join owners tr "+
-        "on mark.owner_id = tr.owner_id "+
-        "where mark.user_id = ?";
-      connection.query(selectCloseStoreQuery, [userID, userID] ,function(err, closeStoreData) {
-        if (err) {
-          res.status(500).send({
-            status: "fail",
-            msg: "get close store data error"
-          });
-          connection.release();
-          callback("get close store data err : " + err, null);
-        } else {
-          for (let i = 0, length = closeStoreData.length; i < length; i++) {
-            let data = {
-              storeID: closeStoreData[i].owner_id,
-              storeName: closeStoreData[i].owner_storename,
-              storeImage: closeStoreData[i].owner_imageURL,
-              reservationCount: closeStoreData[i].owner_reservationCount,
-              storeLocation: closeStoreData[i].owner_locationDetail,
-              storeDistance: -1,
-              storeDistanceUnit: "m"
-            }
-            dataList.push(data);
-          }
-          callback(null, dataList, connection);
-        }
-      })
-    },
     //5. 응답후 커넥션 해제
-    function(dataList, connection, callback){
+    function(dataList, connection, callback) {
       res.status(200).send({
-        status : "success",
-        data : dataList,
-        msg : "Successful load store list"
+        status: "success",
+        data: dataList,
+        msg: "Successful load bookmark store list"
       });
       connection.release();
-      callback(null, "Successful load store list");
+      callback(null, "Successful load bookmark store list");
     }
   ];
   async.waterfall(taskArray, function(err, result) {
