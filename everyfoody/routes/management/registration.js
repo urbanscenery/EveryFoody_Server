@@ -78,7 +78,67 @@ router.put('/store', upload.single('image'), function(req, res, next) {
   	});
 });
 
-router.put('/location', function(req, res, next) {
+router.put('/opening', function(req, res, next) {
+  
+	var opentruck_latitude = -1;
+	var opentruck_longitude = -1;
+	
+	let taskArray =[
+		function(callback) {
+			pool.getConnection(function(err, connection) {
+				if(err) {
+					res.status(500).send({
+						msg : "500 connection error"
+					});
+				}
+				else callback(null, connection);
+			})
+		},
+		function(connection, callback){
+	      let token = req.headers.token;
+	      jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
+	        if(err){
+	          res.status(501).send({
+	            msg : "501 user authorication error"
+	          });
+	          connection.realease();
+	          callback("JWT decoded err : "+ err, null) ;
+	        }
+	        else callback(null, decoded.userID, connection);
+	      })
+    	},
+		function(owner_id, connection, callback) {
+			let setLocationQuery = 'UPDATE owner SET owner_latitude = ?, owner_longitude = ? where owner_id = ?';
+			connection.query(setLocationQuery, [owner_latitude, owner_longitude, owner_id], function(err) {
+				if(err) {
+					res.status(500).send({
+						msg : "truck opening error"
+					})
+					connection.release();
+					callback(null,"remove opening truck error"+err);
+				}
+				else {
+					res.status(200).send({
+						msg : "truck opening success"
+					})
+					connection.release();
+					callback(null,"remove opening  truck success"+err);
+				}
+			})			
+		}
+	];
+	async.waterfall(taskArray, function(err, result) {
+	    if (err){
+	      err = moment().format('MM/DDahh:mm:ss//') + err;
+	      console.log(err);
+	    }
+	    else{
+	      result = moment().format('MM/DDahh:mm:ss//') + result;
+	      console.log(result);
+	    }
+  	});
+
+  	router.put('/closing', function(req, res, next) {
   
 	var opentruck_latitude = req.body.opentruck_latitude;
 	var opentruck_longitude = req.body.opentruck_longitude;
@@ -108,21 +168,21 @@ router.put('/location', function(req, res, next) {
 	      })
     	},
 		function(owner_id, connection, callback) {
-			let setLocationQuery = 'INSERT INTO opentruck VALUES(?,?,?)';
-			connection.query(setLocationQuery, [owner_id, opentruck_latitude, opentruck_longitude], function(err) {
+			let setLocationQuery = 'UPDATE owner SET owner_latitude = ?, owner_longitude = ? where owner_id = ?';
+			connection.query(setLocationQuery, [owner_latitude, owner_longitude, owner_id], function(err) {
 				if(err) {
 					res.status(500).send({
 						msg : "truck opening error"
 					})
 					connection.release();
-					callback(null,"insert opening error"+err);
+					callback(null,"insert opening truck error"+err);
 				}
 				else {
 					res.status(200).send({
 						msg : "truck opening success"
 					})
 					connection.release();
-					callback(null,"insert opening success"+err);
+					callback(null,"insert opening truck success"+err);
 				}
 			})			
 		}
