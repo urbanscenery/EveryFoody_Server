@@ -78,7 +78,7 @@ router.put('/store', upload.single('image'), function(req, res, next) {
   	});
 });
 
-router.put('/opening', function(req, res, next) {
+router.put('/closing', function(req, res, next) {
   
 	var opentruck_latitude = -1;
 	var opentruck_longitude = -1;
@@ -138,7 +138,7 @@ router.put('/opening', function(req, res, next) {
 	    }
   	});
 
-  	router.put('/closing', function(req, res, next) {
+  	router.put('/opening', function(req, res, next) {
   
 	var opentruck_latitude = req.body.opentruck_latitude;
 	var opentruck_longitude = req.body.opentruck_longitude;
