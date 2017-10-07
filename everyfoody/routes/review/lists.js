@@ -45,77 +45,47 @@ router.get('/:storeID', function(req, res) {
         });
       }
     },
-    //3. 트럭 기본정보 가져오기
+    //3. 리뷰 리스트 가져오기
     function(userID, connection, callback) {
-      let selectStoreInfoQuery = 'select * from owners tr' +
+      let selectReviewQuery = 'select r.review_score, r.review_content, r.review_imageURL, u.user_nickname from reviewes r ' +
         'inner join users u ' +
-        'on u.user_id = ?'
-        'where tr.owner_id = ?';
-      connection.query(selectStoreInfoQuery, [req.params.storeID, req.param.storeID], function(err, storeData) {
+        'on r.user_id = u.user_id ' +
+        'where r.owner_id = ?';
+      connection.query(selectReviewQuery, req.params.storeID, function(err, reviewData) {
         if (err) {
           res.status(500).send({
             status: "fail",
-            msg: "get store data error"
+            msg: "get review data error"
           });
           connection.release();
-          callback("get store data err : " + err, null);
+          callback("get reiew data err : " + err, null);
         } else {
-          let data = {
-            storeID: storeData[0].owner_id,
-            storeName: storeData[0].owner_storename,
-            storeImage: storeData[0].owner_imageURL,
-            storeFacebookURL: storeData[0].owner_facebookURL,
-            storeTwitterURL: storeData[0].owner_twitterURL,
-            storeInstagramURL: storeData[0].owner_instagramURL,
-            storeHashtag: storeData[0].owner_hashtag,
-            storeOpentime: storeData[0].owner_opentime,
-            storeBreaktime: storeData[0].owner_breaktime,
-            storePhone: storeData[0].user_phone,
-            reservationCount: storeData[0].owner_reservationCount
-          };
-          callback(null, data, userID, connection);
-        }
-      });
-    },
-    //4. 트럭 메뉴정보 가져오기
-    function(basicInfo, userID, connection, callback){
-      let selectMenuQuery = 'select * from menu where owner_id = ?';
-      connection.query(selectMenuQuery, req.params.storeID, function(err, menuData){
-        if (err) {
-          res.status(500).send({
-            status: "fail",
-            msg: "get menu data error"
-          });
-          connection.release();
-          callback("get menu data err : " + err, null);
-        }
-        else{
           let dataList = [];
-          for(let i = 0, length = menuData.length ; i < length ; i++){
+          for (let i = 0, length = reviewData.length; i < length; i++) {
             let data = {
-              menuID : menuData[i].menu_id,
-              menuTitle : menuData[i].menu_name,
-              menuPrice : menuData[i].menu_price,
-              menuImageURL : menuData[i].menu_imageURL
-            };
+              reviewWriter: reviewData[i].user_nickname,
+              reviewScore: reviewData[i].review_score,
+              reviewContent: reviewData[i].review_content,
+              reviewImageUrl: reviewData[i].review_imageURL
+            }
             dataList.push(data);
           }
-          callback(null, dataList, basicInfo, connection);
+          callback(null, dataList, connection);
         }
       });
     },
-    //5. 응답후 커넥션 해제
-    function(menuInfo, basicInfo, connection, callback){
+    //4. 응답후 커넥션해제
+    function(reviewData, connection, callback) {
       res.status(200).send({
         status : "success",
         data : {
-          basicInfo : basicInfo,
-          menuInfo : menuInfo
+          storeID : req.params.storeID,
+          reviewes : reviewData
         },
-        msg : "successful load store data"
+        msg : "successful load reviewes data"
       });
       connection.release();
-      callback(null, "successful load store data");
+      callback(null, "successful load reviewes data");
     }
   ];
   async.waterfall(taskArray, function(err, result) {
