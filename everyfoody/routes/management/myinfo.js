@@ -23,7 +23,8 @@ router.get('/modification', function(req, res, next) {
           jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
             if(err){
               res.status(501).send({
-                msg : "501 user authorication error"
+                msg : "501 user authorication error",
+                status : "fail"
               });
               connection.realease();
               callback("JWT decoded err : "+ err, null) ;
@@ -36,7 +37,8 @@ router.get('/modification', function(req, res, next) {
       connection.query(selectQuery, owner_id, function(err, basicinfo) {
         if(err){
           res.status(500).send({
-            msg : "query error"
+            msg : "query error",
+            status : "fail"
           });
         }
         else {    
@@ -59,7 +61,8 @@ router.get('/modification', function(req, res, next) {
       connection.query(modifyQuery, [owner_id],function(err, menuinfo) {
         if(err){
           res.status(500).send({
-            msg : "query error"
+            msg : "query error",
+            status : "fail"
           });
         }
         else {
@@ -70,6 +73,7 @@ router.get('/modification', function(req, res, next) {
     function(basicinfo, menuinfo, connection) {
       res.status(200).send({
         msg : "basic & menuinfo success",
+        status : "success"
         data : [{
           basicinfo : basicinfo,
           menuinfo : menuinfo
@@ -108,7 +112,8 @@ router.post('/basic/modification', function(req, res, next) {
     function(callabck) {
       pool.Connection(function(err, connection){
         if(err) res.status(500).send({
-          msg : "500 connection error"
+          msg : "500 connection error",
+          status : "fail"
         });
         else callback(null,connection);
       })
@@ -132,14 +137,16 @@ router.post('/basic/modification', function(req, res, next) {
       connection.query(setSotreinfoQuery,[owner_storename, owner_breaktime, owner_phone,owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_imageURL,owner_email],function(err){
         if(err) {
           res.status(500).send({
-            msg : "owner info update error"
+            msg : "owner info update error",
+            status : "fail"
           });
           connection.release();
           callback("insert error :"+err, null);
         }
         else {
           res.status(201).send({
-            msg : "store info modify success"
+            msg : "store info modify success",
+            status : "success"
           });
           connection.release();
           callback(null,"modify success");
@@ -168,7 +175,8 @@ router.delete('/menu/remove/:menu_id', function(req, res, next) {
     function(callback) {
       pool.getConnection(function(err, connection){
         if(err) res.status(500).send({
-          msg : "500 connection error"
+          msg : "500 connection error",
+          status : "fail"
         });
         else callback(null,connection);
       })
@@ -178,7 +186,8 @@ router.delete('/menu/remove/:menu_id', function(req, res, next) {
       jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
         if(err){
           res.status(501).send({
-            msg : "501 user authorication error"
+            msg : "501 user authorication error",
+            status : "fail"
           });
           connection.realease();
           callback("JWT decoded err : "+ err, null) ;
@@ -191,14 +200,16 @@ router.delete('/menu/remove/:menu_id', function(req, res, next) {
       connection.query(menuRemoveQuery,[owner_id, menu_id],function(err){
         if(err) {
           res.status(500).send({
-            msg : "remove menu error"
+            msg : "remove menu error",
+            status : "fail"
           });
           connection.release();
           callback("remove error :"+err, null);
         }
         else {
           res.status(201).send({
-            msg : "remove menu success"
+            msg : "remove menu success",
+            status : "success"
           });
           connection.release();
           callback(null,"remove success");
@@ -228,7 +239,8 @@ router.put('/menu/addition', function(req, res, next) {
     function(callback) {
       pool.getConnection(function(err, connection){
         if(err) res.status(500).send({
-          msg : "500 connection error"
+          msg : "500 connection error",
+          status : "fail"
         });
         else callback(null, connection);
       })
@@ -238,7 +250,8 @@ router.put('/menu/addition', function(req, res, next) {
       jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
         if(err){
           res.status(501).send({
-            msg : "501 user authorication error"
+            msg : "501 user authorication error",
+            status : "fail"
           });
           connection.realease();
           callback("JWT decoded err : "+ err, null) ;
@@ -252,14 +265,16 @@ router.put('/menu/addition', function(req, res, next) {
       connection.query(menuAddQuery,[null, owner_id, menu_name, menu_price, menu_imageURL],function(err){
         if(err) {
           res.status(500).send({
-            msg : "addition menu error"
+            msg : "addition menu error",
+            status : "fail"
           });
           connection.release();
           callback("insert error :"+err, null);
         }
         else {
           res.status(201).send({
-            msg : "addition menu info success"
+            msg : "addition menu info success",
+            status : "success"
           });
           connection.release();
           callback(null,"modify success");
@@ -290,7 +305,8 @@ router.put('/menu/modification/:menu_id', function(req, res, next) {
     function(callback) {
       pool.getConnection(function(err, connection){
         if(err) res.status(500).send({
-          msg : "500 connection error"
+          msg : "500 connection error",
+          status : "fail"
         });
         else callback(null,connection);
       })
@@ -300,7 +316,8 @@ router.put('/menu/modification/:menu_id', function(req, res, next) {
       jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
         if(err){
           res.status(501).send({
-            msg : "501 user authorication error"
+            msg : "501 user authorication error",
+            status : "fail"
           });
           connection.realease();
           callback("JWT decoded err : "+ err, null) ;
@@ -314,14 +331,16 @@ router.put('/menu/modification/:menu_id', function(req, res, next) {
       connection.query(menumodifyQuery,[menu_name, menu_price, menu_imageURL, menu_id, owner_id], function(err) {
         if(err) {
           res.status(500).send({
-            msg : "owner info update error"
+            msg : "owner info update error",
+            status : "fail"
           });
           connection.release();
           callback("insert error :"+err, null);
         }
         else {
           res.status(201).send({
-            msg : "menu info modify success"
+            msg : "menu info modify success",
+            status : "fail"
           });
           connection.release();
           callback(null,"modify success");

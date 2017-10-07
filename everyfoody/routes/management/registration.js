@@ -38,6 +38,7 @@ router.put('/store', upload.single('image'), function(req, res, next) {
 	        if(err){
 	          res.status(501).send({
 	            msg : "501 user authorication error"
+	            status : "fail"
 	          });
 	          connection.realease();
 	          callback("JWT decoded err : "+ err, null) ;
@@ -50,14 +51,16 @@ router.put('/store', upload.single('image'), function(req, res, next) {
 			connection.query(setOwnerQuery, [owner_id, store_name, authURL], function(err) {
 				if(err) {
 					res.status(501).send({
-						msg : "ownerinfo update error"
+						msg : "ownerinfo update error",
+						status : "fail"
 					});
 					connection.release();
 					callback("update info error :"+ err,null);
 				}
 				else {
 					res.status(200).send({
-						msg : "Success"
+						msg : "Success",
+						status : "success"
 					});
 					connection.release();
 					callback(null, "Successful change password");
@@ -88,7 +91,8 @@ router.put('/closing', function(req, res, next) {
 			pool.getConnection(function(err, connection) {
 				if(err) {
 					res.status(500).send({
-						msg : "500 connection error"
+						msg : "500 connection error",
+						status : "failt"
 					});
 				}
 				else callback(null, connection);
@@ -99,7 +103,8 @@ router.put('/closing', function(req, res, next) {
 	      jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
 	        if(err){
 	          res.status(501).send({
-	            msg : "501 user authorication error"
+	            msg : "501 user authorication error",
+	            status : "fail"
 	          });
 	          connection.realease();
 	          callback("JWT decoded err : "+ err, null) ;
@@ -112,14 +117,16 @@ router.put('/closing', function(req, res, next) {
 			connection.query(setLocationQuery, [owner_latitude, owner_longitude, owner_id], function(err) {
 				if(err) {
 					res.status(500).send({
-						msg : "truck opening error"
+						msg : "truck opening error",
+						status : "fail"
 					})
 					connection.release();
 					callback(null,"remove opening truck error"+err);
 				}
 				else {
 					res.status(200).send({
-						msg : "truck opening success"
+						msg : "truck opening success",
+						status : "success"
 					})
 					connection.release();
 					callback(null,"remove opening  truck success"+err);
@@ -148,7 +155,8 @@ router.put('/closing', function(req, res, next) {
 			pool.getConnection(function(err, connection) {
 				if(err) {
 					res.status(500).send({
-						msg : "500 connection error"
+						msg : "500 connection error",
+						status : "fail"
 					});
 				}
 				else callback(null, connection);
@@ -159,7 +167,8 @@ router.put('/closing', function(req, res, next) {
 	      jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
 	        if(err){
 	          res.status(501).send({
-	            msg : "501 user authorication error"
+	            msg : "501 user authorication error",
+	            status : "fail"
 	          });
 	          connection.realease();
 	          callback("JWT decoded err : "+ err, null) ;
@@ -172,14 +181,16 @@ router.put('/closing', function(req, res, next) {
 			connection.query(setLocationQuery, [owner_latitude, owner_longitude, owner_id], function(err) {
 				if(err) {
 					res.status(500).send({
-						msg : "truck opening error"
+						msg : "truck opening error",
+						status : "fail"
 					})
 					connection.release();
 					callback(null,"insert opening truck error"+err);
 				}
 				else {
 					res.status(200).send({
-						msg : "truck opening success"
+						msg : "truck opening success",
+						status : "success"
 					})
 					connection.release();
 					callback(null,"insert opening truck success"+err);
