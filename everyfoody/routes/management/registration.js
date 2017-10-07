@@ -37,7 +37,7 @@ router.put('/store', upload.single('image'), function(req, res, next) {
 	      jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
 	        if(err){
 	          res.status(501).send({
-	            msg : "501 user authorication error"
+	            msg : "501 user authorication error",
 	            status : "fail"
 	          });
 	          connection.realease();
@@ -144,8 +144,9 @@ router.put('/closing', function(req, res, next) {
 	      console.log(result);
 	    }
   	});
+});
 
-  	router.put('/opening', function(req, res, next) {
+router.put('/opening', function(req, res, next) {
   
 	var opentruck_latitude = req.body.opentruck_latitude;
 	var opentruck_longitude = req.body.opentruck_longitude;
@@ -208,6 +209,8 @@ router.put('/closing', function(req, res, next) {
 	      console.log(result);
 	    }
   	});
-});
+})
 
 module.exports = router;
+
+

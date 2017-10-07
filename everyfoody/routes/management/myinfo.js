@@ -73,7 +73,7 @@ router.get('/modification', function(req, res, next) {
     function(basicinfo, menuinfo, connection) {
       res.status(200).send({
         msg : "basic & menuinfo success",
-        status : "success"
+        status : "success",
         data : [{
           basicinfo : basicinfo,
           menuinfo : menuinfo
