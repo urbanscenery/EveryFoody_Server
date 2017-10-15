@@ -1,25 +1,10 @@
-const mysql = require('mysql');
+const express = require('express');
+const router = express.Router();
 const async = require('async');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const aws = require('aws-sdk');
-const multer = require('multer');
-const multerS3 = require('multer-s3');
 const pool = require('../../config/db_pool')
-var express = require('express');
-var router = express.Router();
-
-const s3 = new aws.S3();
-const upload = multer({
-    storage: multerS3({
-        s3: s3,
-        bucket: 'befreshrecipes',
-        acl: 'public-read',
-        key: function(req, file, cb) {
-            cb(null, Date.now() + '.' + file.originalname.split('.').pop());
-        }
-    })
-});
+const upload = require('../../modules/AWS-S3');
 
 
 router.put('/store', upload.single('image'), function(req, res, next) {

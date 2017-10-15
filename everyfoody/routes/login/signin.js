@@ -2,11 +2,8 @@ const express = require('express');
 const async = require('async');
 const router = express.Router();
 const pool = require('../../config/db_pool');
-const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const moment = require('moment');
-const saltRounds = 17;
 
 
 
@@ -52,28 +49,18 @@ router.post('/', function(req, res) {
         connection.release();
         callback("non signed up user", null);
       } else {
-        bcrypt.compare(req.body.uid, userData[0].user_uid, function(err, signin) {
-          if (err) {
-            res.status(500).send({
-              status: "fail",
-              msg: "uid encryption error"
-            });
-            connection.release();
-            callback("uid encryption error : " + err, null);
-          } else {
-            if (signin) {
-              connection.release();
-              callback(null, userData);
-            } else {
-              res.status(401).send({
+        if(userData[0].user_uid === req.body.uid){
+          connection.release();
+          callback(null, userData);
+        }
+        else{
+          res.status(401).send({
                 status: "fail",
                 msg: "uncorrect unique ID"
               });
               connection.release();
               callback("uncorrect uid : " + err, null);
-            }
-          }
-        });
+        }
       }
     },
     //4. JWT토큰발행
@@ -94,7 +81,8 @@ router.post('/', function(req, res) {
       let payload = {
 	    	userEmail : userData[0].user_email,
 	    	userID : userData[0].user_id,
-	    	userCategory : userData[0].user_category
+	    	userCategory : userData[0].user_category,
+        userName : userData[0].user_nickname
 	    };
 	    let token = jwt.sign(payload, req.app.get('jwt-secret'), option);
 	    res.status(201).send({
@@ -102,7 +90,8 @@ router.post('/', function(req, res) {
 	    	data : {
 	    		token : token,
 	    		name : userData[0].user_nickname,
-	    		category : userData[0].user_status
+	    		category : userData[0].user_status,
+          imageURL : userData[0].user_imageURL
 	    	},
 	    	msg : "successful "+statusString + categoryString +"login"
 	    });
