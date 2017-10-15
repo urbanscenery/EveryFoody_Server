@@ -4,7 +4,7 @@ const async = require('async');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const pool = require('../../config/db_pool')
-const upload = require('../../module/AWS-S3');
+const upload = require('../../modules/AWS-S3');
 
 
 router.put('/store', upload.single('image'), function(req, res, next) {

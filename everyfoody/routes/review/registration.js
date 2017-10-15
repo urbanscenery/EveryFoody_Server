@@ -4,7 +4,7 @@ const router = express.Router();
 const pool = require('../../config/db_pool');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const upload = require('../../module/AWS-S3');
+const upload = require('../../modules/AWS-S3');
 
 
 router.post('/',upload.single('image') ,function(req, res) {
