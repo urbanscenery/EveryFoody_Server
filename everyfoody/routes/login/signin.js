@@ -2,7 +2,6 @@ const express = require('express');
 const async = require('async');
 const router = express.Router();
 const pool = require('../../config/db_pool');
-const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const moment = require('moment');

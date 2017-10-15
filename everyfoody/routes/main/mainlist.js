@@ -3,7 +3,6 @@ const async = require('async');
 const router = express.Router();
 const pool = require('../../config/db_pool');
 const distance = require('../../modules/distance');
-const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 

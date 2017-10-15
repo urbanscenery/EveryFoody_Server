@@ -2,7 +2,6 @@ const express = require('express');
 const async = require('async');
 const router = express.Router();
 const pool = require('../../config/db_pool');
-const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 
@@ -71,7 +70,8 @@ router.get('/:storeID', function(req, res) {
             storeOpentime: storeData[0].owner_opentime,
             storeBreaktime: storeData[0].owner_breaktime,
             storePhone: storeData[0].user_phone,
-            reservationCount: storeData[0].owner_reservationCount
+            reservationCount: storeData[0].owner_reservationCount,
+            reservationCheck : 0
           };
           callback(null, data, userID, connection);
         }
@@ -100,11 +100,31 @@ router.get('/:storeID', function(req, res) {
             };
             dataList.push(data);
           }
-          callback(null, dataList, basicInfo, connection);
+          callback(null, dataList, basicInfo, userID, connection);
         }
       });
     },
-    //5. 응답후 커넥션 해제
+    //5. 예약정보가 있는지 확인
+    function(menuInfo, basicInfo, userID, connection, callback){
+      let selectReservationQuery = 'select * from reservation where user_id = ? and owner_id = ?';
+      connection.query(selectReservationQuery, [userID, req.params.storeID], function(err, reservationData){
+        if (err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "get reservation data error"
+          });
+          connection.release();
+          callback("get reservation data err : " + err, null);
+        }
+        else{
+          if(reservationData.length !== 0){
+            basicInfo.reservationCheck = 1;
+          }
+          callback(null, menuInfo, basicInfo, connection);
+        }
+      })
+    },
+    //6. 응답후 커넥션 해제
     function(menuInfo, basicInfo, connection, callback){
       res.status(200).send({
         status : "success",
