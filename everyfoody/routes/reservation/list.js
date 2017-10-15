@@ -65,7 +65,7 @@ router.get('/', function(req, res) {
             let data = {
               storeID: storeData[i].owner_id,
               storeName: storeData[i].owner_storename,
-              storeImage: storeData[i].owner_imageURL,
+              storeImage: storeData[i].owner_mainURL,
               reservationCount: storeData[i].owner_reservationCount,
               reservationTime : storeData[i].reservation_time
             }
