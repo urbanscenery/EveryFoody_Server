@@ -50,14 +50,14 @@ router.get('/modification', function(req, res, next) {
                 owner_facebookURL : basicinfo[0].owner_facebookURL,
                 owner_twitterURL : basicinfo[0].owner_twitterURL,
                 owner_instagramURL : basicinfo[0].owner_instagramURL,
-                owner_imageURL : basicinfo[0].owner_imageURL
+                owner_detailURL : basicinfo[0].owner_detailURL
               }
          callback(null, owner_id, infomation, connection);
         }
       })
     }, 
    function(owner_id, basicinfo, connection, callback) {
-      let modifyQuery = 'select menu_id, menu_name, menu_price, menu_imageURL from menu where owner_id = ?';
+      let modifyQuery = 'select menu_id, menu_name, menu_price, menu_detailURL from menu where owner_id = ?';
       connection.query(modifyQuery, [owner_id],function(err, menuinfo) {
         if(err){
           res.status(500).send({
@@ -105,8 +105,8 @@ router.post('/basic/modification', function(req, res, next) {
   var owner_facebookURL = req.body.owner_facebookURL;
   var owner_twitterURL = req.body.owner_twitterURL;
   var owner_instagramURL = req.body.owner_instagramURL;
-  var owner_imageURL = req.body.owner_imageURL;
-
+  var owner_detailURL = req.body.owner_detailURL;
+  var owner_mainURL = req.body.owner_mainURL;
 
   let taskArray = [
     function(callabck) {
@@ -133,8 +133,8 @@ router.post('/basic/modification', function(req, res, next) {
     },
     function(connection, callback) {
       let setStoreinfoQuery = 'update owner set owner_storename = ? , owner_breaktime = ?, owner_phone = ?,'
-      +'owner_hashtag =?, owner_facebookURL = ?, owner_twitterURL =?, owner_instagramURL = ?, owner_imageURL = ? where owner_email = ?';
-      connection.query(setSotreinfoQuery,[owner_storename, owner_breaktime, owner_phone,owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_imageURL,owner_email],function(err){
+      +'owner_hashtag =?, owner_facebookURL = ?, owner_twitterURL =?, owner_instagramURL = ?, owner_detailURL = ?, owner_mainURL = ? where owner_email = ?';
+      connection.query(setSotreinfoQuery,[owner_storename, owner_breaktime, owner_phone,owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_email],function(err){
         if(err) {
           res.status(500).send({
             msg : "owner info update error",
