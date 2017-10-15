@@ -5,6 +5,9 @@ const moment = require('moment');
 const pool = require('../../config/db_pool')
 var express = require('express');
 var router = express.Router();
+var FCM = require('fcm-push');
+var serverKey = 'AAAAdxPJeuI:APA91bGCSt8aUrCTF6qDK9-xIdxp3Fh6s8iBziQXHt3HndIR-R9ntNDYp0OHDy2Okft3IcR_Vab-NOjNXKyNMgVhlj4-RnWXOqjblVx8YlLrlw9KwxVasDKz8TfP2Ez8yJXlzsqwm0hH';
+var fcm = new FCM(serverKey);
 
 router.get('/lists',function(req,res) {
 
@@ -20,13 +23,14 @@ router.get('/lists',function(req,res) {
       		jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded){
 		        if(err){
 		          res.status(501).send({
-		            msg : "501 user authorization error"
+		            msg : "501 user authorization error",
+		            status : "fail"
 		          });
 		          connection.release();
 		          callback("JWT decoded err : "+ err, null);
 		        }
         		else{        
-        		 	callback(null, decoded.userID, connection);
+        			callback(null, decoded.userID, connection);
         		}
       		});
       	},
@@ -38,12 +42,12 @@ router.get('/lists',function(req,res) {
       				callback("Data is null or connection error"+err,null);
       				connection.release();
       			}
-      			else {
-      				console.log(lists.user_nickname);
+      			else {    
       				let user = lists;
       					
       				res.status(200).send({
 						msg : "customer list get success",
+						status : "success",
 						data : [{
 							users : user
 						}]
@@ -56,11 +60,11 @@ router.get('/lists',function(req,res) {
 	];
 	async.waterfall(taskArray, function(err, result) {
 	    if (err){
-	      err = moment().format('MM/DDahh:mm:ss//') + err;
+	      err = moment().format('MM/DDahh:mm:ss// ') + err;
 	      console.log(err);
 	    }
 	    else{
-	      result = moment().format('MM/DDahh:mm:ss//') + result;
+	      result = moment().format('MM/DDahh:mm:ss// ') + result;
 	      console.log(result);
 	    }
   	});
@@ -82,7 +86,8 @@ router.delete('/lists/remove/:user_id', function(req,res) {
       		jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded){
 		        if(err){
 		          res.status(501).send({
-		            msg : "501 user authorization error"
+		            msg : "501 user authorization error",
+		            status : "fail"
 		          });
 		          connection.release();
 		          callback("JWT decoded err : "+ err, null);
@@ -94,21 +99,84 @@ router.delete('/lists/remove/:user_id', function(req,res) {
       	},
       	function(owner_id,connection,callback)
       	{
-      		let rmReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
-      		connection.query(rmReservationQuery,[user_id, owner_id], function(err, lists) {
+      		let customerlistQuery = 'select o.owner_storename, u.user_deviceToken, r.reservation_time, u.user_id from users u inner join reservation r inner join owners o on u.user_id = r.user_id and r.owner_id = o.owner_id where r.owner_id = 14 order by reservation_time desc';
+      		connection.query(customerlistQuery, owner_id, function(err, pushlist) {
       			if(err) {
       				callback("Data is null or connection error"+err,null);
       				connection.release();
       			}
       			else {
-      				res.status(200).send({
-						msg : "reservation remove success",		
-					})
-					connection.release();
-					callback(null, "reservation remove success");
+      				
+      				let length = pushlist.length;
+      				let messageBox = []
+      				if(length >= 0){
+	      				messageBox.push({
+	      					message : {
+								to: pushlist[0].user_deviceToken,
+								collapse_key: 'Updates Available',
+								data: {
+										title : "Every Foody",
+										body : "음식을 받으러 오세요!"
+									}
+							}
+						});	 	
+      				}
+      				if(length > 0 && length <=1){
+      					messageBox.push({
+	      					message : {
+								to: pushlist[1].user_deviceToken,
+								collapse_key: 'Updates Available',
+								data: {
+										title : "Every Foody",
+										body : "현재 대기번호 1번 입니다."
+									}
+							}
+						});	 	
+      				}
+      				if(length >=5){
+      					messageBox.push({
+	      					message : {
+								to: pushlist[4].user_deviceToken,
+								collapse_key: 'Updates Available',
+								data: {
+										title : "Every Foody",
+										body : "현재 대기번호 5번 입니다."
+									}
+								}
+						});	 	
+      				}
+      				
+					fcm.send(messageBox, function(err, response) {
+						if (err) {
+							console.log("Something has gone wrong!"+err);
+							callback("Message send error"+err,null);
+						}
+						else {
+							console.log("Successfully sent with response: ", response);			
+							callback(null, owner_id, connection, callback);
+						}
+					});
+					
       			}
       		})
-      	}     
+      	},      
+      	function(owner_id, connection, callback)
+      	{
+      		let rmReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
+      		connection.query(rmReservationQuery,[user_id, owner_id], function(err, lists) {
+      			if(err) { 
+      				connection.release();
+      				callback("Data is null or connection error"+err,null);
+      			}
+      			else {
+      				res.status(200).send({
+						msg : "reservation remove success",	
+						status : "success"
+					})
+					connection.release();								
+      			}
+      		})
+      	}
 	]
 	async.waterfall(taskArray, function(err, result) {
 		if (err){
