@@ -2,24 +2,10 @@ const express = require('express');
 const async = require('async');
 const router = express.Router();
 const pool = require('../../config/db_pool');
-const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const aws = require('aws-sdk');
-aws.config.loadFromPath('./config/aws_config.json');
-const multer = require('multer');
-const multerS3 = require('multer-s3');
-const s3 = new aws.S3();
-const upload = multer({
-    storage: multerS3({
-        s3: s3,
-        bucket: 'everyfoody',
-        acl: 'public-read',
-        key: function(req, file, cb) {
-            cb(null, Date.now() + '.' + file.originalname.split('.').pop());
-        }
-    })
-});
+const upload = require('../../module/AWS-S3');
+
 
 router.post('/',upload.single('image') ,function(req, res) {
   let taskArray = [
