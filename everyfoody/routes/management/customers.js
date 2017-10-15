@@ -23,13 +23,14 @@ router.get('/lists',function(req,res) {
       		jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded){
 		        if(err){
 		          res.status(501).send({
-		            msg : "501 user authorization error"
+		            msg : "501 user authorization error",
+		            status : "fail"
 		          });
 		          connection.release();
 		          callback("JWT decoded err : "+ err, null);
 		        }
         		else{        
-        		 	callback(null, decoded.userID, connection);
+        			callback(null, decoded.userID, connection);
         		}
       		});
       	},
@@ -41,12 +42,12 @@ router.get('/lists',function(req,res) {
       				callback("Data is null or connection error"+err,null);
       				connection.release();
       			}
-      			else {
-      				console.log(lists.user_nickname);
+      			else {    
       				let user = lists;
       					
       				res.status(200).send({
 						msg : "customer list get success",
+						status : "success",
 						data : [{
 							users : user
 						}]
@@ -59,11 +60,11 @@ router.get('/lists',function(req,res) {
 	];
 	async.waterfall(taskArray, function(err, result) {
 	    if (err){
-	      err = moment().format('MM/DDahh:mm:ss//') + err;
+	      err = moment().format('MM/DDahh:mm:ss// ') + err;
 	      console.log(err);
 	    }
 	    else{
-	      result = moment().format('MM/DDahh:mm:ss//') + result;
+	      result = moment().format('MM/DDahh:mm:ss// ') + result;
 	      console.log(result);
 	    }
   	});
@@ -85,7 +86,8 @@ router.delete('/lists/remove/:user_id', function(req,res) {
       		jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded){
 		        if(err){
 		          res.status(501).send({
-		            msg : "501 user authorization error"
+		            msg : "501 user authorization error",
+		            status : "fail"
 		          });
 		          connection.release();
 		          callback("JWT decoded err : "+ err, null);
@@ -169,6 +171,7 @@ router.delete('/lists/remove/:user_id', function(req,res) {
       			else {
       				res.status(200).send({
 						msg : "reservation remove success",	
+						status : "success"
 					})
 					connection.release();								
       			}
