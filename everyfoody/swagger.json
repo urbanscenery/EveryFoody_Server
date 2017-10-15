@@ -190,6 +190,12 @@
                       "description": "이용자/사업자 구분, 이용자 : 1 사업자 : 2(영업승인완료), 3(영업승인대기), 4(승인기간만료)",
                       "type": "integer",
                       "example": 1
+                    },
+                    "imageURL":
+                    {
+                      "description": "사용자의 프로필이미지 URL",
+                      "type": "string",
+                      "example": "image url"
                     }
                   }
 
@@ -268,6 +274,20 @@
                 "type": "integer",
                 "minLength": 1,
                 "example": 1
+              },
+              "phone":
+              {
+                "description": "이용자가 입력한 핸드폰번호",
+                "type": "string",
+                "minLength": 1,
+                "example": "010-1234-1234"
+              },
+              "imageURL":
+              {
+                "description": "페이스북 or 카카오톡 프로필 이미지 url",
+                "type": "string",
+                "minLength": 1,
+                "example": "profile image url"
               }
             }
           }
@@ -355,6 +375,20 @@
                 "type": "integer",
                 "minLength": 1,
                 "example": 1
+              },
+              "phone":
+              {
+                "description": "사업자가 입력한 핸드폰번호",
+                "type": "string",
+                "minLength": 1,
+                "example": "010-1234-1234"
+              },
+              "imageURL":
+              {
+                "description": "페이스북 or 카카오톡 프로필 이미지 url",
+                "type": "string",
+                "minLength": 1,
+                "example": "profile image url"
               }
             }
           }

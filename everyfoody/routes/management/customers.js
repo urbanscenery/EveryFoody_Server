@@ -5,9 +5,7 @@ const moment = require('moment');
 const pool = require('../../config/db_pool')
 var express = require('express');
 var router = express.Router();
-var FCM = require('fcm-push');
-var serverKey = 'AAAAdxPJeuI:APA91bGCSt8aUrCTF6qDK9-xIdxp3Fh6s8iBziQXHt3HndIR-R9ntNDYp0OHDy2Okft3IcR_Vab-NOjNXKyNMgVhlj4-RnWXOqjblVx8YlLrlw9KwxVasDKz8TfP2Ez8yJXlzsqwm0hH';
-var fcm = new FCM(serverKey);
+var fcm = require('../../config/fcm_config')
 
 router.get('/lists',function(req,res) {
 

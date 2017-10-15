@@ -14,7 +14,6 @@ router.get('/', function(req,res){
 		}
 		else{
 			res.writeHeader(200, {"Content-Type": "text/html"});  
-		console.log(result);
     res.write(result);  
     res.end(); 
   	}

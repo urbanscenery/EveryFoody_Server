@@ -33,7 +33,7 @@ app.use(logger(':method :status :url [:date[clf]] :user-agent',
 // app.use(logger('dev', {stream: accessLogStream}));
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.urlencoded({ extended: false, limit:'10mb' }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 

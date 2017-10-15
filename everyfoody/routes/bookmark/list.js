@@ -48,7 +48,6 @@ router.get('/:latitude/:longitude', function(req, res) {
     },
     //3. location, GPS정보로 열린 푸드트럭정보 찾기
     function(userID, connection, callback) {
-      console.log(userID);
       let selectMarkedStoreQuery = "select * " +
         "from bookmarks mark " +
         "inner join owners tr " +

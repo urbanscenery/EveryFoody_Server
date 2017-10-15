@@ -4,6 +4,7 @@ const router = express.Router();
 const pool = require('../../config/db_pool');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const fcm = require('../../config/fcm_config')
 
 router.get('/:storeID', function(req, res) {
   let taskArray = [
@@ -38,16 +39,16 @@ router.get('/:storeID', function(req, res) {
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, connection);
+            callback(null, decoded, connection);
             //decoded가 하나의 JSON 객체. 이안에 userEmail userCategory userID 프로퍼티 존
           }
         });
       }
     },
     //3. userID, storeID로 예약내역 있는지 검사
-    function(userID, connection, callback) {
+    function(userData, connection, callback) {
       let selectReservationQuery = 'select * from reservation where user_id = ? and owner_id = ?';
-      connection.query(selectReservationQuery, [userID, req.params.storeID], function(err, reservationData) {
+      connection.query(selectReservationQuery, [userData.userID, req.params.storeID], function(err, reservationData) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -56,16 +57,16 @@ router.get('/:storeID', function(req, res) {
           connection.release();
           callback("get reservation data err : " + err, null);
         } else {
-          callback(null, reservationData, userID, connection);
+          callback(null, reservationData, userData, connection);
         }
       });
     },
     //4. reservation데이터가 있으면 삭제, 없으면 추가
-    function(reservationData, userID, connection, callback) {
+    function(reservationData, userData, connection, callback) {
       if (reservationData.length === 0) {
         let insertReservationQuery = 'insert into reservation set ?';
         let reservationData = {
-          user_id : userID,
+          user_id : userData.userID,
           owner_id : req.params.storeID,
           reservation_time : moment().format('YYYYMMDDhhmmss')
         }
@@ -82,13 +83,12 @@ router.get('/:storeID', function(req, res) {
               status : "success",
               msg : "successful regist reservation"
             });
-            connection.release();
-            callback(null, "succesful regist reservation");
+            callback(null, userData, connection, "succesful regist reservation");
           }
         });
       } else {
         let deleteReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
-        connection.query(deleteReservationQuery, [userID, req.params.storeID], function(err) {
+        connection.query(deleteReservationQuery, [userData.userID, req.params.storeID], function(err) {
           if (err) {
             res.status(500).send({
               status: "fail",
@@ -101,11 +101,40 @@ router.get('/:storeID', function(req, res) {
               status : "success",
               msg : "successful delete reservation"
             });
-            connection.release();
-            callback(null, "successful delete reservation");
+            callback(null, userData, connection, "successful delete reservation");
           }
         });
       }
+    },
+    //5. FCM메세지 사업자에게 전송
+    function(userData, connection, successMsg, callback) {
+      let selectOwnerQuery = 'select user_deviceToken from users where user_id = ?';
+      connection.query(selectOwnerQuery, req.params.storeID, function(err, ownerDeviceToken) {
+        if (err) {
+          connection.release();
+          callback(successMsg + " //get owner devicetoken data err : " + err, null);
+        } else {
+          let message = {
+            to: ownerDeviceToken,
+            collapse_key: 'Updates Available',
+            data: {
+              title: "Every Foody",
+              body: userData.userName + "님이 주문예약을 했습니다!"
+            }
+          };
+          fcm.send(message, function(err, response){
+            if(err){
+              connection.release();
+              callback(successMsg + " // send push msg error : "+ err, null);
+            }
+            else{
+              console.log(message);
+              connection.release();
+              callback(null, successMsg + " // success send push msg : "+ response);
+            }
+          });
+        }
+      })
     }
   ];
   async.waterfall(taskArray, function(err, result) {

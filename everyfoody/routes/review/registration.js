@@ -4,7 +4,8 @@ const router = express.Router();
 const pool = require('../../config/db_pool');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const upload = require('../../module/AWS-S3');
+const upload = require('../../modules/AWS-S3');
+const fcm = require('../../config/fcm_config')
 
 
 router.post('/',upload.single('image') ,function(req, res) {
@@ -30,7 +31,7 @@ router.post('/',upload.single('image') ,function(req, res) {
           userID: 0,
           userCategory: 0
         }
-        callback(null, decoded.userID, connection);
+        callback(null, decoded, connection);
       } else {
         jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
           if (err) {
@@ -40,14 +41,14 @@ router.post('/',upload.single('image') ,function(req, res) {
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, connection);
+            callback(null, decoded, connection);
             //decoded가 하나의 JSON 객체. 이안에 userEmail userCategory userID 프로퍼티 존
           }
         });
       }
     },
     //3. 리뷰 등록
-    function(userID, connection, callback){
+    function(userData, connection, callback){
       let insertReviewQuery = 'insert into reviewes set ?';
       let imageURL;
       if(typeof req.file === "undefined"){
@@ -56,7 +57,7 @@ router.post('/',upload.single('image') ,function(req, res) {
         imageURL = req.file.location;
       }
       let reviewData = {
-        user_id : userID,
+        user_id : userData.userID,
         owner_id : req.body.storeID*1,
         review_score : (req.body.score)*1,
         review_content : req.body.content,
@@ -77,10 +78,38 @@ router.post('/',upload.single('image') ,function(req, res) {
             status : "success",
             msg : "successful regist reivew"
           });
-          connection.release();
-          callback(null, "successful regist review");
+          callback(null, userData, connection, "successful regist review");
         }
       });
+    },
+    //5. FCM메세지 사업자에게 전송
+    function(userData, connection, successMsg, callback) {
+      let selectOwnerQuery = 'select user_deviceToken from users where user_id = ?';
+      connection.query(selectOwnerQuery, req.body.storeID*1, function(err, ownerDeviceToken) {
+        if (err) {
+          connection.release();
+          callback(successMsg + " //get owner devicetoken data err : " + err, null);
+        } else {
+          let message = {
+            to: ownerDeviceToken,
+            collapse_key: 'Updates Available',
+            data: {
+              title: "Every Foody",
+              body: userData.userName + "님이 리뷰를 남겼습니다!"
+            }
+          };
+          fcm.send(message, function(err, response){
+            if(err){
+              connection.release();
+              callback(successMsg + " // send push msg error : "+ err, null);
+            }
+            else{
+              connection.release();
+              callback(null, successMsg + " // success send push msg : "+ response);
+            }
+          });
+        }
+      })
     }
   ];
   async.waterfall(taskArray, function(err, result) {

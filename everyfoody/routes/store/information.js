@@ -46,11 +46,11 @@ router.get('/:storeID', function(req, res) {
     },
     //3. 트럭 기본정보 가져오기
     function(userID, connection, callback) {
-      let selectStoreInfoQuery = 'select * from owners tr' +
+      let selectStoreInfoQuery = 'select * from owners tr ' +
         'inner join users u ' +
-        'on u.user_id = ?'
-        'where tr.owner_id = ?';
-      connection.query(selectStoreInfoQuery, [req.params.storeID, req.param.storeID], function(err, storeData) {
+        'on u.user_id = ? ' +
+        'where tr.owner_id = ?'; 
+      connection.query(selectStoreInfoQuery, [req.params.storeID, req.params.storeID], function(err, storeData) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -71,7 +71,8 @@ router.get('/:storeID', function(req, res) {
             storeBreaktime: storeData[0].owner_breaktime,
             storePhone: storeData[0].user_phone,
             reservationCount: storeData[0].owner_reservationCount,
-            reservationCheck : 0
+            reservationCheck : 0,
+            bookmarkCheck : 0
           };
           callback(null, data, userID, connection);
         }
@@ -119,6 +120,26 @@ router.get('/:storeID', function(req, res) {
         else{
           if(reservationData.length !== 0){
             basicInfo.reservationCheck = 1;
+          }
+          callback(null, menuInfo, basicInfo, userID, connection);
+        }
+      })
+    },
+    //6. 북마크된 정보가 있는지 확인
+    function(menuInfo, basicInfo, userID, connection, callback){
+      let selectBookmarkQuery = 'select * from bookmarks where user_id = ? and owner_id = ?';
+      connection.query(selectBookmarkQuery, [userID, req.params.storeID], function(err, bookmarkData){
+        if (err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "get bookmark data error"
+          });
+          connection.release();
+          callback("get bookmark data err : " + err, null);
+        }
+        else{
+          if(bookmarkData.length !== 0){
+            basicInfo.bookmarkCheck = 1;
           }
           callback(null, menuInfo, basicInfo, connection);
         }
