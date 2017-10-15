@@ -10,6 +10,8 @@ var reservation = require('./reservation/index');
 var management = require('./management/index');
 var api = require('./apireference');
 
+var registdata = require('./main/registdata');
+
 router.use('/store',store);
 router.use('/main', region);
 router.use('/bookmark', bookmark);
@@ -19,6 +21,7 @@ router.use('/signin', signin);
 router.use('/signup', signup)
 router.use('/management', management);
 router.use('/api', api);
+router.use('/registdata', registdata);
 
 
 module.exports = router;

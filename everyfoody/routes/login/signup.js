@@ -3,9 +3,7 @@ const async = require('async');
 const router = express.Router();
 const pool = require('../../config/db_pool');
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
 const moment = require('moment');
-const saltRounds = 17;
 
 //이름 양식 확인
 function chkName(str) {
@@ -69,25 +67,10 @@ router.post('/customer', function(req, res) {
         }
       });
     },
-    //4. uid 암호화
+    //4. 회원가입 완료
     function(connection, callback) {
-      bcrypt.hash(req.body.uid, saltRounds, function(err, hash) {
-        if (err) {
-          res.status(500).send({
-            status: "fail",
-            msg: "uid hash error"
-          });
-          connection.release();
-          callback("uid hash error : " + err, null);
-        } else {
-          callback(null, hash, connection);
-        }
-      });
-    },
-    //5. 회원가입 완료
-    function(hashUID, connection, callback) {
       let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?,?)';
-      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, hashUID, 1, req.body.name, null, req.body.phone, null], function(err) {
+      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, 401, req.body.name, req.body.imageURL, req.body.phone, null], function(err) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -170,25 +153,10 @@ router.post('/owner', function(req, res) {
         }
       });
     },
-    //4. uid 암호화
+    //4. 회원가입 완료
     function(connection, callback) {
-      bcrypt.hash(req.body.uid, saltRounds, function(err, hash) {
-        if (err) {
-          res.status(500).send({
-            status: "fail",
-            msg: "uid hash error"
-          });
-          connection.release();
-          callback("uid hash error : " + err, null);
-        } else {
-          callback(null, hash, connection);
-        }
-      });
-    },
-    //5. 회원가입 완료
-    function(hashUID, connection, callback) {
       let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?,?)';
-      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, hashUID, 3, req.body.name, null, req.body.phone,null], function(err) {
+      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, 403, req.body.name, req.body.imageURL, req.body.phone,null], function(err) {
         if (err) {
           res.status(500).send({
             status: "fail",
