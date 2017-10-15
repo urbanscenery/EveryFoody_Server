@@ -47,7 +47,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
     },
     //3. location, GPS정보로 푸드트럭정보 찾기
     function(decoded, connection, callback) {
-      let selectStoreQuery = "select owner_id, owner_storename, owner_imageURL, owner_reservationCount, owner_locationDetail, owner_latitude, owner_longitude " +
+      let selectStoreQuery = "select owner_id, owner_storename, owner_mainURL, owner_reservationCount, owner_locationDetail, owner_latitude, owner_longitude " +
         "from owners " +
         "where owner_location = ?";
       connection.query(selectStoreQuery, req.params.location, function(err, storeData) {
@@ -68,7 +68,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
               data = {
                 storeID: storeData[i].owner_id,
                 storeName: storeData[i].owner_storename,
-                storeImage: storeData[i].owner_imageURL,
+                storeImage: storeData[i].owner_mainURL,
                 reservationCount: storeData[i].owner_reservationCount,
                 storeLocation: storeData[i].owner_locationDetail,
                 storeDistance: -1,
@@ -80,7 +80,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
               data = {
                 storeID: storeData[i].owner_id,
                 storeName: storeData[i].owner_storename,
-                storeImage: storeData[i].owner_imageURL,
+                storeImage: storeData[i].owner_mainURL,
                 reservationCount: storeData[i].owner_reservationCount,
                 storeLocation: storeData[i].owner_locationDetail,
                 storeDistance: distanceData.distance * 1,

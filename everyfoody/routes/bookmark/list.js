@@ -71,7 +71,7 @@ router.get('/:latitude/:longitude', function(req, res) {
               data = {
                 storeID: markedStoreData[i].owner_id,
                 storeName: markedStoreData[i].owner_storename,
-                storeImage: markedStoreData[i].owner_imageURL,
+                storeImage: markedStoreData[i].owner_mainURL,
                 reservationCount: markedStoreData[i].owner_reservationCount,
                 storeLocation: markedStoreData[i].owner_locationDetail,
                 storeDistance: -1,
@@ -83,7 +83,7 @@ router.get('/:latitude/:longitude', function(req, res) {
               let data = {
                 storeID: markedStoreData[i].owner_id,
                 storeName: markedStoreData[i].owner_storename,
-                storeImage: markedStoreData[i].owner_imageURL,
+                storeImage: markedStoreData[i].owner_mainURL,
                 reservationCount: markedStoreData[i].owner_reservationCount,
                 storeLocation: markedStoreData[i].owner_locationDetail,
                 storeDistance: distanceData.distance * 1,

@@ -22,6 +22,7 @@ router.get('/:storeID', function(req, res) {
     //2. header의 token 값으로 user_email 받아옴.
     function(connection, callback) {
       let token = req.headers.token;
+      console.log(token);
       if (token === "nonLoginUser") {
         let decoded = {
           userEmail: "nonSignin",
@@ -62,7 +63,7 @@ router.get('/:storeID', function(req, res) {
           let data = {
             storeID: storeData[0].owner_id,
             storeName: storeData[0].owner_storename,
-            storeImage: storeData[0].owner_imageURL,
+            storeImage: storeData[0].owner_detailURL,
             storeFacebookURL: storeData[0].owner_facebookURL,
             storeTwitterURL: storeData[0].owner_twitterURL,
             storeInstagramURL: storeData[0].owner_instagramURL,
@@ -128,6 +129,8 @@ router.get('/:storeID', function(req, res) {
     //6. 북마크된 정보가 있는지 확인
     function(menuInfo, basicInfo, userID, connection, callback){
       let selectBookmarkQuery = 'select * from bookmarks where user_id = ? and owner_id = ?';
+      console.log(userID);
+      console.log(req.params.storeID);
       connection.query(selectBookmarkQuery, [userID, req.params.storeID], function(err, bookmarkData){
         if (err) {
           res.status(500).send({
@@ -138,6 +141,7 @@ router.get('/:storeID', function(req, res) {
           callback("get bookmark data err : " + err, null);
         }
         else{
+          console.log(bookmarkData);
           if(bookmarkData.length !== 0){
             basicInfo.bookmarkCheck = 1;
           }
