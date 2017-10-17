@@ -10,6 +10,7 @@ const upload = require('../../modules/AWS-S3');
 router.put('/store', upload.single('image'), function(req, res, next) {
 
 	var authURL = req.file.location;
+	var store_name = req.body.store_name;
 	let taskArray = [
 		function(callback){
 			pool.getConnection(function(err, connection) {
@@ -33,7 +34,7 @@ router.put('/store', upload.single('image'), function(req, res, next) {
     	},
 		function(owner_id, connection, callback) {
 			let setOwnerQuery = 'insert into owner(owner_id, owner_storename, owner_authURL) values (?, ?, ?)';
-			connection.query(setOwnerQuery, [owner_id, req.body.store_name, authURL], function(err) {
+			connection.query(setOwnerQuery, [owner_id, store_name, authURL], function(err) {
 				if(err) {
 					res.status(501).send({
 						status : "fail",
@@ -99,7 +100,7 @@ router.put('/closing', function(req, res, next) {
     	},
 		function(owner_id, connection, callback) {
 			let setLocationQuery = 'UPDATE owner SET owner_latitude = ?, owner_longitude = ? where owner_id = ?';
-			connection.query(setLocationQuery, [owner_latitude, owner_longitude, owner_id], function(err) {
+			connection.query(setLocationQuery, [opentruck_latitude, opentruck_longitude, owner_id], function(err) {
 				if(err) {
 					res.status(500).send({
 						status : "fail",

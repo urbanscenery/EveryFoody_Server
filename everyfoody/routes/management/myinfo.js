@@ -2,7 +2,8 @@ const async = require('async');
 const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const pool = require('../../config/db_pool')
+const pool = require('../../config/db_pool');
+const upload = require('../../modules/AWS-S3');
 var express = require('express');
 var router = express.Router();
 
@@ -26,13 +27,13 @@ router.get('/modification', function(req, res, next) {
             status: "fail",
             msg: "user authorication error"
           });
-          connection.realease();
+          connection.release();
           callback("JWT decoded err : " + err, null);
         } else callback(null, decoded.userID, connection);
       })
     },
     function(owner_id, connection, callback) {
-      let selectQuery = 'select * from owners where owner_id = ?';
+      let selectQuery = 'select * from owners o inner join user u on u.user_id = o.owner_id where o.owner_id =?';
       connection.query(selectQuery, owner_id, function(err, basicinfo) {
         if (err) {
           res.status(500).send({
@@ -43,12 +44,14 @@ router.get('/modification', function(req, res, next) {
           let infomation = {
                 owner_storename : basicinfo[0].owner_storename,
                 owner_breaktime : basicinfo[0].owner_breaktime,
+                owner_opentime : basicinfo[0].owner_opentime,
                 owner_phone : basicinfo[0].owner_phone,
                 owner_hashtag : basicinfo[0].owner_hashtag,
                 owner_facebookURL : basicinfo[0].owner_facebookURL,
                 owner_twitterURL : basicinfo[0].owner_twitterURL,
                 owner_instagramURL : basicinfo[0].owner_instagramURL,
-                owner_detailURL : basicinfo[0].owner_detailURL
+                owner_detailURL : basicinfo[0].owner_detailURL,
+                owner_phone : basciinfo[0].user_phone
               }
          callback(null, owner_id, infomation, connection);
         }
@@ -90,7 +93,7 @@ router.get('/modification', function(req, res, next) {
 });
 
 //기본정보 수정시
-router.post('/basic/modification', function(req, res, next) {
+router.post('/basic/modification',function(req, res, next) {
 
   var store_name = req.params.store_name;
   var owner_email = req.body.owner_email;
@@ -101,8 +104,8 @@ router.post('/basic/modification', function(req, res, next) {
   var owner_facebookURL = req.body.owner_facebookURL;
   var owner_twitterURL = req.body.owner_twitterURL;
   var owner_instagramURL = req.body.owner_instagramURL;
-  var owner_detailURL = req.body.owner_detailURL;
-  var owner_mainURL = req.body.owner_mainURL;
+  var owner_detailURL = req.file.location[0];
+  var owner_mainURL = req.file.location[0];
 
   let taskArray = [
     function(callabck) {
@@ -124,13 +127,13 @@ router.post('/basic/modification', function(req, res, next) {
           });
           connection.realease();
           callback("JWT decoded err : " + err, null);
-        } else callback(null, decoded.owner_email, connection);
+        } else callback(null, decoded.owner_id, connection);
       })
     },
-    function(connection, callback) {
+    function(owner_id, connection, callback) {
       let setStoreinfoQuery = 'update owner set owner_storename = ? , owner_breaktime = ?, owner_phone = ?,'
       +'owner_hashtag =?, owner_facebookURL = ?, owner_twitterURL =?, owner_instagramURL = ?, owner_detailURL = ?, owner_mainURL = ? where owner_email = ?';
-      connection.query(setSotreinfoQuery,[owner_storename, owner_breaktime, owner_phone,owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_email],function(err){
+      connection.query(setSotreinfoQuery,[owner_storename, owner_breaktime, owner_phone,owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_id],function(err){
         if(err) {
           res.status(500).send({
             status: "fail",
@@ -224,7 +227,7 @@ router.put('/menu/addition', function(req, res, next) {
 
   var menu_name = req.body.menu_name;
   var menu_price = req.body.menu_price;
-  var menu_imageURL = req.body.menu_imageURL;
+  var menu_imageURL = req.file.location[0];
 
   let taskArray = [
     function(callback) {
