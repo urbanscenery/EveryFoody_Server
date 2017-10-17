@@ -1761,6 +1761,201 @@
           }
         }
       }
+    },
+    "/management/myinfo/modification":
+    {
+      "get":
+      {
+        "tags": [
+          "management"
+        ],
+        "summary": "내 푸드트럭 상세정보",
+        "description": "내 푸드트럭 상세정보 보기 화면",
+        "operationId": "basicInfo",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/xml",
+          "application/json"
+        ],
+        "parameters": [
+        {
+          "in": "header",
+          "name": "JWT token",
+          "description": "사용자 인증을 위한 token",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "in": "query",
+          "name": "storeID",
+          "description": "가게 id",
+          "required": true,
+          "type": "integer"
+        }],
+        "responses":
+        {
+          "200":
+          {
+            "description": "가게 id에 해당하는 상세정보",
+            "schema":
+            {
+              "type": "object",
+              "properties":
+              {
+                "status":
+                {
+                  "type": "string",
+                  "description": "성공 알림",
+                  "example": "success"
+                },
+                "data":
+                {
+                  "type": "object",
+                  "properties":
+                  {
+                    "basicInfo":
+                    {
+                      "type": "object",
+                      "properties":
+                      {
+                        "storeID":
+                        {
+                          "type": "integer",
+                          "description": "푸드트럭 인덱스용 푸드트럭ID",
+                          "example": 13
+                        },
+                        "storeName":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭 이름",
+                          "example": "김준영의 푸드트럭"
+                        },
+                        "storeImage":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭 상세사진 URL",
+                          "example": "image url"
+                        },
+                        "storeFacebookURL":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭 페이스북 url, null가능",
+                          "example": "facebook url"
+                        },
+                        "storeTwitterURL":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭 트위터 url, null가능",
+                          "example": "twitter url"
+                        },
+                        "storeInstagramURL":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭 인스타그램 url, null가능",
+                          "example": "instagram url"
+                        },
+                        "storeHashtag":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭 해쉬태그",
+                          "example": "#맛있어요 #강남맛집"
+                        },
+                        "storeOpentime":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭의 운영시간",
+                          "example": "09:00 - 22:00"
+                        },
+                        "storeBreaktime":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭의 쉬는시간, null가능",
+                          "example": "13:00 - 14:00"
+                        },
+                        "storePhone":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭 연락처",
+                          "example": "010-1234-5678"
+                        },
+                        "reservationCount":
+                        {
+                          "type": "integer",
+                          "description": "푸드트럭 의 예약자 수",
+                          "example": 3
+                        },
+                        "reservationCheck":
+                        {
+                          "type": "integer",
+                          "description": "사용자가 해당 푸드트럭을 예약했는지 확인값, 0: 미예약, 1: 예약완료",
+                          "example": 0
+                        },
+                        "bookmarkCheck":
+                        {
+                          "type": "integer",
+                          "description": "사용자가 해당 푸드트럭을 즐겨찾기했는지 확인값, 0: 미예약, 1: 예약완료",
+                          "example": 0
+                        }
+                      }
+                    },
+                    "menuInfo":
+                    {
+                      "type": "array",
+                      "items":
+                      {
+                        "type": "object",
+                        "properties":
+                        {
+                          "menuID":
+                          {
+                            "type": "integer",
+                            "description": "메뉴 ID",
+                            "example": 13
+                          },
+                          "menuTitle":
+                          {
+                            "type": "string",
+                            "description": "메뉴 이름",
+                            "example": "칠리소스 핫도그"
+                          },
+                          "menuPrice":
+                          {
+                            "type": "integer",
+                            "description": "메뉴 가격",
+                            "example": 6000
+                          },
+                          "menuImageURL":
+                          {
+                            "type": "string",
+                            "description": "메뉴 이미지 URL",
+                            "example": "imageURL"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "msg":
+                {
+                  "type": "string",
+                  "description": "푸드트럭정보 로딩 성공 메세지",
+                  "example": "successful load store data"
+                }
+              }
+            }
+          },
+          "500":
+          {
+            "description": "get connection error \nuser authorization error \nget store data error \nget menu data error \nget reservation data error",
+            "schema":
+            {
+              "$ref": "#/definitions/failMessage"
+            }
+          }
+        }
+      }
     }
 
   },
