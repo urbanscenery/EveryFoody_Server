@@ -79,7 +79,7 @@ router.get('/:storeID', function(req, res) {
         status : "success",
         data : {
           storeID : req.params.storeID,
-          reviewes : reviewData
+          reviews : reviewData
         },
         msg : "successful load reviewes data"
       });

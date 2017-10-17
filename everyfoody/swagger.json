@@ -1783,16 +1783,9 @@
         {
           "in": "header",
           "name": "JWT token",
-          "description": "사용자 인증을 위한 token",
+          "description": "사업자 인증을 위한 token",
           "required": true,
           "type": "string"
-        },
-        {
-          "in": "query",
-          "name": "storeID",
-          "description": "가게 id",
-          "required": true,
-          "type": "integer"
         }],
         "responses":
         {
@@ -1820,83 +1813,53 @@
                       "type": "object",
                       "properties":
                       {
-                        "storeID":
-                        {
-                          "type": "integer",
-                          "description": "푸드트럭 인덱스용 푸드트럭ID",
-                          "example": 13
-                        },
-                        "storeName":
+                        "owner_storename":
                         {
                           "type": "string",
-                          "description": "푸드트럭 이름",
-                          "example": "김준영의 푸드트럭"
+                          "description": "사업자의 푸드트럭 이름",
+                          "example": "강남 최고핫도그"
                         },
-                        "storeImage":
+                        "owner_breaktime":
                         {
                           "type": "string",
-                          "description": "푸드트럭 상세사진 URL",
-                          "example": "image url"
+                          "description": "푸드트럭 쉬는시간",
+                          "example": "12:00 - 13:00"
                         },
-                        "storeFacebookURL":
+                        "owner_phone":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭 사업자 전화번호",
+                          "example": "010-1234-5678"
+                        }, 
+                        "owner_hashtag":
+                        {
+                          "type": "string",
+                          "description": "푸드트럭 해쉬태그",
+                          "example": "#강남 #핫도그"
+                        },
+                        "owner_facebookURL":
                         {
                           "type": "string",
                           "description": "푸드트럭 페이스북 url, null가능",
                           "example": "facebook url"
                         },
-                        "storeTwitterURL":
+                        "owner_twitterURL":
                         {
                           "type": "string",
                           "description": "푸드트럭 트위터 url, null가능",
                           "example": "twitter url"
                         },
-                        "storeInstagramURL":
+                        "owenr_instagramURL":
                         {
                           "type": "string",
                           "description": "푸드트럭 인스타그램 url, null가능",
                           "example": "instagram url"
                         },
-                        "storeHashtag":
+                        "owner_detailURL":
                         {
                           "type": "string",
-                          "description": "푸드트럭 해쉬태그",
-                          "example": "#맛있어요 #강남맛집"
-                        },
-                        "storeOpentime":
-                        {
-                          "type": "string",
-                          "description": "푸드트럭의 운영시간",
-                          "example": "09:00 - 22:00"
-                        },
-                        "storeBreaktime":
-                        {
-                          "type": "string",
-                          "description": "푸드트럭의 쉬는시간, null가능",
-                          "example": "13:00 - 14:00"
-                        },
-                        "storePhone":
-                        {
-                          "type": "string",
-                          "description": "푸드트럭 연락처",
-                          "example": "010-1234-5678"
-                        },
-                        "reservationCount":
-                        {
-                          "type": "integer",
-                          "description": "푸드트럭 의 예약자 수",
-                          "example": 3
-                        },
-                        "reservationCheck":
-                        {
-                          "type": "integer",
-                          "description": "사용자가 해당 푸드트럭을 예약했는지 확인값, 0: 미예약, 1: 예약완료",
-                          "example": 0
-                        },
-                        "bookmarkCheck":
-                        {
-                          "type": "integer",
-                          "description": "사용자가 해당 푸드트럭을 즐겨찾기했는지 확인값, 0: 미예약, 1: 예약완료",
-                          "example": 0
+                          "description": "푸드트럭 상세페이지의 메인이미지 url",
+                          "example": "image url"
                         }
                       }
                     },
@@ -1908,25 +1871,25 @@
                         "type": "object",
                         "properties":
                         {
-                          "menuID":
+                          "menu_id":
                           {
                             "type": "integer",
                             "description": "메뉴 ID",
                             "example": 13
                           },
-                          "menuTitle":
+                          "menu_name":
                           {
                             "type": "string",
                             "description": "메뉴 이름",
                             "example": "칠리소스 핫도그"
                           },
-                          "menuPrice":
+                          "menu_price":
                           {
                             "type": "integer",
                             "description": "메뉴 가격",
                             "example": 6000
                           },
-                          "menuImageURL":
+                          "menu_imageURL":
                           {
                             "type": "string",
                             "description": "메뉴 이미지 URL",
@@ -1941,14 +1904,14 @@
                 {
                   "type": "string",
                   "description": "푸드트럭정보 로딩 성공 메세지",
-                  "example": "successful load store data"
+                  "example": "basic & menuinfo success"
                 }
               }
             }
           },
           "500":
           {
-            "description": "get connection error \nuser authorization error \nget store data error \nget menu data error \nget reservation data error",
+            "description": "get connection error \nuser authorization error \nget store data error ",
             "schema":
             {
               "$ref": "#/definitions/failMessage"
@@ -1966,63 +1929,6 @@
 
   "definitions":
   {
-    "ID":
-    {
-      "type": "object",
-      "properties":
-      {
-        "id":
-        {
-          "description": "관리자 ID",
-          "type": "string",
-          "minLength": 1
-        },
-        "pwd":
-        {
-          "description": "관리자 비밀번호",
-          "type": "string",
-          "minLength": 1
-        }
-      }
-    },
-    "Category":
-    {
-      "type": "object",
-      "properties":
-      {
-        "id":
-        {
-          "description": "Category ID",
-          "allOf": [
-          {
-            "$ref": "#/definitions/Id"
-          }]
-        },
-        "name":
-        {
-          "description": "Category name",
-          "type": "string",
-          "minLength": 1
-        },
-        "sub":
-        {
-          "description": "Test Sub Category",
-          "type": "object",
-          "properties":
-          {
-            "prop1":
-            {
-              "type": "string",
-              "description": "Dumb Property"
-            }
-          }
-        }
-      },
-      "xml":
-      {
-        "name": "Category"
-      }
-    },
     "failMessage":
     {
       "type": "object",
@@ -2038,289 +1944,6 @@
           "type": "string",
           "example": "fail reason"
         }
-      }
-    },
-    "Dog":
-    {
-      "description": "A representation of a dog",
-      "allOf": [
-      {
-        "$ref": "#/definitions/Pet"
-      },
-      {
-        "type": "object",
-        "properties":
-        {
-          "packSize":
-          {
-            "type": "integer",
-            "format": "int32",
-            "description": "The size of the pack the dog is from",
-            "default": 1,
-            "minimum": 1
-          }
-        },
-        "required": [
-          "packSize"
-        ]
-      }]
-    },
-    "HoneyBee":
-    {
-      "description": "A representation of a honey bee",
-      "allOf": [
-      {
-        "$ref": "#/definitions/Pet"
-      },
-      {
-        "type": "object",
-        "properties":
-        {
-          "honeyPerDay":
-          {
-            "type": "number",
-            "description": "Average amount of honey produced per day in ounces",
-            "example": 3.14
-          }
-        },
-        "required": [
-          "honeyPerDay"
-        ]
-      }]
-    },
-    "Id":
-    {
-      "type": "integer",
-      "format": "int64"
-    },
-    "Order":
-    {
-      "type": "object",
-      "properties":
-      {
-        "id":
-        {
-          "description": "Order ID",
-          "allOf": [
-          {
-            "$ref": "#/definitions/Id"
-          }]
-        },
-        "petId":
-        {
-          "description": "Pet ID",
-          "allOf": [
-          {
-            "$ref": "#/definitions/Id"
-          }]
-        },
-        "quantity":
-        {
-          "type": "integer",
-          "format": "int32",
-          "minimum": 1,
-          "default": 1
-        },
-        "shipDate":
-        {
-          "description": "Estimated ship date",
-          "type": "string",
-          "format": "date-time"
-        },
-        "status":
-        {
-          "type": "string",
-          "description": "Order Status",
-          "enum": [
-            "placed",
-            "approved",
-            "delivered"
-          ]
-        },
-        "complete":
-        {
-          "description": "Indicates whenever order was completed or not",
-          "type": "boolean",
-          "default": false
-        }
-      },
-      "xml":
-      {
-        "name": "Order"
-      }
-    },
-    "Pet":
-    {
-      "type": "object",
-      "required": [
-        "name",
-        "photoUrls"
-      ],
-      "discriminator": "petType",
-      "properties":
-      {
-        "id":
-        {
-          "description": "Pet ID",
-          "allOf": [
-          {
-            "$ref": "#/definitions/Id"
-          }]
-        },
-        "category":
-        {
-          "description": "Categories this pet belongs to",
-          "allOf": [
-          {
-            "$ref": "#/definitions/Category"
-          }]
-        },
-        "name":
-        {
-          "description": "The name given to a pet",
-          "type": "string",
-          "example": "Guru"
-        },
-        "photoUrls":
-        {
-          "description": "The list of URL to a cute photos featuring pet",
-          "type": "array",
-          "xml":
-          {
-            "name": "photoUrl",
-            "wrapped": true
-          },
-          "items":
-          {
-            "type": "string",
-            "format": "url"
-          }
-        },
-        "tags":
-        {
-          "description": "Tags attached to the pet",
-          "type": "array",
-          "xml":
-          {
-            "name": "tag",
-            "wrapped": true
-          },
-          "items":
-          {
-            "$ref": "#/definitions/Tag"
-          }
-        },
-        "status":
-        {
-          "type": "string",
-          "description": "Pet status in the store",
-          "enum": [
-            "available",
-            "pending",
-            "sold"
-          ]
-        },
-        "petType":
-        {
-          "description": "Type of a pet",
-          "type": "string"
-        }
-      },
-      "xml":
-      {
-        "name": "Pet"
-      }
-    },
-    "Tag":
-    {
-      "type": "object",
-      "properties":
-      {
-        "id":
-        {
-          "description": "Tag ID",
-          "allOf": [
-          {
-            "$ref": "#/definitions/Id"
-          }]
-        },
-        "name":
-        {
-          "description": "Tag name",
-          "type": "string",
-          "minLength": 1
-        }
-      },
-      "xml":
-      {
-        "name": "Tag"
-      }
-    },
-    "User":
-    {
-      "type": "object",
-      "properties":
-      {
-        "id":
-        {
-          "description": "User ID",
-          "$ref": "#/definitions/Id"
-        },
-        "username":
-        {
-          "description": "User supplied username",
-          "type": "string",
-          "minLength": 4,
-          "example": "John78"
-        },
-        "firstName":
-        {
-          "description": "User first name",
-          "type": "string",
-          "minLength": 1,
-          "example": "John"
-        },
-        "lastName":
-        {
-          "description": "User last name",
-          "type": "string",
-          "minLength": 1,
-          "example": "Smith"
-        },
-        "email":
-        {
-          "description": "User email address",
-          "type": "string",
-          "format": "email",
-          "example": "john.smith@example.com"
-        },
-        "password":
-        {
-          "type": "string",
-          "description": "User password, MUST contain a mix of upper and lower case letters, as well as digits",
-          "format": "password",
-          "minLength": 8,
-          "pattern": "(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])",
-          "example": "drowssaP123"
-        },
-        "phone":
-        {
-          "description": "User phone number in international format",
-          "type": "string",
-          "pattern": "^\\+(?:[0-9]-?){6,14}[0-9]$",
-          "example": "+1-202-555-0192",
-          "x-nullable": true
-        },
-        "userStatus":
-        {
-          "description": "User status",
-          "type": "integer",
-          "format": "int32"
-        }
-      },
-      "xml":
-      {
-        "name": "User"
       }
     }
   }
