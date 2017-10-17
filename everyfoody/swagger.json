@@ -1830,7 +1830,7 @@
                           "type": "string",
                           "description": "푸드트럭 사업자 전화번호",
                           "example": "010-1234-5678"
-                        }, 
+                        },
                         "owner_hashtag":
                         {
                           "type": "string",
@@ -1919,7 +1919,238 @@
           }
         }
       }
-    }
+    },
+    "/management/myinfo/basic/modification":
+    {
+      "post":
+      {
+        "tags": [
+          "management"
+        ],
+        "summary": "가게 기본정보 수정",
+        "description": "사업자가 자신의 가게 기본정보를 수정합니다.",
+        "operationId": "regist_store",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/xml",
+          "application/json"
+        ],
+        "parameters": [
+        {
+          "in": "header",
+          "name": "JWT token",
+          "description": "사업자 인증을 위한 token",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "in": "body",
+          "name": "body",
+          "description": "사업자 인증을 위한 가게정보",
+          "required": true,
+          "schema":
+          {
+            "type": "object",
+            "properties":
+            {
+              "store_name":
+              {
+                "description": "등록을 할 가게 이름",
+                "type": "istring",
+                "minLength": 1,
+                "example": "가게이름"
+              },
+              "owner_breaktime":
+              {
+                "description": "등록을 할 가게 이름",
+                "type": "istring",
+                "minLength": 1,
+                "example": "가게이름"
+              },
+              "owner_phone":
+              {
+                "description": "등록을 할 가게 이름",
+                "type": "istring",
+                "minLength": 1,
+                "example": "가게이름"
+              },
+              "owner_hashtag":
+              {
+                "description": "등록을 할 가게 이름",
+                "type": "istring",
+                "minLength": 1,
+                "example": "가게이름"
+              },
+              "owner_facebookURL":
+              {
+                "description": "등록을 할 가게 이름",
+                "type": "istring",
+                "minLength": 1,
+                "example": "가게이름"
+              },
+              "owner_twitterURL":
+              {
+                "description": "등록을 할 가게 이름",
+                "type": "istring",
+                "minLength": 1,
+                "example": "가게이름"
+              },
+              "owenr_instagramURL":
+              {
+                "description": "등록을 할 가게 이름",
+                "type": "istring",
+                "minLength": 1,
+                "example": "가게이름"
+              },
+              "main_image":
+              {
+                "description": "푸드트럭 리스트에 띄울 이미지",
+                "type": "image"
+              },
+              "detail_image":
+              {
+                "description": "푸드트럭 상세페이지 상단의 이미지",
+                "type": "image"
+              }
+            }
+          }
+        }],
+        "responses":
+        {
+          "201":
+          {
+            "description": "가게 상세정보 수정 성공",
+            "schema":
+            {
+              "type": "object",
+              "properties":
+              {
+                "status":
+                {
+                  "type": "string",
+                  "description": "성공 알림",
+                  "example": "success"
+                },
+                "msg":
+                {
+                  "type": "string",
+                  "description": "성공알림 메세지",
+                  "example": "Success"
+                }
+              }
+            }
+          },
+          "500":
+          {
+            "description": "user authorization error \nownerinfo update error ",
+            "schema":
+            {
+              "$ref": "#/definitions/failMessage"
+            }
+          }
+        }
+      }
+    },
+
+
+    "/management/customers/lists":
+    {
+      "get":
+      {
+        "tags": [
+          "management"
+        ],
+        "summary": "푸드트럭 예약현황 확인",
+        "description": "내 푸드트럭 예약현황 보기 화면",
+        "operationId": "basicInfo",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/xml",
+          "application/json"
+        ],
+        "parameters": [
+        {
+          "in": "header",
+          "name": "JWT token",
+          "description": "사업자 인증을 위한 token",
+          "required": true,
+          "type": "string"
+        }],
+        "responses":
+        {
+          "200":
+          {
+            "description": "사업자의 푸드트럭을 예약한 유저 리스트",
+            "schema":
+            {
+              "type": "object",
+              "properties":
+              {
+                "status":
+                {
+                  "type": "string",
+                  "description": "성공 알림",
+                  "example": "success"
+                },
+                "data":
+                {
+                  "type": "array",
+                  "items":
+                  {
+                    "type": "object",
+                    "properties":
+                    {
+                      "user_nickname":
+                      {
+                        "type": "string",
+                        "description": "예약한 유저의 이름",
+                        "example": "홍길동"
+                      },
+                      "user_phone":
+                      {
+                        "type": "string",
+                        "description": "예약한 유저의 전화번호",
+                        "example": "010-1234-1234"
+                      },
+                      "reservation_time":
+                      {
+                        "type": "string",
+                        "description": "예약시간, YYYYMMDDHHMMSS 양식",
+                        "example": "20171016201230"
+                      },
+                      "user_id":
+                      {
+                        "type": "integer",
+                        "description": "유저 id",
+                        "example": 5
+                      }
+                    }
+                  }
+                },
+                "msg":
+                {
+                  "type": "string",
+                  "description": "성공 메세지",
+                  "example": "customer list get success"
+                }
+              }
+            }
+          },
+          "500":
+          {
+            "description": "get connection error \nuser authorization error",
+            "schema":
+            {
+              "$ref": "#/definitions/failMessage"
+            }
+          }
+        }
+      }
+    },
 
   },
 
