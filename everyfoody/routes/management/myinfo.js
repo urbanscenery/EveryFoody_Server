@@ -93,7 +93,7 @@ router.get('/modification', function(req, res, next) {
 });
 
 //기본정보 수정시
-router.post('/basic/modification',function(req, res, next) {
+router.post('/basic/modification',upload.single('image'),function(req, res, next) {
 
   var store_name = req.params.store_name;
   var owner_email = req.body.owner_email;
@@ -104,8 +104,8 @@ router.post('/basic/modification',function(req, res, next) {
   var owner_facebookURL = req.body.owner_facebookURL;
   var owner_twitterURL = req.body.owner_twitterURL;
   var owner_instagramURL = req.body.owner_instagramURL;
-  var owner_detailURL = req.file.location[0];
-  var owner_mainURL = req.file.location[0];
+  var owner_detailURL = req.file.location;
+  var owner_mainURL = req.file.location;
 
   let taskArray = [
     function(callabck) {
@@ -223,11 +223,11 @@ router.delete('/menu/remove/:menu_id', function(req, res, next) {
   });
 });
 
-router.put('/menu/addition', function(req, res, next) {
+router.put('/menu/addition',upload.single('image'), function(req, res, next) {
 
   var menu_name = req.body.menu_name;
   var menu_price = req.body.menu_price;
-  var menu_imageURL = req.file.location[0];
+  var menu_imageURL = req.file.location;
 
   let taskArray = [
     function(callback) {
@@ -285,11 +285,11 @@ router.put('/menu/addition', function(req, res, next) {
   });
 });
 
-router.put('/menu/modification/:menu_id', function(req, res, next) {
+router.put('/menu/modification/:menu_id',upload.single('image'), function(req, res, next) {
 
   var menu_name = req.body.menu_name;
   var menu_price = req.body.menu_price;
-  var menu_imageURL = req.body.menu_imageURL;
+  var menu_imageURL = req.file.location;
   var menu_id = req.params.menu_id;
 
   let taskArray = [
