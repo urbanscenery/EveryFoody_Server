@@ -125,7 +125,7 @@ router.post('/basic/modification',upload.single('image'),function(req, res, next
             status : "fail",
             msg: "user authorication error"
           });
-          connection.realease();
+          connection.release();
           callback("JWT decoded err : " + err, null);
         } else callback(null, decoded.owner_id, connection);
       })
@@ -186,7 +186,7 @@ router.delete('/menu/remove/:menu_id', function(req, res, next) {
             status: "fail",
             msg: "user authorication error"
           });
-          connection.realease();
+          connection.release();
           callback("JWT decoded err : " + err, null);
         } else callback(null, decoded.userID, connection);
       })
@@ -247,7 +247,7 @@ router.put('/menu/addition',upload.single('image'), function(req, res, next) {
             status: "fail",
             msg: "user authorication error"
           });
-          connection.realease();
+          connection.release();
           callback("JWT decoded err : " + err, null);
         } else callback(null, decoded.userID, connection);
       })
@@ -310,7 +310,7 @@ router.put('/menu/modification/:menu_id',upload.single('image'), function(req, r
             status: "fail",
             msg: "user authorication error"
           });
-          connection.realease();
+          connection.release();
           callback("JWT decoded err : " + err, null);
         } else callback(null, decoded.userID, connection);
       })

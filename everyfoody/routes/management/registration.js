@@ -26,7 +26,7 @@ router.put('/store', upload.single('image'), function(req, res, next) {
 	            status : "fail",
 	            msg : "user authorication error"
 	          });
-	          connection.realease();
+	          connection.release();
 	          callback("JWT decoded err : "+ err, null) ;
 	        }
 	        else callback(null, decoded.userID, connection);
@@ -92,7 +92,7 @@ router.put('/closing', function(req, res, next) {
 	            status : "fail",
 	            msg : "user authorication error"
 	          });
-	          connection.realease();
+	          connection.release();
 	          callback("JWT decoded err : "+ err, null) ;
 	        }
 	        else callback(null, decoded.userID, connection);
@@ -157,7 +157,7 @@ router.put('/opening', function(req, res, next) {
 	            status : "fail",
 	            msg : "user authorication error"
 	          });
-	          connection.realease();
+	          connection.release();
 	          callback("JWT decoded err : "+ err, null) ;
 	        }
 	        else callback(null, decoded.userID, connection);
