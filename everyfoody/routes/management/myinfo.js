@@ -41,7 +41,6 @@ router.get('/modification', function(req, res, next) {
           });
         } else {
           let infomation = {
-<<<<<<< HEAD
                 owner_storename : basicinfo[0].owner_storename,
                 owner_breaktime : basicinfo[0].owner_breaktime,
                 owner_phone : basicinfo[0].owner_phone,
@@ -59,25 +58,6 @@ router.get('/modification', function(req, res, next) {
       let modifyQuery = 'select menu_id, menu_name, menu_price, menu_detailURL from menu where owner_id = ?';
       connection.query(modifyQuery, [owner_id],function(err, menuinfo) {
         if(err){
-=======
-            owner_storename: basicinfo[0].owner_storename,
-            owner_breaktime: basicinfo[0].owner_breaktime,
-            owner_phone: basicinfo[0].owner_phone,
-            owner_hashtag: basicinfo[0].owner_hashtag,
-            owner_facebookURL: basicinfo[0].owner_facebookURL,
-            owner_twitterURL: basicinfo[0].owner_twitterURL,
-            owner_instagramURL: basicinfo[0].owner_instagramURL,
-            owner_imageURL: basicinfo[0].owner_imageURL
-          }
-          callback(null, owner_id, infomation, connection);
-        }
-      })
-    },
-    function(owner_id, basicinfo, connection, callback) {
-      let modifyQuery = 'select menu_id, menu_name, menu_price, menu_imageURL from menu where owner_id = ?';
-      connection.query(modifyQuery, [owner_id], function(err, menuinfo) {
-        if (err) {
->>>>>>> yeontae_sub
           res.status(500).send({
             status: "fail",
             msg: "query error"
@@ -148,17 +128,10 @@ router.post('/basic/modification', function(req, res, next) {
       })
     },
     function(connection, callback) {
-<<<<<<< HEAD
       let setStoreinfoQuery = 'update owner set owner_storename = ? , owner_breaktime = ?, owner_phone = ?,'
       +'owner_hashtag =?, owner_facebookURL = ?, owner_twitterURL =?, owner_instagramURL = ?, owner_detailURL = ?, owner_mainURL = ? where owner_email = ?';
       connection.query(setSotreinfoQuery,[owner_storename, owner_breaktime, owner_phone,owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_email],function(err){
         if(err) {
-=======
-      let setStoreinfoQuery = 'update owner set owner_storename = ? , owner_breaktime = ?, owner_phone = ?,' +
-        'owner_hashtag =?, owner_facebookURL = ?, owner_twitterURL =?, owner_instagramURL = ?, owner_imageURL = ? where owner_email = ?';
-      connection.query(setSotreinfoQuery, [owner_storename, owner_breaktime, owner_phone, owner_hashtag, owner_facebookURL, owner_twitterURL, owner_instagramURL, owner_imageURL, owner_email], function(err) {
-        if (err) {
->>>>>>> yeontae_sub
           res.status(500).send({
             status: "fail",
             msg: "owner info update error"
