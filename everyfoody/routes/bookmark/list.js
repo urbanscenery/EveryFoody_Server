@@ -115,7 +115,7 @@ router.get('/:latitude/:longitude', function(req, res) {
           return -1;
         }
       });
-      callback(null, dataList, userID, connection);
+      callback(null, dataList, connection);
     },
     //5. 응답후 커넥션 해제
     function(dataList, connection, callback) {

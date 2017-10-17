@@ -22,8 +22,8 @@ router.put('/store', upload.single('image'), function(req, res, next) {
 	      jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
 	        if(err){
 	          res.status(501).send({
-	            msg : "501 user authorication error",
-	            status : "fail"
+	            status : "fail",
+	            msg : "user authorication error"
 	          });
 	          connection.realease();
 	          callback("JWT decoded err : "+ err, null) ;
@@ -33,22 +33,22 @@ router.put('/store', upload.single('image'), function(req, res, next) {
     	},
 		function(owner_id, connection, callback) {
 			let setOwnerQuery = 'insert into owner(owner_id, owner_storename, owner_authURL) values (?, ?, ?)';
-			connection.query(setOwnerQuery, [owner_id, store_name, authURL], function(err) {
+			connection.query(setOwnerQuery, [owner_id, req.body.store_name, authURL], function(err) {
 				if(err) {
 					res.status(501).send({
-						msg : "ownerinfo update error",
-						status : "fail"
+						status : "fail",
+						msg : "ownerinfo update error"
 					});
 					connection.release();
 					callback("update info error :"+ err,null);
 				}
 				else {
 					res.status(200).send({
-						msg : "Success",
-						status : "success"
+						status : "success",
+						msg : "Success"
 					});
 					connection.release();
-					callback(null, "Successful change password");
+					callback(null, "Successful regist owner info");
 				}
 			});
 		}
@@ -76,8 +76,8 @@ router.put('/closing', function(req, res, next) {
 			pool.getConnection(function(err, connection) {
 				if(err) {
 					res.status(500).send({
-						msg : "500 connection error",
-						status : "failt"
+						status : "failt",
+						msg : "connection error"
 					});
 				}
 				else callback(null, connection);
@@ -88,8 +88,8 @@ router.put('/closing', function(req, res, next) {
 	      jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
 	        if(err){
 	          res.status(501).send({
-	            msg : "501 user authorication error",
-	            status : "fail"
+	            status : "fail",
+	            msg : "user authorication error"
 	          });
 	          connection.realease();
 	          callback("JWT decoded err : "+ err, null) ;
@@ -102,16 +102,16 @@ router.put('/closing', function(req, res, next) {
 			connection.query(setLocationQuery, [owner_latitude, owner_longitude, owner_id], function(err) {
 				if(err) {
 					res.status(500).send({
-						msg : "truck opening error",
-						status : "fail"
+						status : "fail",
+						msg : "truck opening error"
 					})
 					connection.release();
 					callback(null,"remove opening truck error"+err);
 				}
 				else {
 					res.status(200).send({
-						msg : "truck opening success",
-						status : "success"
+						status : "success",
+						msg : "truck opening success"
 					})
 					connection.release();
 					callback(null,"remove opening  truck success"+err);
@@ -141,8 +141,8 @@ router.put('/opening', function(req, res, next) {
 			pool.getConnection(function(err, connection) {
 				if(err) {
 					res.status(500).send({
-						msg : "500 connection error",
-						status : "fail"
+						status : "fail",
+						msg : "connection error"
 					});
 				}
 				else callback(null, connection);
@@ -153,8 +153,8 @@ router.put('/opening', function(req, res, next) {
 	      jwt.verify(token, req.app.get('jwt-secret'),function(err, decoded){
 	        if(err){
 	          res.status(501).send({
-	            msg : "501 user authorication error",
-	            status : "fail"
+	            status : "fail",
+	            msg : "user authorication error"
 	          });
 	          connection.realease();
 	          callback("JWT decoded err : "+ err, null) ;
@@ -164,19 +164,19 @@ router.put('/opening', function(req, res, next) {
     	},
 		function(owner_id, connection, callback) {
 			let setLocationQuery = 'UPDATE owner SET owner_latitude = ?, owner_longitude = ? where owner_id = ?';
-			connection.query(setLocationQuery, [owner_latitude, owner_longitude, owner_id], function(err) {
+			connection.query(setLocationQuery, [opentruck_latitude, opentruck_longitude, owner_id], function(err) {
 				if(err) {
 					res.status(500).send({
-						msg : "truck opening error",
-						status : "fail"
+						status : "fail",
+						msg : "truck opening error"
 					})
 					connection.release();
 					callback(null,"insert opening truck error"+err);
 				}
 				else {
 					res.status(200).send({
-						msg : "truck opening success",
-						status : "success"
+						status : "success",
+						msg : "truck opening success"
 					})
 					connection.release();
 					callback(null,"insert opening truck success"+err);
