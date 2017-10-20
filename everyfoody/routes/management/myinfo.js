@@ -33,7 +33,7 @@ router.get('/modification', function(req, res, next) {
       })
     },
     function(owner_id, connection, callback) {
-      let selectQuery = 'select * from owners o inner join user u on u.user_id = o.owner_id where o.owner_id =?';
+      let selectQuery = 'select * from owners o inner join users u on u.user_id = o.owner_id where o.owner_id =?';
       connection.query(selectQuery, owner_id, function(err, basicinfo) {
         if (err) {
           res.status(500).send({
@@ -41,24 +41,23 @@ router.get('/modification', function(req, res, next) {
             msg: "query error"
           });
         } else {
-          let infomation = {
-                owner_storename : basicinfo[0].owner_storename,
-                owner_breaktime : basicinfo[0].owner_breaktime,
-                owner_opentime : basicinfo[0].owner_opentime,
-                owner_phone : basicinfo[0].owner_phone,
-                owner_hashtag : basicinfo[0].owner_hashtag,
-                owner_facebookURL : basicinfo[0].owner_facebookURL,
-                owner_twitterURL : basicinfo[0].owner_twitterURL,
-                owner_instagramURL : basicinfo[0].owner_instagramURL,
-                owner_detailURL : basicinfo[0].owner_detailURL,
-                owner_phone : basciinfo[0].user_phone
+          let infomation = {              
+                storeName : basicinfo[0].owner_storename,
+                storeImage : basicinfo[0].owner_detailURL,
+                storeFacebookURL : basicinfo[0].owner_facebookURL,
+                storeTwitterURL : basicinfo[0].owner_twitterURL,
+                storeInstagramURL : basicinfo[0].owner_instagramURL,
+                storeHashtag : basicinfo[0].owner_hashtag,
+                storeOpentime : basicinfo[0].owner_opentime,
+                storeBreaktime : basicinfo[0].owner_breaktime,      
+                storePhone : basicinfo[0].user_phone,                                                        
               }
          callback(null, owner_id, infomation, connection);
         }
       })
     }, 
    function(owner_id, basicinfo, connection, callback) {
-      let modifyQuery = 'select menu_id, menu_name, menu_price, menu_detailURL from menu where owner_id = ?';
+      let modifyQuery = 'select menu_id, menu_name, menu_price, menu_imageURL from menu where owner_id = ?';
       connection.query(modifyQuery, [owner_id],function(err, menuinfo) {
         if(err){
           res.status(500).send({
@@ -66,17 +65,29 @@ router.get('/modification', function(req, res, next) {
             msg: "query error"
           });
         } else {
-          callback(null, basicinfo, menuinfo, connection);
+           let menuinfo2 =  [{
+            menuID : menuinfo[0].menu_id,
+            menuTitle : menuinfo[0].menu_name,
+            menuPrice : menuinfo[0].menu_price,
+            menuImageURL : menuinfo[0].menu_imageURL
+          },
+          {
+            menuID : menuinfo[0].menu_id,
+            menuTitle : menuinfo[0].menu_name,
+            menuPrice : menuinfo[0].menu_price,
+            menuImageURL : menuinfo[0].menu_imageURL
+          }]
+          callback(null, basicinfo, menuinfo2, connection);
         }
       })
     },
     function(basicinfo, menuinfo, connection) {
       res.status(200).send({
         status: "success",
-        data: [{
-          basicinfo: basicinfo,
-          menuinfo: menuinfo
-        }],
+        data: {
+          basicInfo: basicinfo,
+          menuInfo : menuinfo
+        },
         msg: "basic & menuinfo success"
       })
     }
@@ -131,7 +142,7 @@ router.post('/basic/modification',upload.single('image'),function(req, res, next
       })
     },
     function(owner_id, connection, callback) {
-      let setStoreinfoQuery = 'update owner set owner_storename = ? , owner_breaktime = ?, owner_phone = ?,'
+      let setStoreinfoQuery = 'update owners set owner_storename = ? , owner_breaktime = ?, owner_phone = ?,'
       +'owner_hashtag =?, owner_facebookURL = ?, owner_twitterURL =?, owner_instagramURL = ?, owner_detailURL = ?, owner_mainURL = ? where owner_email = ?';
       connection.query(setSotreinfoQuery,[owner_storename, owner_breaktime, owner_phone,owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_id],function(err){
         if(err) {

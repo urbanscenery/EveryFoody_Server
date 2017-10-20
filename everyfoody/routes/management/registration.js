@@ -1,15 +1,16 @@
 const express = require('express');
-const router = express.Router();
 const async = require('async');
+const router = express.Router();
+const pool = require('../../config/db_pool');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const pool = require('../../config/db_pool')
 const upload = require('../../modules/AWS-S3');
+const fcm = require('../../config/fcm_config');
 
 
 router.post('/store', upload.single('image'), function(req, res, next) {
 
-	var authURL = 'serser';
+	var authURL = req.file.location;
 	var store_name = req.body.store_name;
 
 	let taskArray = [
