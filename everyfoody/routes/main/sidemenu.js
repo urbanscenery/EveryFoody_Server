@@ -39,15 +39,18 @@ router.get('/', function(req, res){
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, connection);
+            callback(null, decoded.userID, decoded.userCategory, connection);
             //decoded가 하나의 JSON 객체. 이안에 userEmail userCategory userID 프로퍼티 존
           }
         });
       }
     },
     //3. 예약내역 갯수 불러오기.
-    function(userID, connection, callback){
-    	let selectReservationQuery = 'select * from reservation where user_id = ?';
+    function(userID, userCategory, connection, callback){
+      let selectReservationQuery;
+      if(userCategory === 101)  selectReservationQuery = 'select * from reservation where user_id = ?';
+    	else if(userCategory ===102) selectReservationQuery = 'select * from reservation where owener_id = ?';
+      else callback('userCategory error from Reservation', null);
     	connection.query(selectReservationQuery, userID, function(err, reservationData){
     		if (err) {
           res.status(500).send({
@@ -61,13 +64,16 @@ router.get('/', function(req, res){
         		reservationCount : reservationData.length,
         		bookmarkCount : 0
         	}
-        	callback(null, responseData, userID, connection);
+        	callback(null, responseData, userID, userCategory, connection);
         }
     	});
     },
-    //4. 북마크 갯수 불러오기.
-    function(responseData, userID, connection, callback){
-    	let selectBookmarkQuery = 'select * from bookmarks where user_id = ?';
+    //4. 북마크 갯수 불러오기. 사용자일 경우 자신의 북마크 개수, 사업자일 경우 자신을 북마크한 사람들 수
+    function(responseData, userID, userCategory, connection, callback){
+    	let selectBookmarkQuery;
+      if(userCategory === 101) selectBookmarkQuery  = 'select * from bookmarks where user_id = ?';
+      else if(userCategory === 102) selectBookmarkQuery = 'select * from bookmarks where owner_id = ?';
+      else callback('UserCategory error from Bookmarks', null);
     	connection.query(selectBookmarkQuery, userID, function(err, bookmarkData){
     		if (err) {
           res.status(500).send({

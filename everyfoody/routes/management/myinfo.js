@@ -65,18 +65,17 @@ router.get('/modification', function(req, res, next) {
             msg: "query error"
           });
         } else {
-           let menuinfo2 =  [{
+
+          let menuinfo2= [];
+          for(var i=0; i<menuinfo.length; i++)
+          {              
+           menuinfo2.push({
             menuID : menuinfo[0].menu_id,
             menuTitle : menuinfo[0].menu_name,
             menuPrice : menuinfo[0].menu_price,
             menuImageURL : menuinfo[0].menu_imageURL
-          },
-          {
-            menuID : menuinfo[0].menu_id,
-            menuTitle : menuinfo[0].menu_name,
-            menuPrice : menuinfo[0].menu_price,
-            menuImageURL : menuinfo[0].menu_imageURL
-          }]
+            })
+          }        
           callback(null, basicinfo, menuinfo2, connection);
         }
       })
@@ -107,7 +106,7 @@ router.get('/modification', function(req, res, next) {
 router.post('/basic/modification',upload.single('image'),function(req, res, next) {
 
   var store_name = req.params.store_name;
-  var owner_email = req.body.owner_email;
+  var owner_email = req.body.owner_emai;
   var owner_storename = req.body.owner_storename;
   var owner_breaktime = req.body.owner_breaktime;
   var owner_phone = req.body.owner_phone;
@@ -143,7 +142,7 @@ router.post('/basic/modification',upload.single('image'),function(req, res, next
     },
     function(owner_id, connection, callback) {
       let setStoreinfoQuery = 'update owners set owner_storename = ? , owner_breaktime = ?, owner_phone = ?,'
-      +'owner_hashtag =?, owner_facebookURL = ?, owner_twitterURL =?, owner_instagramURL = ?, owner_detailURL = ?, owner_mainURL = ? where owner_email = ?';
+      +'owner_hashtag =?, owner_facebookURL = ?, owner_twitterURL =?, owner_instagramURL = ?, owner_detailURL = ?, owner_mainURL = ? where owner_id = ?';
       connection.query(setSotreinfoQuery,[owner_storename, owner_breaktime, owner_phone,owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_id],function(err){
         if(err) {
           res.status(500).send({
@@ -174,7 +173,7 @@ router.post('/basic/modification',upload.single('image'),function(req, res, next
   });
 });
 
-//메뉴정보 수정
+//메뉴정보 삭제
 router.delete('/menu/remove/:menu_id', function(req, res, next) {
 
   var menu_id = req.body.menu_id;
@@ -234,6 +233,7 @@ router.delete('/menu/remove/:menu_id', function(req, res, next) {
   });
 });
 
+//메뉴 정보 추가
 router.put('/menu/addition',upload.single('image'), function(req, res, next) {
 
   var menu_name = req.body.menu_name;
@@ -296,6 +296,7 @@ router.put('/menu/addition',upload.single('image'), function(req, res, next) {
   });
 });
 
+//메뉴 정보 수정
 router.put('/menu/modification/:menu_id',upload.single('image'), function(req, res, next) {
 
   var menu_name = req.body.menu_name;
