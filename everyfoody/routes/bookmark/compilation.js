@@ -65,8 +65,8 @@ router.get('/:storeID', function(req, res) {
     //4. bookmark데이터가 있으면 삭제, 없으면 추가
     function(bookmarkData, userData, connection, callback) {
       if (bookmarkData.length === 0) {
-        let insertBookmarkQuery = 'insert into bookmarks values(?,?)';
-        connection.query(insertBookmarkQuery, [userData.userID, req.params.storeID], function(err) {
+        let insertBookmarkQuery = 'insert into bookmarks values(?,?,?)';
+        connection.query(insertBookmarkQuery, [userData.userID, req.params.storeID,1], function(err) {
           if (err) {
             res.status(500).send({
               status: "fail",
@@ -82,7 +82,8 @@ router.get('/:storeID', function(req, res) {
             callback(null, userData, connection, "succesful regist bookmark");
           }
         });
-      } else {
+      }
+      else {
         let deleteBookmarkQuery = 'delete from bookmarks where user_id = ? and owner_id = ?';
         connection.query(deleteBookmarkQuery, [userData.userID, req.params.storeID], function(err) {
           if (err) {
