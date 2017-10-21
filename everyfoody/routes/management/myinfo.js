@@ -64,8 +64,8 @@ router.get('/modification', function(req, res, next) {
             status: "fail",
             msg: "query error"
           });
-        } else {
-
+        }
+        else {
           let menuinfo2= [];
           for(var i=0; i<menuinfo.length; i++)
           {              
@@ -176,7 +176,7 @@ router.post('/basic/modification',upload.single('image'),function(req, res, next
 //메뉴정보 삭제
 router.delete('/menu/remove/:menu_id', function(req, res, next) {
 
-  var menu_id = req.body.menu_id;
+  var menu_id = req.params.menu_id;
 
   let taskArray = [
     function(callback) {
@@ -202,6 +202,7 @@ router.delete('/menu/remove/:menu_id', function(req, res, next) {
       })
     },
     function(owner_id, connection, callback) {
+      console.log('owner_id'+owner_id +' menu_id'+menu_id);
       let menuRemoveQuery = 'delete from menu where owner_id = ? and menu_id = ?';
       connection.query(menuRemoveQuery, [owner_id, menu_id], function(err) {
         if (err) {
@@ -264,9 +265,9 @@ router.put('/menu/addition',upload.single('image'), function(req, res, next) {
       })
     },
     function(owner_id, connection, callback) {
-
-      let menuAddQuery = 'insert into menu values(?,?,?,?,?)';
-      connection.query(menuAddQuery, [null, owner_id, menu_name, menu_price, menu_imageURL], function(err) {
+      console.log(owner_id +" owner_id");
+      let menuAddQuery = 'insert into menu(owner_id, menu_name, menu_price, menu_imageURL) values(?,?,?,?)';
+      connection.query(menuAddQuery, [owner_id, menu_name, menu_price, menu_imageURL], function(err) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -340,7 +341,7 @@ router.put('/menu/modification/:menu_id',upload.single('image'), function(req, r
           callback("insert error :" + err, null);
         } else {
           res.status(201).send({
-            status: "fail",
+            status: "success",
             msg: "menu info modify success"
           });
           connection.release();

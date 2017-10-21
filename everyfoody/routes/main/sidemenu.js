@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const moment = require('moment');
 
 router.get('/:user_status', function(req, res){
-  var user_status = req.body.user_status;
+  var user_status = req.params.user_status;
 	let taskArray = [
 		//1. connection 설정
     function(callback) {
@@ -49,9 +49,8 @@ router.get('/:user_status', function(req, res){
     //3. 예약내역 갯수 불러오기.
     function(userID, user_status, connection, callback){
       let selectReservationQuery;
-      if(user_status === 401)  selectReservationQuery = 'select * from reservation where user_id = ?';
-    	else if(user_status > 401) selectReservationQuery = 'select * from reservation where owener_id = ?';
-      else callback('userCategory error from Reservation', null);
+      if(user_status == 401)  selectReservationQuery = 'select * from reservation where user_id = ?';
+    	else if(user_status > 401) selectReservationQuery = 'select * from reservation where owner_id = ?';      
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
     	connection.query(selectReservationQuery, userID, function(err, reservationData){
     		if (err) {
@@ -72,11 +71,10 @@ router.get('/:user_status', function(req, res){
     	});
     },
     //4. 북마크 갯수 불러오기. 사용자일 경우 자신의 북마크 개수, 사업자일 경우 자신을 북마크한 사람들 수
-    function(responseData, userID, user_status, connection, callback){
+    function(responseData, userID, user_status, connection, callback) {
     	let selectBookmarkQuery;
       if(user_status == 401) selectBookmarkQuery  = 'SELECT owner_storename, bookmark_toggle FROM EveryFoody.bookmarks as b inner join EveryFoody.owners as o on o.owner_id = b.owner_id where user_id = ?';
       else if(user_status > 401) selectBookmarkQuery = 'select count(*) as c from bookmarks where owner_id = ?';
-      else callback('UserCategory error from Bookmarks', null);
     	connection.query(selectBookmarkQuery, userID, function(err, bookmarkData){
     		if (err) {
           res.status(500).send({
