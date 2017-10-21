@@ -6,7 +6,8 @@ const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 
-router.get('/', function(req, res){
+router.get('/:user_status', function(req, res){
+  var user_status = req.body.user_status;
 	let taskArray = [
 		//1. connection 설정
     function(callback) {
@@ -39,18 +40,19 @@ router.get('/', function(req, res){
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, decoded.userCategory, connection);
+            callback(null, decoded.userID, user_status, connection);
             //decoded가 하나의 JSON 객체. 이안에 userEmail userCategory userID 프로퍼티 존
           }
         });
       }
     },
     //3. 예약내역 갯수 불러오기.
-    function(userID, userCategory, connection, callback){
+    function(userID, user_status, connection, callback){
       let selectReservationQuery;
-      if(userCategory === 101)  selectReservationQuery = 'select * from reservation where user_id = ?';
-    	else if(userCategory ===102) selectReservationQuery = 'select * from reservation where owener_id = ?';
+      if(user_status === 401)  selectReservationQuery = 'select * from reservation where user_id = ?';
+    	else if(user_status > 401) selectReservationQuery = 'select * from reservation where owener_id = ?';
       else callback('userCategory error from Reservation', null);
+      // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
     	connection.query(selectReservationQuery, userID, function(err, reservationData){
     		if (err) {
           res.status(500).send({
@@ -62,17 +64,18 @@ router.get('/', function(req, res){
         } else{
         	let responseData = {
         		reservationCount : reservationData.length,
-        		bookmarkCount : 0
+        		bookmarkCount : 0,
+            bookmarkInfo : []
         	}
-        	callback(null, responseData, userID, userCategory, connection);
+        	callback(null, responseData, userID, user_status, connection);
         }
     	});
     },
     //4. 북마크 갯수 불러오기. 사용자일 경우 자신의 북마크 개수, 사업자일 경우 자신을 북마크한 사람들 수
-    function(responseData, userID, userCategory, connection, callback){
+    function(responseData, userID, user_status, connection, callback){
     	let selectBookmarkQuery;
-      if(userCategory === 101) selectBookmarkQuery  = 'select * from bookmarks where user_id = ?';
-      else if(userCategory === 102) selectBookmarkQuery = 'select * from bookmarks where owner_id = ?';
+      if(user_status == 401) selectBookmarkQuery  = 'SELECT owner_storename, bookmark_toggle FROM EveryFoody.bookmarks as b inner join EveryFoody.owners as o on o.owner_id = b.owner_id where user_id = ?';
+      else if(user_status > 401) selectBookmarkQuery = 'select count(*) as c from bookmarks where owner_id = ?';
       else callback('UserCategory error from Bookmarks', null);
     	connection.query(selectBookmarkQuery, userID, function(err, bookmarkData){
     		if (err) {
@@ -82,15 +85,28 @@ router.get('/', function(req, res){
           });
           connection.release();
           callback("get bookmark data err : " + err, null);
-        } else{
-        	responseData.bookmarkCount = bookmarkData.length;
-        	res.status(200).send({
-        		status : "success",
-        		data : responseData,
-        		msg : "Successful load sidemenu data"
-        	});
-        	connection.release();
-        	callback(null, "Successful load sidemenu data");
+        }
+        else {
+          if(user_status == 401)
+          {
+            let bookmarkinfo = [];
+            for(var i=0; i<bookmarkData.length; ++i)
+            {
+              bookmarkinfo.push({
+                store_name : bookmarkData[i].owner_storename,
+                toggle : bookmarkData[i].bookmark_toggle
+              });
+            }          	
+            responseData.bookmarkInfo = bookmarkinfo;      
+          }        
+            responseData.bookmarkCount = bookmarkData.length;                
+            res.status(200).send({
+              status : "success",
+              data : responseData,
+              msg : "Successful load sidemenu data"
+            });
+            connection.release();
+            callback(null, "Successful load sidemenu data");
         }
     	});
     }

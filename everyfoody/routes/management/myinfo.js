@@ -70,10 +70,10 @@ router.get('/modification', function(req, res, next) {
           for(var i=0; i<menuinfo.length; i++)
           {              
            menuinfo2.push({
-            menuID : menuinfo[0].menu_id,
-            menuTitle : menuinfo[0].menu_name,
-            menuPrice : menuinfo[0].menu_price,
-            menuImageURL : menuinfo[0].menu_imageURL
+            menuID : menuinfo[i].menu_id,
+            menuTitle : menuinfo[i].menu_name,
+            menuPrice : menuinfo[i].menu_price,
+            menuImageURL : menuinfo[i].menu_imageURL
             })
           }        
           callback(null, basicinfo, menuinfo2, connection);
