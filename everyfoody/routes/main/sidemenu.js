@@ -50,17 +50,19 @@ router.get('/:user_status', function(req, res){
     function(userID, user_status, connection, callback){
       let selectReservationQuery;
       if(user_status == 401)  selectReservationQuery = 'select * from reservation where user_id = ?';
-    	else if(user_status > 401) selectReservationQuery = 'select * from reservation where owner_id = ?';      
+    	else if(user_status > 401) selectReservationQuery = 'select * from reservation where owner_id = ?';  
+
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-    	connection.query(selectReservationQuery, userID, function(err, reservationData){
-    		if (err) {
+    	connection.query(selectReservationQuery, userID, function(err, reservationData) {
+    		if(err) {
           res.status(500).send({
             status: "fail",
             msg: "get reservation data error"
           });
           connection.release();
           callback("get reservation data err : " + err, null);
-        } else{
+        }
+        else {
         	let responseData = {
         		reservationCount : reservationData.length,
         		bookmarkCount : 0,
@@ -73,9 +75,9 @@ router.get('/:user_status', function(req, res){
     //4. 북마크 갯수 불러오기. 사용자일 경우 자신의 북마크 개수, 사업자일 경우 자신을 북마크한 사람들 수
     function(responseData, userID, user_status, connection, callback) {
     	let selectBookmarkQuery;
-      if(user_status == 401) selectBookmarkQuery  = 'SELECT owner_storename, bookmark_toggle FROM EveryFoody.bookmarks as b inner join EveryFoody.owners as o on o.owner_id = b.owner_id where user_id = ?';
+      if(user_status == 401) selectBookmarkQuery  = 'select b.owner_id, o.owner_storename, b.bookmark_toggle FROM bookmarks as b inner join owners as o on o.owner_id = b.owner_id where user_id = ?';
       else if(user_status > 401) selectBookmarkQuery = 'select count(*) as c from bookmarks where owner_id = ?';
-    	connection.query(selectBookmarkQuery, userID, function(err, bookmarkData){
+    	connection.query(selectBookmarkQuery, userID, function(err, bookmarkData) {
     		if (err) {
           res.status(500).send({
             status: "fail",
@@ -91,6 +93,7 @@ router.get('/:user_status', function(req, res){
             for(var i=0; i<bookmarkData.length; ++i)
             {
               bookmarkinfo.push({
+                id : bookmarkData[i].owner_id,
                 store_name : bookmarkData[i].owner_storename,
                 toggle : bookmarkData[i].bookmark_toggle
               });
@@ -98,15 +101,47 @@ router.get('/:user_status', function(req, res){
             responseData.bookmarkInfo = bookmarkinfo;      
           }        
             responseData.bookmarkCount = bookmarkData.length;                
-            res.status(200).send({
-              status : "success",
-              data : responseData,
-              msg : "Successful load sidemenu data"
-            });
-            connection.release();
-            callback(null, "Successful load sidemenu data");
+            callback(null, responseData, userID, user_status, connection);
         }
     	});
+    },
+    function(responseData, userID, user_status, connection, callback) {
+      if(user_status > 401)
+      {
+        let toggleQuery = "select owner_addorder, owner_addreview, owner_addbookmark from owners where owner_id = ?";
+        connection.query(toggleQuery, userID, function(err, toggleData) {
+          if(err) {
+            res.status(500).send({
+              status: "fail",
+              msg: "get bookmark data error"
+            });
+            connection.release();
+            callback("get bookmark data err : " + err, null);
+          }
+          else {
+            console.log(toggleData[0].owner_addorder);
+            let toggleStatus =[toggleData[0].owner_addorder, toggleData[0].owner_addreview, toggleData[0].owner_addbookmark];
+            responseData.toggleStatus = toggleStatus;
+            res.status(200).send({
+              status : "success",
+              msg : "sibal all success",
+              data : responseData
+            });
+            connection.release();
+            callback(null, "success drawer All");
+          }
+        });
+      }
+      else
+      {
+        res.status(200).send({
+            status : "success",
+            msg : "sibal all success",
+            data : responseData
+          });
+          connection.release();
+          callback(null, "success drawer All");
+      }
     }
 	];
 	async.waterfall(taskArray, function(err, result) {
