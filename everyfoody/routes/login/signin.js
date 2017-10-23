@@ -109,4 +109,72 @@ router.post('/', function(req, res) {
   });
 })
 
+
+router.get('/checking/:user_uid', (req, res) => {
+  var user_uid = req.params.user_uid;
+  let taskArray = [
+     function(callback) {
+      pool.getConnection(function(err, connection) {
+        if (err){
+          res.status(500).send({
+            status : "fail",
+            msg : "get connection error"
+          });
+          callback("getConnection error : " + err, null);
+        } 
+        else callback(null, connection);
+      });
+    },
+    //  function(connection, callback) {
+    //   let token = req.headers.token;
+    //   jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+    //     if (err) {
+    //       res.status(501).send({
+    //         status: "fail",
+    //         msg: "user authorication error"
+    //       });
+    //       connection.release();
+    //       callback("JWT decoded err : " + err, null);
+    //     } else callback(null, decoded.userID, connection);
+    //   })
+    // },
+    function(connection, callback) {
+      let checkUidquery = 'select count(*) as c from users where user_uid = ?';
+      connection.query(checkUidquery, user_uid, function(err, resultData){
+        if(err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "owner info update error"
+          });
+          connection.release();
+          callback("insert error :" + err, null);
+        }
+        else {
+          var data;
+          if(resultData[0].c != 0) data = 600;
+          else data = 601;
+
+           res.status(201).send({
+              status: "success",
+              msg: "checking uid success",
+              data : 600
+            });  
+
+          connection.release();
+          callback(null, "checking uid success");
+        }
+      })
+    }
+  ]
+  async.waterfall(taskArray, function(err, result) {
+    if (err) {
+      err = moment().format('MM/DDahh:mm:ss//') + err;
+      console.log(err);
+    } else {
+      result = moment().format('MM/DDahh:mm:ss//') + result;
+      console.log(result);
+    }
+  });
+})
+
 module.exports = router;
