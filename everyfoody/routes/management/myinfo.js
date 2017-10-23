@@ -105,8 +105,6 @@ router.get('/modification', function(req, res, next) {
 //기본정보 수정시
 router.post('/basic/modification', upload.single('storeImage'),function(req, res, next) {
 
-  console.log("dsf");
-  console.log(req.file.location);
   var owner_storename = req.body.storeName;
   var owner_breaktime = req.body.storeBreaktime;
   var owner_phone = req.body.storePhone;
