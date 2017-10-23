@@ -156,6 +156,7 @@ router.put('/user/opening/:owner_id', (req, res) => {
 // 사업자 토글 열기
 router.put('/owner/opening/:kind', (req, res) => {  
   var kind = req.params.kind;
+  console.log(typeof kind);
   let taskArray = [
     (callback) => {                     
        pool.getConnection(function(err, connection) {
@@ -165,7 +166,8 @@ router.put('/owner/opening/:kind', (req, res) => {
             msg: "get connection error"
           });
           callback("getConnection error : " + err, null);
-        } else callback(null, connection);
+        }
+        else callback(null, connection);
       });
      },
      (connection, callback) => {
@@ -194,10 +196,11 @@ router.put('/owner/opening/:kind', (req, res) => {
      },
      (userID, connection, callback) => {
       let selectReservationQuery;
-        if(kind == 1) selectReservationQuery =  'UPDATE owners SET owner_addorder = ? where owner_id = ?';
-        else if(kind == 2) selectReservationQuery =  'UPDATE owners SET owner_addreview = ? where owner_id = ?';
-        else selectReservationQuery =  'UPDATE owners SET owner_addbookmark = ? where owner_id = ?';
-        
+
+      if(kind == 701) selectReservationQuery = 'UPDATE owners SET owner_addorder = ? where owner_id = ?';
+      if(kind == 702) selectReservationQuery = 'UPDATE owners SET owner_addreview = ? where owner_id = ?';
+      if(kind == 703) selectReservationQuery = 'UPDATE owners SET owner_addbookmark = ? where owner_id = ?';
+      console.log('userID'+userID);
       connection.query(selectReservationQuery,[501, userID], function(err, reservationData){
         if (err) {
           res.status(500).send({
@@ -230,7 +233,9 @@ router.put('/owner/opening/:kind', (req, res) => {
 
 //사업자 토글 닫기
 router.put('/owner/closing/:kind', (req, res) => {  
-  var kind = req.params.kind;
+  var kind = req.params.kind*1;
+  console.log('kind'+kind);
+  console.log(typeof kind);
   let taskArray = [
     (callback) => {                     
        pool.getConnection(function(err, connection) {
@@ -269,12 +274,11 @@ router.put('/owner/closing/:kind', (req, res) => {
      },
      (userID, connection, callback) => {
       let selectReservationQuery;
-      if(kind == 1) selectReservationQuery =  'UPDATE owners SET owner_addorder = ? where owner_id = ?';
-      else if(kind == 2) selectReservationQuery =  'UPDATE owners SET owner_addreview = ? where owner_id = ?';
-      else selectReservationQuery =  'UPDATE owners SET owner_addbookmark = ? where owner_id = ?';
-      
+      if(1) selectReservationQuery = 'UPDATE owners SET owner_addorder = ? where owner_id = ?';
+      if(kind == 702) selectReservationQuery = 'UPDATE owners SET owner_addreview = ? where owner_id = ?';
+      if(kind == 703) selectReservationQuery = 'UPDATE owners SET owner_addbookmark = ? where owner_id = ?';
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(selectReservationQuery,[502, userID], function(err, reservationData){
+      connection.query(selectReservationQuery,[502, userID], function(err, reservationData) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -282,17 +286,18 @@ router.put('/owner/closing/:kind', (req, res) => {
           });
           connection.release();
           callback("get reservation data err : " + err, null);
-        } else{
+        }
+        else {
           res.status(200).send({
             status: 'success',
-            msg : "change bookmark status"
+            msg : "change  status"
           })      
           callback(null, "Successful change bookmark status");
         }
       });
     }
   ]
-  async.waterfall(taskArray, (err, result) =>{
+  async.waterfall(taskArray, (err, result) => {
     if (err){
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
