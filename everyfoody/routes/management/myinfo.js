@@ -50,7 +50,7 @@ router.get('/modification', function(req, res, next) {
                 storeHashtag : basicinfo[0].owner_hashtag,
                 storeOpentime : basicinfo[0].owner_opentime,
                 storeBreaktime : basicinfo[0].owner_breaktime,      
-                storePhone : basicinfo[0].user_phone,                                                        
+                storePhone : basicinfo[0].user_phone                                                        
               }
          callback(null, owner_id, infomation, connection);
         }
@@ -103,17 +103,15 @@ router.get('/modification', function(req, res, next) {
 });
 
 //기본정보 수정시
-router.post('/basic/modification',upload.single('image'),function(req, res, next) {
-
-  var store_name = req.params.store_name;
-  var owner_email = req.body.owner_emai;
-  var owner_storename = req.body.owner_storename;
-  var owner_breaktime = req.body.owner_breaktime;
-  var owner_phone = req.body.owner_phone;
-  var owner_hashtag = req.body.owner_hashtag;
-  var owner_facebookURL = req.body.owner_facebookURL;
-  var owner_twitterURL = req.body.owner_twitterURL;
-  var owner_instagramURL = req.body.owner_instagramURL;
+router.post('/basic/modification',upload.single('storeImage'),function(req, res, next) {
+  
+  var owner_storename = req.body.storeName;
+  var owner_breaktime = req.body.storeBreaktime;
+  var owner_phone = req.body.storePhone;
+  var owner_hashtag = req.body.storeHashtag;
+  var owner_facebookURL = req.body.storeFacebookURL;
+  var owner_twitterURL = req.body.storeTwitterURL;
+  var owner_instagramURL = req.body.storeInstagramURL;
   var owner_detailURL = req.file.location;
   var owner_mainURL = req.file.location;
 
