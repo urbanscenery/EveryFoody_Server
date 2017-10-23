@@ -103,8 +103,10 @@ router.get('/modification', function(req, res, next) {
 });
 
 //기본정보 수정시
-router.post('/basic/modification',upload.single('storeImage'),function(req, res, next) {
-  
+router.post('/basic/modification', upload.single('storeImage'),function(req, res, next) {
+
+  console.log("dsf");
+  console.log(req.file.location);
   var owner_storename = req.body.storeName;
   var owner_breaktime = req.body.storeBreaktime;
   var owner_phone = req.body.storePhone;
@@ -116,12 +118,9 @@ router.post('/basic/modification',upload.single('storeImage'),function(req, res,
   var owner_mainURL = req.file.location;
 
   let taskArray = [
-    function(callabck) {
-      pool.Connection(function(err, connection) {
-        if (err) res.status(500).send({
-          status: "fail",
-          msg: "connection error"
-        });
+   function(callback) {
+      pool.getConnection(function(err, connection) {
+        if (err) callback("getConneciton error : " + err, null);
         else callback(null, connection);
       })
     },
@@ -135,13 +134,14 @@ router.post('/basic/modification',upload.single('storeImage'),function(req, res,
           });
           connection.release();
           callback("JWT decoded err : " + err, null);
-        } else callback(null, decoded.owner_id, connection);
+        } else callback(null, decoded.userID, connection);
       })
     },
     function(owner_id, connection, callback) {
-      let setStoreinfoQuery = 'update owners set owner_storename = ? , owner_breaktime = ?, owner_phone = ?,'
-      +'owner_hashtag =?, owner_facebookURL = ?, owner_twitterURL =?, owner_instagramURL = ?, owner_detailURL = ?, owner_mainURL = ? where owner_id = ?';
-      connection.query(setSotreinfoQuery,[owner_storename, owner_breaktime, owner_phone,owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_id],function(err){
+      console.log(owner_id+"owner_id");
+      let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set o.owner_storename = ? , o.owner_breaktime = ?, u.user_phone = ?,'
+      +'o.owner_hashtag =?, o.owner_facebookURL = ?, o.owner_twitterURL =?, o.owner_instagramURL = ?, o.owner_detailURL = ?, o.owner_mainURL = ? where o.owner_id = ?';
+      connection.query(setStoreinfoQuery,[owner_storename, owner_breaktime, owner_phone, owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_id],function(err){
         if(err) {
           res.status(500).send({
             status: "fail",
