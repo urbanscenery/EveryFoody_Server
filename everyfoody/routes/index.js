@@ -18,7 +18,7 @@ router.use('/bookmark', bookmark);
 router.use('/reservation', reservation);
 router.use('/review', review);
 router.use('/signin', signin);
-router.use('/signup', signup)
+router.use('/signup', signup);
 router.use('/management', management);
 router.use('/api', api);
 router.use('/registdata', registdata);

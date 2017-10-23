@@ -109,7 +109,6 @@ router.post('/', function(req, res) {
   });
 })
 
-
 router.get('/checking/:user_uid', (req, res) => {
   var user_uid = req.params.user_uid;
   let taskArray = [
@@ -153,11 +152,10 @@ router.get('/checking/:user_uid', (req, res) => {
           var data;
           if(resultData[0].c != 0) data = 600;
           else data = 601;
-
            res.status(201).send({
               status: "success",
               msg: "checking uid success",
-              data : 600
+              data : data
             });  
 
           connection.release();

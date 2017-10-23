@@ -6,7 +6,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var jwt = require('jsonwebtoken');
 var index = require('./routes/index');
-var users = require('./routes/users');
 var config = require('./config/secretKey');
 var management = require('./routes/management/index');
 var app = express();

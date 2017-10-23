@@ -34,6 +34,7 @@ router.put('/user/closing/:owner_id', (req, res) => {
         jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
           if (err) {
             res.status(500).send({
+              status : 'fail',
               msg: "user authorization error"
             });
             connection.release();
