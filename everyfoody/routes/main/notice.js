@@ -46,7 +46,26 @@ router.put('/lists', (req, res) => {
      },
      (userID, connection, callback) => {
       let noticeListQuery;
-      noticeListQuery = 'select * from notice where user_id = ?';
+      noticeListQuery = 'UPDATE users set user_accessTime = ? where user_id = ?';
+      var currentTime = moment().format('MM/DDahh:mm:ss');
+      // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
+      connection.query(noticeListQuery,[currentTime, userID], function(err, noticeData){
+        if (err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "get reservation data error"
+          });
+          connection.release();
+          callback("get reservation data err : " + err, null);
+        }
+        else {
+          callback(null, userID, connection);
+        }
+      });
+    },
+     (userID, connection, callback) => {
+      let noticeListQuery;
+      noticeListQuery = 'select * from notice where user_id = ? order by notice_time desc limit 20';
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
       connection.query(noticeListQuery,[userID], function(err, noticeData){
         if (err) {
