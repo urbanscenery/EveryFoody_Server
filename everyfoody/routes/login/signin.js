@@ -48,18 +48,19 @@ router.post('/', function(req, res) {
         });
         connection.release();
         callback("non signed up user", null);
-      } else {
+      }
+      else {
         if(userData[0].user_uid === req.body.uid){
           connection.release();
           callback(null, userData);
         }
-        else{
+        else {
           res.status(401).send({
                 status: "fail",
                 msg: "uncorrect unique ID"
               });
               connection.release();
-              callback("uncorrect uid : " + err, null);
+              callback("uncorrect uid : ", null);
         }
       }
     },
@@ -124,19 +125,6 @@ router.get('/checking/:user_uid', (req, res) => {
         else callback(null, connection);
       });
     },
-    //  function(connection, callback) {
-    //   let token = req.headers.token;
-    //   jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
-    //     if (err) {
-    //       res.status(501).send({
-    //         status: "fail",
-    //         msg: "user authorication error"
-    //       });
-    //       connection.release();
-    //       callback("JWT decoded err : " + err, null);
-    //     } else callback(null, decoded.userID, connection);
-    //   })
-    // },
     function(connection, callback) {
       let checkUidquery = 'select count(*) as c from users where user_uid = ?';
       connection.query(checkUidquery, user_uid, function(err, resultData){
@@ -149,15 +137,14 @@ router.get('/checking/:user_uid', (req, res) => {
           callback("insert error :" + err, null);
         }
         else {
-          var data;
-          if(resultData[0].c != 0) data = 600;
+          var data;        
+          if(resultData[0].c === 0) data = 600;
           else data = 601;
            res.status(201).send({
               status: "success",
               msg: "checking uid success",
               data : data
             });  
-
           connection.release();
           callback(null, "checking uid success");
         }
@@ -168,7 +155,8 @@ router.get('/checking/:user_uid', (req, res) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
-    } else {
+    }
+    else{
       result = moment().format('MM/DDahh:mm:ss//') + result;
       console.log(result);
     }
