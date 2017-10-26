@@ -89,8 +89,8 @@ router.delete('/lists/remove', function(req, res) {
     function(owner_id, connection, callback) {
       let customerlistQuery = 'select o.owner_storename, u.user_deviceToken, r.reservation_time, u.user_id from users u '
       +'inner join reservation r inner join owners o '
-      +'on u.user_id = r.user_id and r.owner_id = o.owner_id where r.owner_id = 21 order by reservation_time desc';
-      connection.query(customerlistQuery, function(err, pushList) {
+      +'on u.user_id = r.user_id and r.owner_id = o.owner_id where r.owner_id = ? order by reservation_time desc';
+      connection.query(customerlistQuery,owner_id, function(err, pushList) {
         if (err) {
           callback("Data is null or connection error" + err, null);
           connection.release();
@@ -100,7 +100,7 @@ router.delete('/lists/remove', function(req, res) {
           let notiBox = []
           let length = pushList.length;
           messageBox = notifunc.sendMessage(length, messageBox, pushList);
-          notiBox = notifunc.saveMessage(notiBox, pushList)         
+          notiBox = notifunc.saveMessage(notiBox, pushList);
           for(var i =0; i< messageBox.length; ++i)
           {                      
             fcm.send(messageBox[i].message, function(err, response) {
@@ -111,62 +111,42 @@ router.delete('/lists/remove', function(req, res) {
               else {
                 console.log("Successfully sent with response: ", response);              
               }
-            });
-            for(var j=0; j<10000000; ++j)
-            {
-              var c = 1+1;
-            }
+            });          
           } 
           callback(null, owner_id, pushList, notiBox, connection);       
         }
       });
     },
-    function(owner_id, pushList, connection,callback) {
-      let notiSaveQuery = 'insert into notice value(?,?,?)';
-      var notiInfo = [];
-      notiInfo = notifunc.saveMessage(notiInfo,pushUserID);
-      for(var i=0; i<notiInfo.length; ++i) {
-        connection.query(notiSaveQuery,notiInfo[i],function(err){
+    function(owner_id, pushList, notiBox,connection,callback) {
+      let notiSaveQuery = 'insert into notice values('+notiBox[0].user_id+',"'+notiBox[0].notice_content+'","'+notiBox[0].notice_time+'")';
+      console.log(notiSaveQuery);      
+      connection.query(notiSaveQuery,function(err) {
           if(err){
-            connection.release();
-            callback("Data is null or connection error" + err, null);
-          }
-        });
-      }
-      callback(null, owner_id, pushList, notiBox, connection);
-    },
-    function(owner_id, pushList, notiBox, connection, callback) {      
+            // connection.release();
+            console.log(err);           
+            // callback("Data is null or connection error" + err, null);   
+          }          
+        });  
+     callback(null, owner_id, pushList, notiBox, connection);
+    },     
+    function(owner_id, pushList, notiBox, connection, callback) {
+      console.log(pushList);      
       let rmReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
-      connection.query(rmReservationQuery, [pushList[0].user_id, owner_id], function(err, lists) {
+      connection.query(rmReservationQuery, [ pushList[0].user_id, owner_id], function(err) {
         if (err) {
           connection.release();
           callback("Data is null or connection error" + err, null);
         }
         else {
-          callback(null, owner_id, pushlist, connection);
+          res.status(200).send({
+            status: "success",            
+            msg: "customer list get success"
+          });
+          connection.release();
+          callback(null, "end");
         }
       })
     },
-    (userID, connection, notiBox, callback) => {
-      let addnoticeQuery;
-      addnoticeQuery = 'insert into notice values(? ,? ,?)';    
-      connection.query(addnoticeQuery, notibox, function(err){
-        if (err) {
-          res.status(500).send({
-            status: "fail",
-            msg: "addition noticeData data error"
-          });
-          connection.release();
-          callback("get reservation data err : " + err, null);
-        } else{
-          res.status(200).send({
-            status: 'success',
-            msg : "addition noticeData"
-          })      
-          callback(null, "Successful caddition noticeData");
-        }
-      });
-    }
   ]
   async.waterfall(taskArray, function(err, result) {
     if (err) {
