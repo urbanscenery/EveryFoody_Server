@@ -82,7 +82,7 @@ router.put('/lists', (req, res) => {
             msg : "notice list success",
             data : noticeData
           })      
-          callback(null, "Successful change bookmark status");
+          callback(null, "Successful notice list");
         }
       });
     }

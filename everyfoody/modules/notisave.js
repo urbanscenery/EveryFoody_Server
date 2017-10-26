@@ -32,7 +32,7 @@ exports.sendMessage = function(length, messegeBox,pushList ) {
         collapse_key: 'Updates Available5',
         data: {
           title: pushList[0].owner_storename,
-          body: pushList[1].user_nickname+'님! '+Messegelist[1]
+          body: pushList[1].user_nickname+'님! '+Messegelist[2]
         }
       }
     });
@@ -46,21 +46,21 @@ exports.saveMessege = (notiInfo, pushList) => {
   if (length >= 1) {
      notiInfo.push({
       user_id : pushList[0].user_id,
-      notice_content : Messagelist[0],
+      notice_content : pushList[1].user_nickname+'님! '+Messagelist[0],
       notice_time : moment().format('YYYY-MM-DD hh:mm:ss')
     });
   }
   if (length >= 2) {
     notiInfo.push({
       user_id : pushList[1].user_id,
-      notice_content : Messegelist[1],
+      notice_content : pushList[2].user_nickname+'님! '+Messegelist[1],
       notice_time : moment().format('YYYY-MM-DD hh:mm:ss')
     });
   }
   if (length >= 6) {
     notiInfo.push({
       user_id : pushList[5].user_id,
-      notice_content : Messegelist[2],
+      notice_content : pushList[5].user_nickname+'님! '+Messegelist[2],
       notice_time : moment().format('YYYY-MM-DD hh:mm:ss')
     });
   }
