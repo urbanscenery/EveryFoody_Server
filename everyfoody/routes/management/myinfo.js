@@ -165,17 +165,8 @@ router.post('/basic/modification',function(req, res, next) {
   });
 });
 router.put('/basic/imagemodi', upload.any('storeImage'),function(req, res, next) {
-
-<<<<<<< HEAD
-router.post('/basic/imagemodi', upload.single('storeImage'),function(req, res, next) {
-
-  var owner_detailURL = req.file.location;
-  var owner_mainURL = req.file.location;
-
-=======
   var owner_detailURL = req.files[0];
   var owner_mainURL = req.files[1];
->>>>>>> dongsu_sub
   let taskArray = [
    function(callback) {
       pool.getConnection(function(err, connection) {
@@ -197,32 +188,20 @@ router.post('/basic/imagemodi', upload.single('storeImage'),function(req, res, n
       })
     },
     function(owner_id, connection, callback) {
-<<<<<<< HEAD
-      let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set o.owner_detailURL = ?, o.owner_mainURL = ? where o.owner_id = ?';
-=======
       let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set '
       +'o.owner_detailURL = ?, o.owner_mainURL = ? where o.owner_id = ?';
->>>>>>> dongsu_sub
       connection.query(setStoreinfoQuery,[owner_detailURL,owner_mainURL, owner_id], function(err) {
         if(err) {
           res.status(500).send({
             status: "fail",
-<<<<<<< HEAD
-            msg: "image info update error"
-=======
             msg: "owner info update error"
->>>>>>> dongsu_sub
           });
           connection.release();
           callback("insert error :" + err, null);
         } else {
           res.status(201).send({
             status: "success",
-<<<<<<< HEAD
-            msg: "image info modify success"
-=======
             msg: "store info modify success"
->>>>>>> dongsu_sub
           });
           connection.release();
           callback(null, "modify success");
@@ -240,10 +219,7 @@ router.post('/basic/imagemodi', upload.single('storeImage'),function(req, res, n
     }
   });
 });
-<<<<<<< HEAD
 
-=======
->>>>>>> dongsu_sub
 //메뉴정보 삭제
 router.delete('/menu/remove/:menu_id', function(req, res, next) {
 
