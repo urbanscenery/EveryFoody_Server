@@ -165,8 +165,9 @@ router.post('/basic/modification',function(req, res, next) {
   });
 });
 router.put('/basic/imagemodi', upload.any(),function(req, res, next) {
-  var owner_detailURL = req.files[0];
-  var owner_mainURL = req.files[1];
+  var owner_detailURL = req.files[1].location;
+  var owner_mainURL = req.files[0].location;
+  console.log(req.files[0]);
   let taskArray = [
    function(callback) {
       pool.getConnection(function(err, connection) {
@@ -189,7 +190,7 @@ router.put('/basic/imagemodi', upload.any(),function(req, res, next) {
     },
     function(owner_id, connection, callback) {
       let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set '
-      +'o.owner_detailURL = ?, o.owner_mainURL = ? where o.owner_id = ?';
+      +'owner_detailURL = ?, owner_mainURL = ? where owner_id = ?';
       connection.query(setStoreinfoQuery,[owner_detailURL, owner_mainURL, owner_id], function(err) {
         if(err) {
           res.status(500).send({

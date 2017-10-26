@@ -145,9 +145,10 @@ router.get('/checking/:user_uid', (req, res) => {
           });
           connection.release();
           callback("insert error :" + err, null);
-        } else {
-          var data;
-          if (resultData[0].c === 0) data = 600;
+        }
+        else {
+          var data;        
+          if(resultData[0].c === 0) data = 602;
           else data = 601;
           res.status(201).send({
             status: "success",

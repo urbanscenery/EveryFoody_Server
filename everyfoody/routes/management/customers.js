@@ -87,55 +87,66 @@ router.delete('/lists/remove', function(req, res) {
       });
     },
     function(owner_id, connection, callback) {
-      let customerlistQuery = 'select o.owner_storename, u.user_deviceToken, r.reservation_time, u.user_id from users u '
+      let customerlistQuery = 'select o.owner_storename, u.user_deviceToken, u.user_nickname, r.reservation_time, u.user_id from users u '
       +'inner join reservation r inner join owners o '
-      +'on u.user_id = r.user_id and r.owner_id = o.owner_id where r.owner_id = ? order by reservation_time desc';
+      +'on u.user_id = r.user_id and r.owner_id = o.owner_id where r.owner_id = ? order by reservation_time';
       connection.query(customerlistQuery,owner_id, function(err, pushList) {
         if (err) {
-          callback("Data is null or connection error" + err, null);
+          callback("Data is null or connection error1" + err, null);
           connection.release();
         }
         else {        
-          let messageBox = []
+          let messegeBox = []
           let notiBox = []
           let length = pushList.length;
-          messageBox = notifunc.sendMessage(length, messageBox, pushList);
-          notiBox = notifunc.saveMessage(notiBox, pushList);
-          for(var i =0; i< messageBox.length; ++i)
+          messegeBox = notifunc.sendMessege(length, messegeBox, pushList);
+          notiBox = notifunc.saveMessege(notiBox, pushList);
+          for(var i =0; i< messegeBox.length; ++i)
           {                      
-            fcm.send(messageBox[i].message, function(err, response) {
+            fcm.send(messegeBox[i].messege, function(err, response) {
               if (err) {
-                console.log("Something has gone wrong!" + err);
-                callback("Message send error" + err, null);                
-              }
-              else {
-                console.log("Successfully sent with response: ", response);              
-              }
+                res.status(501).send({
+                  status: "fail",
+                  msg: "user authorization error"
+                });
+                connection.release();
+                console.log("Something has gone wrong!" + err);                
+              }            
             });          
           } 
           callback(null, owner_id, pushList, notiBox, connection);       
         }
       });
     },
-    function(owner_id, pushList, notiBox,connection,callback) {
-      let notiSaveQuery = 'insert into notice values('+notiBox[0].user_id+',"'+notiBox[0].notice_content+'","'+notiBox[0].notice_time+'")';
-      console.log(notiSaveQuery);      
-      connection.query(notiSaveQuery,function(err) {
-          if(err){
-            // connection.release();
-            console.log(err);           
-            // callback("Data is null or connection error" + err, null);   
-          }          
-        });  
-     callback(null, owner_id, pushList, notiBox, connection);
+    function(owner_id, pushList, notiBox, connection, callback) {      
+      var notiSaveQuery= '';      
+     
+      notiSaveQuery = "insert into notice(user_id, notice_content, notice_time) values ";
+      for(var i=0; i<notiBox.length; ++i)  
+        notiSaveQuery +="("+ notiBox[i].user_id+",'"+notiBox[i].notice_content+"','"+notiBox[i].notice_time+"'),";
+      notiSaveQuery = notiSaveQuery.substring(0,notiSaveQuery.length-1);           
+      connection.query(notiSaveQuery, function(err) {
+          if(err){                        
+            connection.release();
+            res.status(501).send({
+            status: "fail",
+            msg: "user authorization error"
+            });           
+            callback("Data is null or connection error3" + err, null);   
+          }
+          else callback(null, owner_id, pushList, notiBox, connection);                  
+        });       
     },     
-    function(owner_id, pushList, notiBox, connection, callback) {
-      console.log(pushList);      
+    function(owner_id, pushList, notiBox, connection, callback) {      
       let rmReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
-      connection.query(rmReservationQuery, [ pushList[0].user_id, owner_id], function(err) {
-        if (err) {
+      connection.query(rmReservationQuery, [ notiBox[0].user_id, owner_id], function(err) {
+        if (err) {          
+          res.status(500).send({
+            status: 'fail',
+            msg: 'fail'
+          })
           connection.release();
-          callback("Data is null or connection error" + err, null);
+          callback("Data is null or connection error2" + err, null);
         }
         else {
           res.status(200).send({
@@ -146,7 +157,7 @@ router.delete('/lists/remove', function(req, res) {
           callback(null, "end");
         }
       })
-    },
+    }
   ]
   async.waterfall(taskArray, function(err, result) {
     if (err) {
