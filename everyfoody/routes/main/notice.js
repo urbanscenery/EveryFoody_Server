@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 const moment = require('moment');
 // 알림 리스트
 router.put('/lists', (req, res) => {  
-  var kind = req.params.kind;
+  
   let taskArray = [
     (callback) => {                     
        pool.getConnection(function(err, connection) {
@@ -71,14 +71,15 @@ router.put('/lists', (req, res) => {
         if (err) {
           res.status(500).send({
             status: "fail",
-            msg: "get reservation data error"
+            msg: "notice list data error",
+            data : ""
           });
           connection.release();
           callback("get reservation data err : " + err, null);
         } else{
           res.status(200).send({
             status: 'success',
-            msg : "change bookmark status",
+            msg : "notice list success",
             data : noticeData
           })      
           callback(null, "Successful change bookmark status");

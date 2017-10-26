@@ -47,21 +47,21 @@ exports.saveMessege = (notiInfo, pushList) => {
      notiInfo.push({
       user_id : pushList[0].user_id,
       notice_content : Messagelist[0],
-      notice_time : moment()
+      notice_time : moment().format('YYYY-MM-DD hh:mm:ss')
     });
   }
   if (length >= 2) {
     notiInfo.push({
       user_id : pushList[1].user_id,
       notice_content : Messegelist[1],
-      notice_time : moment()
+      notice_time : moment().format('YYYY-MM-DD hh:mm:ss')
     });
   }
   if (length >= 6) {
     notiInfo.push({
       user_id : pushList[5].user_id,
       notice_content : Messegelist[2],
-      notice_time : moment()
+      notice_time : moment().format('YYYY-MM-DD hh:mm:ss')
     });
   }
   return notiInfo;

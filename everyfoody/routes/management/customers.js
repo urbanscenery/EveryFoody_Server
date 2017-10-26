@@ -140,7 +140,7 @@ router.delete('/lists/remove', function(req, res) {
     function(owner_id, pushList, notiBox, connection, callback) {      
       let rmReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
       connection.query(rmReservationQuery, [ notiBox[0].user_id, owner_id], function(err) {
-        if (err) {
+        if (err) {          
           res.status(500).send({
             status: 'fail',
             msg: 'fail'
