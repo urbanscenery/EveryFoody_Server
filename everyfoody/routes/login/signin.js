@@ -96,7 +96,7 @@ router.post('/', function(req, res) {
         userCategory: userData[0].user_category,
         userName: userData[0].user_nickname
       };
-      let token = jwt.sign(payload, req.app.get('jwt-secret'), option);
+      let token = jwt.sign(payload, secret, option);
       res.status(201).send({
         status: "success",
         data: {

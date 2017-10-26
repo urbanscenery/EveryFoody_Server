@@ -118,6 +118,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
       });
       callback(null, dataList, decoded, connection);
     },
+    //5. 
     (dataList, decoded, connection, callback) => {
       let getAccessTime;
       getAccessTime = 'select count(n.notice_time) as c from EveryFoody.notice as n inner join '+
@@ -137,15 +138,34 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
           if(timeData[0].c == 1) noticeCode = 801;
           else noticeCode = 802;      
           console.log('timeData'+timeData[0].c); 
-          callback(null, dataList, noticeCode, connection);
+          callback(null, dataList, noticeCode, decoded, connection);
         }
       });
     },
+    function(dataList, noticeCode, decoded, connection, callback){
+      const secret = req.app.get('jwt-secret');
+      let option = {
+        algorithm: 'HS256',
+        expiresIn: 3600 * 24 * 10 // 토큰의 유효기간이 10일
+      };
+      let payload = {
+        userEmail: decoded.userEmail,
+        userID: decoded.userID,
+        userCategory: decoded.userCategory,
+        userName: decoded.userName
+      };
+      let token = jwt.sign(payload, secret, option);
+      callback(null, dataList, noticeCode, token, connection);
+    },
     //5. 응답후 커넥션 해제
-    function(dataList, noticeCode, connection, callback) {
+    function(dataList, noticeCode, token, connection, callback) {
       res.status(200).send({
         status: "success",
-        data: dataList,noticeCode,
+        data: {
+          store : dataList,
+          notice : noticeCode,
+          token : token
+        },
         msg: "Successful load store list"
       });
       connection.release();
