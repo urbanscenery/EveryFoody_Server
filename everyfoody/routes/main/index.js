@@ -9,5 +9,6 @@ router.use('/notice', notice);
 router.use('/lists', main);
 router.use('/sidemenu', sidemenu);
 router.use('/toggle', toggle);
+router.use('/notice', notice);
 
 module.exports = router;

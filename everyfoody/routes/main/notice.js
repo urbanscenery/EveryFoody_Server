@@ -78,8 +78,8 @@ router.put('/lists', (req, res) => {
         } else{
           res.status(200).send({
             status: 'success',
-            msg : "change bookmark status",
-            data : noticeData
+            data : noticeData,
+            msg : "change bookmark status"
           })      
           callback(null, "Successful change bookmark status");
         }

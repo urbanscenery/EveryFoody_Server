@@ -67,19 +67,18 @@ router.get('/:storeID', function(req, res) {
       if (reservationData.length === 0) {
         let insertReservationQuery = 'insert into reservation set ?';
         let reservationData = {
-          user_id : userData.userID,
-          owner_id : req.params.storeID,
-          reservation_time : moment().format('YYYYMMDDhhmmss')
+          user_id: userData.userID,
+          owner_id: req.params.storeID,
+          reservation_time: moment().format('YYYYMMDDhhmmss')
         }
         connection.query(insertReservationQuery, reservationData, function(err) {
           if (err) {
             res.status(500).send({
               status: "fail",
               msg: "insert reservation data error"
-            });          
+            });
             callback("insert reservation data err : " + err, null);
-          }
-          else {
+          } else {
             let addCountQuery = 'update owners set owner_reservationCount = owner_reservationCount+1 where owner_id = ?';
             connection.query(addCountQuery, owner_id, function(err) {
               console.log("sefasefaesf");
@@ -90,19 +89,17 @@ router.get('/:storeID', function(req, res) {
                 });
                 connection.release();
                 callback("insert reservation data err : " + err, null);
-              }
-              else {
+              } else {
                 res.status(200).send({
-                  status : "success",
-                  msg : "successful add reservationCount reservation"
-                });        
-                callback(null, userData, connection, "succesful regist reservation");
+                  status: "success",
+                  msg: "successful add reservationCount reservation"
+                });
+                callback(null, userData, connection, "succesful regist reservation", 303);
               }
             });
-          } 
-        });       
-      }
-      else {
+          }
+        });
+      } else {
         let deleteReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
         connection.query(deleteReservationQuery, [userData.userID, req.params.storeID], function(err) {
           if (err) {
@@ -112,10 +109,9 @@ router.get('/:storeID', function(req, res) {
             });
             connection.release();
             callback("delete reservation data err : " + err, null);
-          }
-          else {            
+          } else {
             let rmCountQuery = 'update owners set owner_reservationCount = owner_reservationCount-1 where owner_id = ?';
-            connection.query(rmCountQuery, owner_id, function(err) {        
+            connection.query(rmCountQuery, owner_id, function(err) {
               if (err) {
                 res.status(500).send({
                   status: "fail",
@@ -123,44 +119,54 @@ router.get('/:storeID', function(req, res) {
                 });
                 connection.release();
                 callback("insert reservation data err : " + err, null);
-              }
-              else {
+              } else {
                 res.status(200).send({
-                  status : "success",
-                  msg : "remove reservationcount reservation"
-                });          
-                callback(null, userData, connection, "succesful regist reservation");
+                  status: "success",
+                  msg: "remove reservationcount reservation"
+                });
+                callback(null, userData, connection, "succesful remove reservation", 304);
               }
             });
           }
-        });      
+        });
       }
     },
     //5. FCM메세지 사업자에게 전송
-    function(userData, connection, successMsg, callback) {
+    function(userData, connection, successMsg, statusCode, callback) {
       let selectOwnerQuery = 'select user_deviceToken from users where user_id = ?';
       connection.query(selectOwnerQuery, req.params.storeID, function(err, ownerDeviceToken) {
         if (err) {
           connection.release();
           callback(successMsg + " //get owner devicetoken data err : " + err, null);
         } else {
-          let message = {
-            to: ownerDeviceToken,
-            collapse_key: 'Updates Available',
-            data: {
-              title: "Every Foody",
-              body: userData.userName + "님이 주문예약을 했습니다!"
-            }
-          };
-          fcm.send(message, function(err, response){
-            if(err){
+          let message;
+          if (statusCode === 303) {
+            message = {
+              to: ownerDeviceToken[0].user_deviceToken,
+              collapse_key: 'Updates Available',
+              data: {
+                title: "Every Foody",
+                body: userData.userName + "님이 주문예약을 했습니다!"
+              }
+            };
+          } else {
+            message = {
+              to: ownerDeviceToken[0].user_deviceToken,
+              collapse_key: 'Updates Available',
+              data: {
+                title: "Every Foody",
+                body: userData.userName + "님이 주문예약을 취소했습니다"
+              }
+            };
+          }
+          fcm.send(message, function(err, response) {
+            if (err) {
               connection.release();
-              callback(successMsg + " // send push msg error : "+ err, null);
-            }
-            else{
+              callback(successMsg + " // send push msg error : " + err, null);
+            } else {
               console.log(message);
               connection.release();
-              callback(null, successMsg + " // success send push msg : "+ response);
+              callback(null, successMsg + " // success send push msg : " + response);
             }
           });
         }

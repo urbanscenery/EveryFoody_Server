@@ -10,6 +10,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
   let taskArray = [
     //1. connection 설정
     function(callback) {
+      console.log("latest token : " + req.headers.token);
       pool.getConnection(function(err, connection) {
         if (err) {
           res.status(500).send({
@@ -27,7 +28,8 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
         let decoded = {
           userEmail: "nonSignin",
           userID: 0,
-          userCategory: 0
+          userCategory: 0,
+          userName : "nonSignin"
         }
         callback(null, decoded, connection);
       } else {
@@ -77,10 +79,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
               }
               dataList.push(data);
             } else {
-              console.log("Latitude : " + userLatitude + "Longitude : " + userLongitude);
-              console.log("store lat : "+storeData[i].owner_latitude +" store long: "+ storeData[i].owner_longitude);
               let distanceData = distance(userLatitude, userLongitude, storeData[i].owner_latitude, storeData[i].owner_longitude);
-              console.log(distanceData);
               data = {
                 storeID: storeData[i].owner_id,
                 storeName: storeData[i].owner_storename,
@@ -136,8 +135,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
         else {
           let noticeCode;
           if(timeData[0].c == 1) noticeCode = 801;
-          else noticeCode = 802;      
-          console.log('timeData'+timeData[0].c); 
+          else noticeCode = 802;
           callback(null, dataList, noticeCode, decoded, connection);
         }
       });
@@ -159,6 +157,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
     },
     //5. 응답후 커넥션 해제
     function(dataList, noticeCode, token, connection, callback) {
+      console.log("Newest token : " + token);
       res.status(200).send({
         status: "success",
         data: {

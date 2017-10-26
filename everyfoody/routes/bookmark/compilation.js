@@ -6,6 +6,7 @@ const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const fcm = require('../../config/fcm_config')
+const notifunc = require('../../modules/notisave.js');
 
 router.get('/:storeID', function(req, res) {
   let taskArray = [
@@ -66,7 +67,7 @@ router.get('/:storeID', function(req, res) {
     function(bookmarkData, userData, connection, callback) {
       if (bookmarkData.length === 0) {
         let insertBookmarkQuery = 'insert into bookmarks values(?,?,?)';
-        connection.query(insertBookmarkQuery, [userData.userID, req.params.storeID,1], function(err) {
+        connection.query(insertBookmarkQuery, [userData.userID, req.params.storeID, 1], function(err) {
           if (err) {
             res.status(500).send({
               status: "fail",
@@ -79,11 +80,10 @@ router.get('/:storeID', function(req, res) {
               status: "success",
               msg: "successful regist bookmark"
             });
-            callback(null, userData, connection, "succesful regist bookmark");
+            callback(null, userData, connection, "succesful regist bookmark", 301);
           }
         });
-      }
-      else {
+      } else {
         let deleteBookmarkQuery = 'delete from bookmarks where user_id = ? and owner_id = ?';
         connection.query(deleteBookmarkQuery, [userData.userID, req.params.storeID], function(err) {
           if (err) {
@@ -98,38 +98,42 @@ router.get('/:storeID', function(req, res) {
               status: "success",
               msg: "successful delete bookmark"
             });
-            callback(null, userData, connection, "successful delete bookmark");
+            callback(null, userData, connection, "successful delete bookmark", 302);
           }
         });
       }
     },
     //5. FCM메세지 사업자에게 전송
-    function(userData, connection, successMsg, callback) {
+    function(userData, connection, successMsg, statusCode, callback) {
       let selectOwnerQuery = 'select user_deviceToken from users where user_id = ?';
       connection.query(selectOwnerQuery, req.params.storeID, function(err, ownerDeviceToken) {
         if (err) {
           connection.release();
           callback(successMsg + " //get owner devicetoken data err : " + err, null);
         } else {
-          let message = {
-            to: ownerDeviceToken,
-            collapse_key: 'Updates Available',
-            data: {
-              title: "Every Foody",
-              body: userData.userName + "님이 가게를 즐겨찾기에 추가했습니다!"
-            }
-          };
-          fcm.send(message, function(err, response){
-            if(err){
-              connection.release();
-              callback(successMsg + " // send push msg error : "+ err, null);
-            }
-            else{
-              console.log(message);
-              connection.release();
-              callback(null, successMsg + " // success send push msg : "+ response);
-            }
-          });
+          if (statusCode === 301) {
+            let message = {
+              to: ownerDeviceToken[0].user_deviceToken,
+              collapse_key: 'Updates Available',
+              data: {
+                title: "Every Foody",
+                body: userData.userName + "님이 가게를 즐겨찾기에 추가했습니다!"
+              }
+            };
+            fcm.send(message, function(err, response) {
+              if (err) {
+                connection.release();
+                callback(successMsg + " // send push msg error : " + err, null);
+              } else {
+                console.log(message);
+                connection.release();
+                callback(null, successMsg + " // success send push msg : " + response);
+              }
+            });
+          } else {
+            connection.release();
+            callback(null, successMsg);
+          }
         }
       })
     }

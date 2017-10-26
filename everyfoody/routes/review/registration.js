@@ -91,7 +91,7 @@ router.post('/', upload.single('image') ,function(req, res) {
           callback(successMsg + " //get owner devicetoken data err : " + err, null);
         } else {
           let message = {
-            to: ownerDeviceToken,
+            to: ownerDeviceToken[0].user_deviceToken,
             collapse_key: 'Updates Available',
             data: {
               title: "Every Foody",
