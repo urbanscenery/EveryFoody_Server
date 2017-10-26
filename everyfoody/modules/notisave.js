@@ -1,6 +1,7 @@
-var sendMessage = ['음식받으러 오세요', '현재 대기번호 1번 입니다.','','','','현재 대기번호 5번 입니다.'];
-exports.sendMessage= (length, MessageBox ) =>
-{
+var Messagelist = ['음식받으러 오세요', '현재 대기번호 1번 입니다.','','','','현재 대기번호 5번 입니다.'];
+
+exports.sendMessage = function(length, messageBox,pushList ) {
+  console.log('length'+length);
   if (length >= 1) {
       messageBox.push({
         message: {
@@ -8,7 +9,7 @@ exports.sendMessage= (length, MessageBox ) =>
         collapse_key: 'Updates Available',
         data: {
           title: "Every Foody",
-          body: sendMessage[0]
+          body: Messagelist[0]
         }
       }
     });
@@ -20,7 +21,7 @@ exports.sendMessage= (length, MessageBox ) =>
         collapse_key: 'Updates Available',
         data: {
           title: "Every Foody",
-          body: sendMessage[1]
+          body: Messagelist[1]
         }
       }
     });
@@ -32,12 +33,12 @@ exports.sendMessage= (length, MessageBox ) =>
         collapse_key: 'Updates Available',
         data: {
           title: "Every Foody",
-          body: sendMessage[5]
+          body: Messagelist[5]
         }
       }
     });
   }
-    return messageBox;
+  return messageBox;
 }
 
 exports.saveMessage = (notiInfo, pushUserID) => {

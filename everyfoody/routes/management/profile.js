@@ -3,11 +3,11 @@ const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const pool = require('../../config/db_pool');
+const upload = require('../../modules/AWS-S3');
 var express = require('express');
-const moment = require('moment');
 var router = express.Router();
 
-router.put('/myprofile',upload.single('image'), function(req, res, next) {
+router.put('/',upload.single('image'), function(req, res, next) {
 
   var user_imageURL = req.file.location;
 

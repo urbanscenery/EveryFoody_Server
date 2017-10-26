@@ -122,12 +122,12 @@ router.get('/:user_status', function(req, res){
           else {
             console.log(toggleData[0].owner_addorder);
             let toggleStatus =[toggleData[0].owner_addorder, toggleData[0].owner_addreview, toggleData[0].owner_addbookmark];
-            responseData.toggleStatus = toggleStatus;        
+            responseData.toggleStatus = toggleStatus;         
             callback(null, userID, responseData, connection);      
           }
         });
       }
-      else callback(null, userId, responseData, connection);      
+      else callback(null, userID, responseData, connection);      
     },
     function(userID,responseData, connection, callback) {
       let selectImageQuery = 'select user_imageURL from users where user_id = ?';

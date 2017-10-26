@@ -3,10 +3,11 @@ const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const pool = require('../../config/db_pool');
-const notifunc = require('../../modules/notisave');
+var notifunc = require('../../modules/notisave.js');
+var fcm = require('../../config/fcm_config');
 var express = require('express');
 var router = express.Router();
-var fcm = require('../../config/fcm_config');
+
 
 router.get('/lists', function(req, res) {
 
@@ -62,9 +63,7 @@ router.get('/lists', function(req, res) {
   });
 });
 
-router.delete('/lists/remove/:user_id', function(req, res) {
-
-  var user_id = req.params.user_id;
+router.delete('/lists/remove', function(req, res) {
   let taskArray = [
     function(callback) {
       pool.getConnection(function(err, connection) {
@@ -90,16 +89,17 @@ router.delete('/lists/remove/:user_id', function(req, res) {
     function(owner_id, connection, callback) {
       let customerlistQuery = 'select o.owner_storename, u.user_deviceToken, r.reservation_time, u.user_id from users u '
       +'inner join reservation r inner join owners o '
-      +'on u.user_id = r.user_id and r.owner_id = o.owner_id where r.owner_id = 14 order by reservation_time desc';
-      connection.query(customerlistQuery, owner_id, function(err, pushList) {
+      +'on u.user_id = r.user_id and r.owner_id = o.owner_id where r.owner_id = 21 order by reservation_time desc';
+      connection.query(customerlistQuery, function(err, pushList) {
         if (err) {
           callback("Data is null or connection error" + err, null);
           connection.release();
         }
-        else {
-          let length = pushlist.length;
+        else {        
+          let length = pushList.length;
+          console.log(pushList.length+'asdfdsaf');
           let messageBox = []
-          messageBox = notifunc.sendMessage(length, messageBox);
+          messageBox = notifunc.sendMessage(length, messageBox, pushList);
           fcm.send(messageBox, function(err, response) {
             if (err) {
               console.log("Something has gone wrong!" + err);
@@ -107,7 +107,7 @@ router.delete('/lists/remove/:user_id', function(req, res) {
             }
             else {
               console.log("Successfully sent with response: ", response);
-              callback(null, owner_id, pushList.user_id, connection);
+              callback(null, owner_id, pushList[0].user_id, connection);
             }
           });
         }
