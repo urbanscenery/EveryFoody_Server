@@ -8,7 +8,7 @@ const upload = require('../../modules/AWS-S3');
 const fcm = require('../../config/fcm_config')
 
 
-router.post('/',upload.single('image') ,function(req, res) {
+router.post('/', upload.single('image') ,function(req, res) {
   let taskArray = [
     //1. connection 설정
     function(callback) {
