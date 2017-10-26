@@ -6,7 +6,7 @@ exports.sendMessage = function(length, messageBox,pushList ) {
       messageBox.push({
         message: {
         to: pushList[0].user_deviceToken,
-        collapse_key: 'Updates Available',
+        // collapse_key: 'Updates Available',
         data: {
           title: "Every Foody",
           body: Messagelist[0]
@@ -18,7 +18,7 @@ exports.sendMessage = function(length, messageBox,pushList ) {
       messageBox.push({
         message: {
         to: pushList[1].user_deviceToken,
-        collapse_key: 'Updates Available',
+        // collapse_key: 'Updates Available',
         data: {
           title: "Every Foody",
           body: Messagelist[1]
@@ -30,7 +30,7 @@ exports.sendMessage = function(length, messageBox,pushList ) {
       messageBox.push({
       message: {
         to: pushList[5].user_deviceToken,
-        collapse_key: 'Updates Available',
+        // collapse_key: 'Updates Available',
         data: {
           title: "Every Foody",
           body: Messagelist[5]

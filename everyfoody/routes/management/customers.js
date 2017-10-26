@@ -100,16 +100,29 @@ router.delete('/lists/remove', function(req, res) {
           console.log(pushList.length+'asdfdsaf');
           let messageBox = []
           messageBox = notifunc.sendMessage(length, messageBox, pushList);
-          fcm.send(messageBox, function(err, response) {
-            if (err) {
-              console.log("Something has gone wrong!" + err);
-              callback("Message send error" + err, null);
-            }
-            else {
-              console.log("Successfully sent with response: ", response);
-              callback(null, owner_id, pushList[0].user_id, connection);
-            }
-          });
+            // var message = { 
+            //   to: 'cTLnmp2OA5s:APA91bGxbPGyptv67V9YkVe6GQfQrr-LrA5hmn8-bnHbfiZgdzuyN-2KCikLvPHkRgOZudp1EZgJj1ttoSqraJlW374gQ09hLJEKNFHSFg0Shkww9_-rK-Nw_QJHpcXoq8wDqvttyR2J', 
+            //   notification: {
+            //       title: 'everyFoody', //title of notification 
+            //       body: message, //content of the notification
+            //       sound: "default",
+            //       icon: "ic_launcher" //default notification icon
+            //   },            
+            // };
+          for(var i =0; i< messageBox.length; ++i)
+          {          
+            console.log(messageBox[i].message);
+            fcm.send(messageBox[i].message, function(err, response) {
+              if (err) {
+                console.log("Something has gone wrong!" + err);
+                // callback("Message send error" + err, null);                
+              }
+              else {
+                console.log("Successfully sent with response: ", response);              
+              }
+            });
+          } 
+          callback(null, owner_id, pushList[0].user_id, connection);       
         }
       });
     },
@@ -125,11 +138,13 @@ router.delete('/lists/remove', function(req, res) {
           }
         });
       }
-      callback(null, owner_id, connection);
+      callback(null, owner_id, pushUserID, connection);
     },
-    function(owner_id, connection, callback) {
+    function(owner_id, pushUserID, connection, callback) {
+      console.log('id'+pushUserID);
+      console.log('owner_id'+owner_id);
       let rmReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
-      connection.query(rmReservationQuery, [user_id, owner_id], function(err, lists) {
+      connection.query(rmReservationQuery, [pushUserID, owner_id], function(err, lists) {
         if (err) {
           connection.release();
           callback("Data is null or connection error" + err, null);
