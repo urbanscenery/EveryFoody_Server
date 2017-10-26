@@ -144,10 +144,10 @@
               },
               "category":
               {
-                "description": "Facebook/Kakao 구분, Facebook : 1 Kakao : 2",
+                "description": "Facebook/Kakao 구분, Facebook : 101 Kakao : 102",
                 "type": "integer",
                 "minLength": 1,
-                "example": 1
+                "example": 101
               }
             }
           }
@@ -187,9 +187,9 @@
                     },
                     "category":
                     {
-                      "description": "이용자/사업자 구분, 이용자 : 1 사업자 : 2(영업승인완료), 3(영업승인대기), 4(승인기간만료)",
+                      "description": "이용자/사업자 구분, 이용자 : 401 사업자 : 402(영업승인완료), 403(영업승인대기), 404(승인기간만료)",
                       "type": "integer",
-                      "example": 1
+                      "example": 401
                     },
                     "imageURL":
                     {
@@ -692,11 +692,6 @@
                   "example": "success"
                 },
                 "data":
-                {
-                  "type": "object",
-                  "properties":
-                  {
-                    "store":
                     {
                       "type": "array",
                       "items":
@@ -736,9 +731,7 @@
                           }
                         }
                       }
-                    }
-                  }
-                },
+                    },
                 "msg":
                 {
                   "type": "string",
