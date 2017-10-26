@@ -96,37 +96,28 @@ router.delete('/lists/remove', function(req, res) {
           connection.release();
         }
         else {        
-          let length = pushList.length;
-          console.log(pushList.length+'asdfdsaf');
           let messageBox = []
+          let notiBox = []
+          let length = pushList.length;
           messageBox = notifunc.sendMessage(length, messageBox, pushList);
-            // var message = { 
-            //   to: 'cTLnmp2OA5s:APA91bGxbPGyptv67V9YkVe6GQfQrr-LrA5hmn8-bnHbfiZgdzuyN-2KCikLvPHkRgOZudp1EZgJj1ttoSqraJlW374gQ09hLJEKNFHSFg0Shkww9_-rK-Nw_QJHpcXoq8wDqvttyR2J', 
-            //   notification: {
-            //       title: 'everyFoody', //title of notification 
-            //       body: message, //content of the notification
-            //       sound: "default",
-            //       icon: "ic_launcher" //default notification icon
-            //   },            
-            // };
+          notiBox = notifunc.saveMessage(notiBox, pushList)         
           for(var i =0; i< messageBox.length; ++i)
-          {          
-            console.log(messageBox[i].message);
+          {                      
             fcm.send(messageBox[i].message, function(err, response) {
               if (err) {
                 console.log("Something has gone wrong!" + err);
-                // callback("Message send error" + err, null);                
+                callback("Message send error" + err, null);                
               }
               else {
                 console.log("Successfully sent with response: ", response);              
               }
             });
           } 
-          callback(null, owner_id, pushList[0].user_id, connection);       
+          callback(null, owner_id, pushList, notiBox, connection);       
         }
       });
     },
-    function(owner_id, pushUserID, connection,callback) {
+    function(owner_id, pushList, connection,callback) {
       let notiSaveQuery = 'insert into notice value(?,?,?)';
       var notiInfo = [];
       notiInfo = notifunc.saveMessage(notiInfo,pushUserID);
@@ -138,24 +129,39 @@ router.delete('/lists/remove', function(req, res) {
           }
         });
       }
-      callback(null, owner_id, pushUserID, connection);
+      callback(null, owner_id, pushList, notiBox, connection);
     },
-    function(owner_id, pushUserID, connection, callback) {
-      console.log('id'+pushUserID);
-      console.log('owner_id'+owner_id);
+    function(owner_id, pushList, notiBox, connection, callback) {      
       let rmReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
-      connection.query(rmReservationQuery, [pushUserID, owner_id], function(err, lists) {
+      connection.query(rmReservationQuery, [pushList[0].user_id, owner_id], function(err, lists) {
         if (err) {
           connection.release();
           callback("Data is null or connection error" + err, null);
-        } else {
-          res.status(200).send({
-            status: "success",
-            msg: "reservation remove success"
-          })
-          connection.release();
+        }
+        else {
+          callback(null, owner_id, pushlist, connection);
         }
       })
+    },
+    (userID, connection, notiBox, callback) => {
+      let addnoticeQuery;
+      addnoticeQuery = 'insert into notice values(? ,? ,?)';    
+      connection.query(addnoticeQuery, notibox, function(err){
+        if (err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "addition noticeData data error"
+          });
+          connection.release();
+          callback("get reservation data err : " + err, null);
+        } else{
+          res.status(200).send({
+            status: 'success',
+            msg : "addition noticeData"
+          })      
+          callback(null, "Successful caddition noticeData");
+        }
+      });
     }
   ]
   async.waterfall(taskArray, function(err, result) {

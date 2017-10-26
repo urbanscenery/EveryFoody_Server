@@ -41,26 +41,25 @@ exports.sendMessage= (length, MessageBox ) =>
     return messageBox;
 }
 
-exports.saveMessage = (notiInfo, pushUserID) => {
-  var notiInfo = []
-  var length = pushUserID.length;
+exports.saveMessage = (notiInfo, pushList) => {  
+  var length = pushList.length;
   if (length >= 1) {
      notiInfo.push({
-      user_id : pushUserID[5],
-      notice_content : sendMessage[5],
+      user_id : pushList[0].user_id,
+      notice_content : sendMessage[0],
       notice_time : moment().format('MM/DDahh:mm:ss');
     });
   }
-  if (length > 1 && length <= 2) {
+  if (length >=2) {
     notiInfo.push({
-      user_id : pushUserID[5],
-      notice_content : sendMessage[5],
+      user_id : pushList[1].user_id,
+      notice_content : sendMessage[1],
       notice_time : moment().format('MM/DDahh:mm:ss');
     });
   }
   if (length >= 6) {
     notiInfo.push({
-      user_id : pushUserID[5],
+      user_id : pushList[5].user_id,
       notice_content : sendMessage[5],
       notice_time : moment().format('MM/DDahh:mm:ss');
     });

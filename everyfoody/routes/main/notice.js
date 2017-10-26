@@ -65,7 +65,7 @@ router.put('/lists', (req, res) => {
     },
      (userID, connection, callback) => {
       let noticeListQuery;
-      noticeListQuery = 'select * from notice where user_id = ? order by notice_time desc limit 20';
+      noticeListQuery = 'select * from notice where user_id = ? order by notice_time desc';
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
       connection.query(noticeListQuery,[userID], function(err, noticeData){
         if (err) {
@@ -140,9 +140,8 @@ router.get('/addition', (req, res) => {
      },
      (userID, connection, callback) => {
       let addnoticeQuery;
-      addnoticeQuery = 'insert into notice values(? ,? ,?)';
-      // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(selectReservationQuery,[userID, notice_content, notice_time], function(err){
+      addnoticeQuery = 'insert into notice values(? ,? ,?)';    
+      connection.query(addnoticeQuery,[userID, notice_content, notice_time], function(err){
         if (err) {
           res.status(500).send({
             status: "fail",
