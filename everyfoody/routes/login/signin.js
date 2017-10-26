@@ -138,7 +138,7 @@ router.get('/checking/:user_uid', (req, res) => {
         }
         else {
           var data;        
-          if(resultData[0].c === 0) data = 600;
+          if(resultData[0].c === 0) data = 602;
           else data = 601;
            res.status(201).send({
               status: "success",
