@@ -122,8 +122,7 @@ router.get('/:user_status', function(req, res){
           else {
             console.log(toggleData[0].owner_addorder);
             let toggleStatus =[toggleData[0].owner_addorder, toggleData[0].owner_addreview, toggleData[0].owner_addbookmark];
-            responseData.toggleStatus = toggleStatus;
-            connection.release();
+            responseData.toggleStatus = toggleStatus;        
             callback(null, userID, responseData, connection);      
           }
         });
