@@ -97,21 +97,13 @@ router.delete('/lists/remove', function(req, res) {
         }
         else {        
           let length = pushList.length;
-          console.log(pushList.length+'asdfdsaf');
+         
           let messageBox = []
           messageBox = notifunc.sendMessage(length, messageBox, pushList);
-            // var message = { 
-            //   to: 'cTLnmp2OA5s:APA91bGxbPGyptv67V9YkVe6GQfQrr-LrA5hmn8-bnHbfiZgdzuyN-2KCikLvPHkRgOZudp1EZgJj1ttoSqraJlW374gQ09hLJEKNFHSFg0Shkww9_-rK-Nw_QJHpcXoq8wDqvttyR2J', 
-            //   notification: {
-            //       title: 'everyFoody', //title of notification 
-            //       body: message, //content of the notification
-            //       sound: "default",
-            //       icon: "ic_launcher" //default notification icon
-            //   },            
-            // };
           for(var i =0; i< messageBox.length; ++i)
           {          
-            console.log(messageBox[i].message);
+            console.log('------------------------------------');
+            console.log(messageBox[i].message);          
             fcm.send(messageBox[i].message, function(err, response) {
               if (err) {
                 console.log("Something has gone wrong!" + err);
@@ -121,6 +113,10 @@ router.delete('/lists/remove', function(req, res) {
                 console.log("Successfully sent with response: ", response);              
               }
             });
+            for(var j=0; j<10000000; ++j)
+            {
+              var c = 1+1;
+            }
           } 
           callback(null, owner_id, pushList[0].user_id, connection);       
         }
