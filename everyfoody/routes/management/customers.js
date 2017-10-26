@@ -5,7 +5,6 @@ const moment = require('moment');
 const pool = require('../../config/db_pool');
 const notifunc = require('../../modules/notisave');
 var express = require('express');
-const moment = require('moment');
 var router = express.Router();
 var fcm = require('../../config/fcm_config');
 
@@ -118,7 +117,7 @@ router.delete('/lists/remove/:user_id', function(req, res) {
       let notiSaveQuery = 'insert into notice value(?,?,?)';
       var notiInfo = [];
       notiInfo = notifunc.saveMessage(notiInfo,pushUserID);
-      for(int i=0; i<notiInfo.length; ++i) {
+      for(var i=0; i<notiInfo.length; ++i) {
         connection.query(notiSaveQuery,notiInfo[i],function(err){
           if(err){
             connection.release();

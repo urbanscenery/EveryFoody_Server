@@ -1,4 +1,3 @@
-var fcm = require('../../config/fcm_config');
 var sendMessage = ['음식받으러 오세요', '현재 대기번호 1번 입니다.','','','','현재 대기번호 5번 입니다.'];
 exports.sendMessage= (length, MessageBox ) =>
 {
@@ -48,21 +47,21 @@ exports.saveMessage = (notiInfo, pushUserID) => {
      notiInfo.push({
       user_id : pushUserID[5],
       notice_content : sendMessage[5],
-      notice_time : moment().format('MM/DDahh:mm:ss');
+      notice_time : moment().format('MM/DDahh:mm:ss')
     });
   }
   if (length > 1 && length <= 2) {
     notiInfo.push({
       user_id : pushUserID[5],
       notice_content : sendMessage[5],
-      notice_time : moment().format('MM/DDahh:mm:ss');
+      notice_time : moment().format('MM/DDahh:mm:ss')
     });
   }
   if (length >= 6) {
     notiInfo.push({
       user_id : pushUserID[5],
       notice_content : sendMessage[5],
-      notice_time : moment().format('MM/DDahh:mm:ss');
+      notice_time : moment().format('MM/DDahh:mm:ss')
     });
   }
   return notiInfo;

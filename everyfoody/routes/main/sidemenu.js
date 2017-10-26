@@ -66,7 +66,8 @@ router.get('/:user_status', function(req, res){
         	let responseData = {
         		reservationCount : reservationData.length,
         		bookmarkCount : 0,
-            bookmarkInfo : []
+            bookmarkInfo : [],
+            imageURL : '',
         	}
         	callback(null, responseData, userID, user_status, connection);
         }
@@ -122,26 +123,35 @@ router.get('/:user_status', function(req, res){
             console.log(toggleData[0].owner_addorder);
             let toggleStatus =[toggleData[0].owner_addorder, toggleData[0].owner_addreview, toggleData[0].owner_addbookmark];
             responseData.toggleStatus = toggleStatus;
-            res.status(200).send({
-              status : "success",
-              msg : "sibal all success",
-              data : responseData
-            });
             connection.release();
-            callback(null, "success drawer All");
+            callback(null, userID, responseData, connection);      
           }
         });
       }
-      else
-      {
-        res.status(200).send({
+      else callback(null, userId, responseData, connection);      
+    },
+    function(userID,responseData, connection, callback) {
+      let selectImageQuery = 'select user_imageURL from users where user_id = ?';
+      connection.query(selectImageQuery, [userID], function(err, imageData) {
+        if (err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "drawer get infomation error"
+          });
+          connection.release();
+          callback("insert error :" + err, null);
+        }
+        else {
+          responseData.imageURL = imageData[0].user_imageURL;
+          res.status(200).send({
             status : "success",
-            msg : "sibal all success",
+            msg : "drawer get infomation success",
             data : responseData
           });
           connection.release();
-          callback(null, "success drawer All");
-      }
+          callback(null, 'drawer success');
+        }
+      });
     }
 	];
 	async.waterfall(taskArray, function(err, result) {
