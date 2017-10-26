@@ -166,6 +166,63 @@ router.post('/basic/modification', upload.single('storeImage'),function(req, res
   });
 });
 
+router.post('/basic/imagemodi', upload.single('storeImage'),function(req, res, next) {
+
+  var owner_detailURL = req.file.location;
+  var owner_mainURL = req.file.location;
+
+  let taskArray = [
+   function(callback) {
+      pool.getConnection(function(err, connection) {
+        if (err) callback("getConneciton error : " + err, null);
+        else callback(null, connection);
+      })
+    },
+    function(connection, callback) {
+      let token = req.headers.token;
+      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        if (err) {
+          res.status(501).send({
+            status : "fail",
+            msg: "user authorication error"
+          });
+          connection.release();
+          callback("JWT decoded err : " + err, null);
+        } else callback(null, decoded.userID, connection);
+      })
+    },
+    function(owner_id, connection, callback) {
+      let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set o.owner_detailURL = ?, o.owner_mainURL = ? where o.owner_id = ?';
+      connection.query(setStoreinfoQuery,[owner_detailURL,owner_mainURL, owner_id], function(err) {
+        if(err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "image info update error"
+          });
+          connection.release();
+          callback("insert error :" + err, null);
+        } else {
+          res.status(201).send({
+            status: "success",
+            msg: "image info modify success"
+          });
+          connection.release();
+          callback(null, "modify success");
+        }
+      })
+    }
+  ]
+  async.waterfall(taskArray, function(err, result) {
+    if (err) {
+      err = moment().format('MM/DDahh:mm:ss//') + err;
+      console.log(err);
+    } else {
+      result = moment().format('MM/DDahh:mm:ss//') + result;
+      console.log(result);
+    }
+  });
+});
+
 //메뉴정보 삭제
 router.delete('/menu/remove/:menu_id', function(req, res, next) {
 
