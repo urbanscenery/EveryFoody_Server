@@ -48,18 +48,19 @@ router.post('/', function(req, res) {
         });
         connection.release();
         callback("non signed up user", null);
-      } else {
+      }
+      else {
         if(userData[0].user_uid === req.body.uid){
           connection.release();
           callback(null, userData);
         }
-        else{
+        else {
           res.status(401).send({
                 status: "fail",
                 msg: "uncorrect unique ID"
               });
               connection.release();
-              callback("uncorrect uid : " + err, null);
+              callback("uncorrect uid : ", null);
         }
       }
     },
@@ -103,6 +104,59 @@ router.post('/', function(req, res) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
     } else {
+      result = moment().format('MM/DDahh:mm:ss//') + result;
+      console.log(result);
+    }
+  });
+})
+
+router.get('/checking/:user_uid', (req, res) => {
+  var user_uid = req.params.user_uid;
+  let taskArray = [
+     function(callback) {
+      pool.getConnection(function(err, connection) {
+        if (err){
+          res.status(500).send({
+            status : "fail",
+            msg : "get connection error"
+          });
+          callback("getConnection error : " + err, null);
+        } 
+        else callback(null, connection);
+      });
+    },
+    function(connection, callback) {
+      let checkUidquery = 'select count(*) as c from users where user_uid = ?';
+      connection.query(checkUidquery, user_uid, function(err, resultData){
+        if(err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "owner info update error"
+          });
+          connection.release();
+          callback("insert error :" + err, null);
+        }
+        else {
+          var data;        
+          if(resultData[0].c === 0) data = 600;
+          else data = 601;
+           res.status(201).send({
+              status: "success",
+              msg: "checking uid success",
+              data : data
+            });  
+          connection.release();
+          callback(null, "checking uid success");
+        }
+      })
+    }
+  ]
+  async.waterfall(taskArray, function(err, result) {
+    if (err) {
+      err = moment().format('MM/DDahh:mm:ss//') + err;
+      console.log(err);
+    }
+    else{
       result = moment().format('MM/DDahh:mm:ss//') + result;
       console.log(result);
     }

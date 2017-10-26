@@ -2,7 +2,8 @@ const async = require('async');
 const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
-const pool = require('../../config/db_pool')
+const pool = require('../../config/db_pool');
+const upload = require('../../modules/AWS-S3');
 var express = require('express');
 var router = express.Router();
 
@@ -26,13 +27,13 @@ router.get('/modification', function(req, res, next) {
             status: "fail",
             msg: "user authorication error"
           });
-          connection.realease();
+          connection.release();
           callback("JWT decoded err : " + err, null);
         } else callback(null, decoded.userID, connection);
       })
     },
     function(owner_id, connection, callback) {
-      let selectQuery = 'select * from owners where owner_id = ?';
+      let selectQuery = 'select * from owners o inner join users u on u.user_id = o.owner_id where o.owner_id =?';
       connection.query(selectQuery, owner_id, function(err, basicinfo) {
         if (err) {
           res.status(500).send({
@@ -40,40 +41,52 @@ router.get('/modification', function(req, res, next) {
             msg: "query error"
           });
         } else {
-          let infomation = {
-                owner_storename : basicinfo[0].owner_storename,
-                owner_breaktime : basicinfo[0].owner_breaktime,
-                owner_phone : basicinfo[0].owner_phone,
-                owner_hashtag : basicinfo[0].owner_hashtag,
-                owner_facebookURL : basicinfo[0].owner_facebookURL,
-                owner_twitterURL : basicinfo[0].owner_twitterURL,
-                owner_instagramURL : basicinfo[0].owner_instagramURL,
-                owner_detailURL : basicinfo[0].owner_detailURL
+          let infomation = {              
+                storeName : basicinfo[0].owner_storename,
+                storeImage : basicinfo[0].owner_detailURL,
+                storeFacebookURL : basicinfo[0].owner_facebookURL,
+                storeTwitterURL : basicinfo[0].owner_twitterURL,
+                storeInstagramURL : basicinfo[0].owner_instagramURL,
+                storeHashtag : basicinfo[0].owner_hashtag,
+                storeOpentime : basicinfo[0].owner_opentime,
+                storeBreaktime : basicinfo[0].owner_breaktime,      
+                storePhone : basicinfo[0].user_phone                                                        
               }
          callback(null, owner_id, infomation, connection);
         }
       })
     }, 
    function(owner_id, basicinfo, connection, callback) {
-      let modifyQuery = 'select menu_id, menu_name, menu_price, menu_detailURL from menu where owner_id = ?';
+      let modifyQuery = 'select menu_id, menu_name, menu_price, menu_imageURL from menu where owner_id = ?';
       connection.query(modifyQuery, [owner_id],function(err, menuinfo) {
         if(err){
           res.status(500).send({
             status: "fail",
             msg: "query error"
           });
-        } else {
-          callback(null, basicinfo, menuinfo, connection);
+        }
+        else {
+          let menuinfo2= [];
+          for(var i=0; i<menuinfo.length; i++)
+          {              
+           menuinfo2.push({
+            menuID : menuinfo[i].menu_id,
+            menuTitle : menuinfo[i].menu_name,
+            menuPrice : menuinfo[i].menu_price,
+            menuImageURL : menuinfo[i].menu_imageURL
+            })
+          }        
+          callback(null, basicinfo, menuinfo2, connection);
         }
       })
     },
     function(basicinfo, menuinfo, connection) {
       res.status(200).send({
         status: "success",
-        data: [{
-          basicinfo: basicinfo,
-          menuinfo: menuinfo
-        }],
+        data: {
+          basicInfo: basicinfo,
+          menuInfo : menuinfo
+        },
         msg: "basic & menuinfo success"
       })
     }
@@ -90,27 +103,20 @@ router.get('/modification', function(req, res, next) {
 });
 
 //기본정보 수정시
-router.post('/basic/modification', function(req, res, next) {
+router.post('/basic/modification', upload.single('storeImage'),function(req, res, next) {
 
-  var store_name = req.params.store_name;
-  var owner_email = req.body.owner_email;
-  var owner_storename = req.body.owner_storename;
-  var owner_breaktime = req.body.owner_breaktime;
-  var owner_phone = req.body.owner_phone;
-  var owner_hashtag = req.body.owner_hashtag;
-  var owner_facebookURL = req.body.owner_facebookURL;
-  var owner_twitterURL = req.body.owner_twitterURL;
-  var owner_instagramURL = req.body.owner_instagramURL;
-  var owner_detailURL = req.body.owner_detailURL;
-  var owner_mainURL = req.body.owner_mainURL;
-
+  var owner_breaktime = req.body.storeBreaktime;
+  var owner_phone = req.body.storePhone;
+  var owner_hashtag = req.body.storeHashtag;
+  var owner_facebookURL = req.body.storeFacebookURL;
+  var owner_twitterURL = req.body.storeTwitterURL;
+  var owner_instagramURL = req.body.storeInstagramURL;
+  var owner_detailURL = req.file.location;
+  var owner_mainURL = req.file.location;
   let taskArray = [
-    function(callabck) {
-      pool.Connection(function(err, connection) {
-        if (err) res.status(500).send({
-          status: "fail",
-          msg: "connection error"
-        });
+   function(callback) {
+      pool.getConnection(function(err, connection) {
+        if (err) callback("getConneciton error : " + err, null);
         else callback(null, connection);
       })
     },
@@ -122,15 +128,15 @@ router.post('/basic/modification', function(req, res, next) {
             status : "fail",
             msg: "user authorication error"
           });
-          connection.realease();
+          connection.release();
           callback("JWT decoded err : " + err, null);
-        } else callback(null, decoded.owner_email, connection);
+        } else callback(null, decoded.userID, connection);
       })
     },
-    function(connection, callback) {
-      let setStoreinfoQuery = 'update owner set owner_storename = ? , owner_breaktime = ?, owner_phone = ?,'
-      +'owner_hashtag =?, owner_facebookURL = ?, owner_twitterURL =?, owner_instagramURL = ?, owner_detailURL = ?, owner_mainURL = ? where owner_email = ?';
-      connection.query(setSotreinfoQuery,[owner_storename, owner_breaktime, owner_phone,owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_email],function(err){
+    function(owner_id, connection, callback) {
+      let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set o.owner_breaktime = ?, u.user_phone = ?,'
+      +'o.owner_hashtag =?, o.owner_facebookURL = ?, o.owner_twitterURL =?, o.owner_instagramURL = ?, o.owner_detailURL = ?, o.owner_mainURL = ? where o.owner_id = ?';
+      connection.query(setStoreinfoQuery,[owner_breaktime, owner_phone, owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_id], function(err) {
         if(err) {
           res.status(500).send({
             status: "fail",
@@ -160,10 +166,10 @@ router.post('/basic/modification', function(req, res, next) {
   });
 });
 
-//메뉴정보 수정
+//메뉴정보 삭제
 router.delete('/menu/remove/:menu_id', function(req, res, next) {
 
-  var menu_id = req.body.menu_id;
+  var menu_id = req.params.menu_id;
 
   let taskArray = [
     function(callback) {
@@ -183,12 +189,13 @@ router.delete('/menu/remove/:menu_id', function(req, res, next) {
             status: "fail",
             msg: "user authorication error"
           });
-          connection.realease();
+          connection.release();
           callback("JWT decoded err : " + err, null);
         } else callback(null, decoded.userID, connection);
       })
     },
     function(owner_id, connection, callback) {
+      console.log('owner_id'+owner_id +' menu_id'+menu_id);
       let menuRemoveQuery = 'delete from menu where owner_id = ? and menu_id = ?';
       connection.query(menuRemoveQuery, [owner_id, menu_id], function(err) {
         if (err) {
@@ -220,11 +227,12 @@ router.delete('/menu/remove/:menu_id', function(req, res, next) {
   });
 });
 
-router.put('/menu/addition', function(req, res, next) {
+//메뉴 정보 추가
+router.put('/menu/addition',upload.single('image'), function(req, res, next) {
 
   var menu_name = req.body.menu_name;
   var menu_price = req.body.menu_price;
-  var menu_imageURL = req.body.menu_imageURL;
+  var menu_imageURL = req.file.location;
 
   let taskArray = [
     function(callback) {
@@ -244,15 +252,15 @@ router.put('/menu/addition', function(req, res, next) {
             status: "fail",
             msg: "user authorication error"
           });
-          connection.realease();
+          connection.release();
           callback("JWT decoded err : " + err, null);
         } else callback(null, decoded.userID, connection);
       })
     },
     function(owner_id, connection, callback) {
-
-      let menuAddQuery = 'insert into menu values(?,?,?,?,?)';
-      connection.query(menuAddQuery, [null, owner_id, menu_name, menu_price, menu_imageURL], function(err) {
+      console.log(owner_id +" owner_id");
+      let menuAddQuery = 'insert into menu(owner_id, menu_name, menu_price, menu_imageURL) values(?,?,?,?)';
+      connection.query(menuAddQuery, [owner_id, menu_name, menu_price, menu_imageURL], function(err) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -282,11 +290,12 @@ router.put('/menu/addition', function(req, res, next) {
   });
 });
 
-router.put('/menu/modification/:menu_id', function(req, res, next) {
+//메뉴 정보 수정
+router.put('/menu/modification/:menu_id',upload.single('image'), function(req, res, next) {
 
   var menu_name = req.body.menu_name;
   var menu_price = req.body.menu_price;
-  var menu_imageURL = req.body.menu_imageURL;
+  var menu_imageURL = req.file.location;
   var menu_id = req.params.menu_id;
 
   let taskArray = [
@@ -307,7 +316,7 @@ router.put('/menu/modification/:menu_id', function(req, res, next) {
             status: "fail",
             msg: "user authorication error"
           });
-          connection.realease();
+          connection.release();
           callback("JWT decoded err : " + err, null);
         } else callback(null, decoded.userID, connection);
       })
@@ -325,7 +334,7 @@ router.put('/menu/modification/:menu_id', function(req, res, next) {
           callback("insert error :" + err, null);
         } else {
           res.status(201).send({
-            status: "fail",
+            status: "success",
             msg: "menu info modify success"
           });
           connection.release();

@@ -7,6 +7,7 @@ const moment = require('moment');
 const fcm = require('../../config/fcm_config')
 
 router.get('/:storeID', function(req, res) {
+  var owner_id = req.params.storeID;
   let taskArray = [
     //1. connection 설정
     function(callback) {
@@ -75,18 +76,33 @@ router.get('/:storeID', function(req, res) {
             res.status(500).send({
               status: "fail",
               msg: "insert reservation data error"
-            });
-            connection.release();
+            });          
             callback("insert reservation data err : " + err, null);
-          } else {
-            res.status(200).send({
-              status : "success",
-              msg : "successful regist reservation"
-            });
-            callback(null, userData, connection, "succesful regist reservation");
           }
-        });
-      } else {
+          else {
+            let addCountQuery = 'update owners set owner_reservationCount = owner_reservationCount+1 where owner_id = ?';
+            connection.query(addCountQuery, owner_id, function(err) {
+              console.log("sefasefaesf");
+              if (err) {
+                res.status(500).send({
+                  status: "fail",
+                  msg: "add reservationCount data error"
+                });
+                connection.release();
+                callback("insert reservation data err : " + err, null);
+              }
+              else {
+                res.status(200).send({
+                  status : "success",
+                  msg : "successful add reservationCount reservation"
+                });        
+                callback(null, userData, connection, "succesful regist reservation");
+              }
+            });
+          } 
+        });       
+      }
+      else {
         let deleteReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
         connection.query(deleteReservationQuery, [userData.userID, req.params.storeID], function(err) {
           if (err) {
@@ -96,14 +112,28 @@ router.get('/:storeID', function(req, res) {
             });
             connection.release();
             callback("delete reservation data err : " + err, null);
-          } else {
-            res.status(200).send({
-              status : "success",
-              msg : "successful delete reservation"
-            });
-            callback(null, userData, connection, "successful delete reservation");
           }
-        });
+          else {            
+            let rmCountQuery = 'update owners set owner_reservationCount = owner_reservationCount-1 where owner_id = ?';
+            connection.query(rmCountQuery, owner_id, function(err) {        
+              if (err) {
+                res.status(500).send({
+                  status: "fail",
+                  msg: "remove reservationcount data error"
+                });
+                connection.release();
+                callback("insert reservation data err : " + err, null);
+              }
+              else {
+                res.status(200).send({
+                  status : "success",
+                  msg : "remove reservationcount reservation"
+                });          
+                callback(null, userData, connection, "succesful regist reservation");
+              }
+            });
+          }
+        });      
       }
     },
     //5. FCM메세지 사업자에게 전송

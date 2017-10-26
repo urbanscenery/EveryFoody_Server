@@ -6,7 +6,8 @@ const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 
-router.get('/', function(req, res){
+router.get('/:user_status', function(req, res){
+  var user_status = req.params.user_status;
 	let taskArray = [
 		//1. connection 설정
     function(callback) {
@@ -39,36 +40,45 @@ router.get('/', function(req, res){
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, connection);
+            callback(null, decoded.userID, user_status, connection);
             //decoded가 하나의 JSON 객체. 이안에 userEmail userCategory userID 프로퍼티 존
           }
         });
       }
     },
     //3. 예약내역 갯수 불러오기.
-    function(userID, connection, callback){
-    	let selectReservationQuery = 'select * from reservation where user_id = ?';
-    	connection.query(selectReservationQuery, userID, function(err, reservationData){
-    		if (err) {
+    function(userID, user_status, connection, callback){
+      let selectReservationQuery;
+      if(user_status == 401)  selectReservationQuery = 'select * from reservation where user_id = ?';
+    	else if(user_status > 401) selectReservationQuery = 'select * from reservation where owner_id = ?';  
+
+      // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
+    	connection.query(selectReservationQuery, userID, function(err, reservationData) {
+    		if(err) {
           res.status(500).send({
             status: "fail",
             msg: "get reservation data error"
           });
           connection.release();
           callback("get reservation data err : " + err, null);
-        } else{
+        }
+        else {
         	let responseData = {
         		reservationCount : reservationData.length,
-        		bookmarkCount : 0
+        		bookmarkCount : 0,
+            bookmarkInfo : [],
+            imageURL : '',
         	}
-        	callback(null, responseData, userID, connection);
+        	callback(null, responseData, userID, user_status, connection);
         }
     	});
     },
-    //4. 북마크 갯수 불러오기.
-    function(responseData, userID, connection, callback){
-    	let selectBookmarkQuery = 'select * from bookmarks where user_id = ?';
-    	connection.query(selectBookmarkQuery, userID, function(err, bookmarkData){
+    //4. 북마크 갯수 불러오기. 사용자일 경우 자신의 북마크 개수, 사업자일 경우 자신을 북마크한 사람들 수
+    function(responseData, userID, user_status, connection, callback) {
+    	let selectBookmarkQuery;
+      if(user_status == 401) selectBookmarkQuery  = 'select b.owner_id, o.owner_storename, b.bookmark_toggle FROM bookmarks as b inner join owners as o on o.owner_id = b.owner_id where user_id = ?';
+      else if(user_status > 401) selectBookmarkQuery = 'select count(*) as c from bookmarks where owner_id = ?';
+    	connection.query(selectBookmarkQuery, userID, function(err, bookmarkData) {
     		if (err) {
           res.status(500).send({
             status: "fail",
@@ -76,17 +86,71 @@ router.get('/', function(req, res){
           });
           connection.release();
           callback("get bookmark data err : " + err, null);
-        } else{
-        	responseData.bookmarkCount = bookmarkData.length;
-        	res.status(200).send({
-        		status : "success",
-        		data : responseData,
-        		msg : "Successful load sidemenu data"
-        	});
-        	connection.release();
-        	callback(null, "Successful load sidemenu data");
+        }
+        else {
+          if(user_status == 401)
+          {
+            let bookmarkinfo = [];
+            for(var i=0; i<bookmarkData.length; ++i)
+            {
+              bookmarkinfo.push({
+                id : bookmarkData[i].owner_id,
+                store_name : bookmarkData[i].owner_storename,
+                toggle : bookmarkData[i].bookmark_toggle
+              });
+            }          	
+            responseData.bookmarkInfo = bookmarkinfo;      
+          }        
+            responseData.bookmarkCount = bookmarkData.length;                
+            callback(null, responseData, userID, user_status, connection);
         }
     	});
+    },
+    function(responseData, userID, user_status, connection, callback) {
+      if(user_status > 401)
+      {
+        let toggleQuery = "select owner_addorder, owner_addreview, owner_addbookmark from owners where owner_id = ?";
+        connection.query(toggleQuery, userID, function(err, toggleData) {
+          if(err) {
+            res.status(500).send({
+              status: "fail",
+              msg: "get bookmark data error"
+            });
+            connection.release();
+            callback("get bookmark data err : " + err, null);
+          }
+          else {
+            console.log(toggleData[0].owner_addorder);
+            let toggleStatus =[toggleData[0].owner_addorder, toggleData[0].owner_addreview, toggleData[0].owner_addbookmark];
+            responseData.toggleStatus = toggleStatus;         
+            callback(null, userID, responseData, connection);      
+          }
+        });
+      }
+      else callback(null, userID, responseData, connection);      
+    },
+    function(userID,responseData, connection, callback) {
+      let selectImageQuery = 'select user_imageURL from users where user_id = ?';
+      connection.query(selectImageQuery, [userID], function(err, imageData) {
+        if (err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "drawer get infomation error"
+          });
+          connection.release();
+          callback("insert error :" + err, null);
+        }
+        else {
+          responseData.imageURL = imageData[0].user_imageURL;
+          res.status(200).send({
+            status : "success",
+            msg : "drawer get infomation success",
+            data : responseData
+          });
+          connection.release();
+          callback(null, 'drawer success');
+        }
+      });
     }
 	];
 	async.waterfall(taskArray, function(err, result) {

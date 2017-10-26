@@ -116,13 +116,36 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
           return -1;
         }
       });
-      callback(null, dataList, connection);
+      callback(null, dataList, decoded, connection);
+    },
+    (dataList, decoded, connection, callback) => {
+      let getAccessTime;
+      getAccessTime = 'select count(n.notice_time) as c from EveryFoody.notice as n inner join '+
+      'EveryFoody.users as u on n.user_id = u.user_id and n.notice_time > u.user_accessTime where u.user_id = ?';
+      // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
+      connection.query(getAccessTime, [decoded.userID], function(err, timeData) {
+        if (err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "get reservation data error"
+          });
+          connection.release();
+          callback("get reservation data err : " + err, null);
+        }
+        else {
+          let noticeCode;
+          if(timeData[0].c == 1) noticeCode = 801;
+          else noticeCode = 802;      
+          console.log('timeData'+timeData[0].c); 
+          callback(null, dataList, noticeCode, connection);
+        }
+      });
     },
     //5. 응답후 커넥션 해제
-    function(dataList, connection, callback) {
+    function(dataList, noticeCode, connection, callback) {
       res.status(200).send({
         status: "success",
-        data: dataList,
+        data: dataList,noticeCode,
         msg: "Successful load store list"
       });
       connection.release();
