@@ -68,10 +68,10 @@ router.post('/', function(req, res) {
     function(userData, callback) {
     	let categoryString = "Facebook ";
     	let statusString = "customer ";
-    	if(userData[0].user_category === 2){
+    	if(userData[0].user_category === 102){
     		categoryString = "KAKAO ";
     	}
-    	if(userData[0].user_status > 1){
+    	if(userData[0].user_status > 401){
     		statusString = "owner ";
     	}
       const secret = req.app.get('jwt-secret');

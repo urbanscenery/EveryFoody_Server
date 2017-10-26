@@ -62,6 +62,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
           let dataList = [];
           let userLatitude = req.params.latitude;
           let userLongitude = req.params.longitude;
+          
           for (let i = 0, length = storeData.length; i < length; i++) {
             let data;
             if (storeData[i].owner_latitude === -1) {
@@ -76,7 +77,10 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
               }
               dataList.push(data);
             } else {
-              let distanceData = distance(userLongitude, userLatitude, storeData[i].owner_latitude, storeData[i].owner_longitude);
+              console.log("Latitude : " + userLatitude + "Longitude : " + userLongitude);
+              console.log("store lat : "+storeData[i].owner_latitude +" store long: "+ storeData[i].owner_longitude);
+              let distanceData = distance(userLatitude, userLongitude, storeData[i].owner_latitude, storeData[i].owner_longitude);
+              console.log(distanceData);
               data = {
                 storeID: storeData[i].owner_id,
                 storeName: storeData[i].owner_storename,
