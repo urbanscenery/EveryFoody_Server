@@ -45,12 +45,12 @@ router.get('/', function(req, res) {
     },
     //3. location, GPS정보로 푸드트럭정보 찾기
     function(userID, connection, callback) {
-      let selectStoreQuery = "select tr.owner_id, tr.owner_storename, tr.owner_mainURL, tr.owner_reservationCount, res.reservation_time " +
-        "from owners tr " +
-        "inner join reservation res " +
+      let selectStoreQuery = "select tr.owner_id, tr.owner_storename, tr.owner_reservationCount, tr.owner_mainURL, res.reservation_time " +
+        "from owners as tr " +
+        "inner join reservation as res " +
         "on tr.owner_id = res.owner_id " +
-        "where res.user_id = ? "+
-        "order by res.reservation_time desc";
+        "where res.user_id = ?";
+        // "order by res.reservation_time desc";
       connection.query(selectStoreQuery, userID ,function(err, storeData) {
         if (err) {
           res.status(500).send({
