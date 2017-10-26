@@ -103,7 +103,7 @@ router.get('/modification', function(req, res, next) {
 });
 
 //기본정보 수정시
-router.post('/basic/modification', upload.single('storeImage'),function(req, res, next) {
+router.post('/basic/modification',function(req, res, next) {
 
   var owner_breaktime = req.body.storeBreaktime;
   var owner_phone = req.body.storePhone;
@@ -111,8 +111,7 @@ router.post('/basic/modification', upload.single('storeImage'),function(req, res
   var owner_facebookURL = req.body.storeFacebookURL;
   var owner_twitterURL = req.body.storeTwitterURL;
   var owner_instagramURL = req.body.storeInstagramURL;
-  var owner_detailURL = req.file.location;
-  var owner_mainURL = req.file.location;
+
   let taskArray = [
    function(callback) {
       pool.getConnection(function(err, connection) {
@@ -135,8 +134,8 @@ router.post('/basic/modification', upload.single('storeImage'),function(req, res
     },
     function(owner_id, connection, callback) {
       let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set o.owner_breaktime = ?, u.user_phone = ?,'
-      +'o.owner_hashtag =?, o.owner_facebookURL = ?, o.owner_twitterURL =?, o.owner_instagramURL = ?, o.owner_detailURL = ?, o.owner_mainURL = ? where o.owner_id = ?';
-      connection.query(setStoreinfoQuery,[owner_breaktime, owner_phone, owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL,owner_detailURL,owner_mainURL, owner_id], function(err) {
+      +'o.owner_hashtag =?, o.owner_facebookURL = ?, o.owner_twitterURL =?, o.owner_instagramURL = ? where o.owner_id = ?';
+      connection.query(setStoreinfoQuery,[owner_breaktime, owner_phone, owner_hashtag, owner_facebookURL,owner_twitterURL,owner_instagramURL, owner_id], function(err) {
         if(err) {
           res.status(500).send({
             status: "fail",
@@ -165,12 +164,18 @@ router.post('/basic/modification', upload.single('storeImage'),function(req, res
     }
   });
 });
+router.put('/basic/imagemodi', upload.any('storeImage'),function(req, res, next) {
 
+<<<<<<< HEAD
 router.post('/basic/imagemodi', upload.single('storeImage'),function(req, res, next) {
 
   var owner_detailURL = req.file.location;
   var owner_mainURL = req.file.location;
 
+=======
+  var owner_detailURL = req.files[0];
+  var owner_mainURL = req.files[1];
+>>>>>>> dongsu_sub
   let taskArray = [
    function(callback) {
       pool.getConnection(function(err, connection) {
@@ -192,19 +197,32 @@ router.post('/basic/imagemodi', upload.single('storeImage'),function(req, res, n
       })
     },
     function(owner_id, connection, callback) {
+<<<<<<< HEAD
       let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set o.owner_detailURL = ?, o.owner_mainURL = ? where o.owner_id = ?';
+=======
+      let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set '
+      +'o.owner_detailURL = ?, o.owner_mainURL = ? where o.owner_id = ?';
+>>>>>>> dongsu_sub
       connection.query(setStoreinfoQuery,[owner_detailURL,owner_mainURL, owner_id], function(err) {
         if(err) {
           res.status(500).send({
             status: "fail",
+<<<<<<< HEAD
             msg: "image info update error"
+=======
+            msg: "owner info update error"
+>>>>>>> dongsu_sub
           });
           connection.release();
           callback("insert error :" + err, null);
         } else {
           res.status(201).send({
             status: "success",
+<<<<<<< HEAD
             msg: "image info modify success"
+=======
+            msg: "store info modify success"
+>>>>>>> dongsu_sub
           });
           connection.release();
           callback(null, "modify success");
@@ -222,7 +240,10 @@ router.post('/basic/imagemodi', upload.single('storeImage'),function(req, res, n
     }
   });
 });
+<<<<<<< HEAD
 
+=======
+>>>>>>> dongsu_sub
 //메뉴정보 삭제
 router.delete('/menu/remove/:menu_id', function(req, res, next) {
 
