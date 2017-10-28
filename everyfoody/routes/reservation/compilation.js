@@ -64,12 +64,12 @@ router.get('/:storeID', function(req, res) {
     },
     //4. reservation데이터가 있으면 삭제, 없으면 추가
     function(reservationData, userData, connection, callback) {
-      if (reservationData.length === 0) {
+      if (reservationData.length == 0) {
         let insertReservationQuery = 'insert into reservation set ?';
         let reservationData = {
           user_id: userData.userID,
           owner_id: req.params.storeID,
-          reservation_time: moment().format('YYYYMMDDhhmmss')
+          reservation_time: moment().format('YYYY-MM-DD hh:mm:ss')
         }
         connection.query(insertReservationQuery, reservationData, function(err) {
           if (err) {
@@ -78,7 +78,8 @@ router.get('/:storeID', function(req, res) {
               msg: "insert reservation data error"
             });
             callback("insert reservation data err : " + err, null);
-          } else {
+          }
+          else {
             let addCountQuery = 'update owners set owner_reservationCount = owner_reservationCount+1 where owner_id = ?';
             connection.query(addCountQuery, owner_id, function(err) {
               console.log("sefasefaesf");
@@ -99,7 +100,8 @@ router.get('/:storeID', function(req, res) {
             });
           }
         });
-      } else {
+      }
+      else {
         let deleteReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
         connection.query(deleteReservationQuery, [userData.userID, req.params.storeID], function(err) {
           if (err) {
@@ -109,7 +111,8 @@ router.get('/:storeID', function(req, res) {
             });
             connection.release();
             callback("delete reservation data err : " + err, null);
-          } else {
+          }
+          else {
             let rmCountQuery = 'update owners set owner_reservationCount = owner_reservationCount-1 where owner_id = ?';
             connection.query(rmCountQuery, owner_id, function(err) {
               if (err) {

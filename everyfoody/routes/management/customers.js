@@ -120,11 +120,11 @@ router.delete('/lists/remove', function(req, res) {
     },
     function(owner_id, pushList, notiBox, connection, callback) {      
       var notiSaveQuery= '';      
-     
       notiSaveQuery = "insert into notice(user_id, notice_content, notice_time) values ";
       for(var i=0; i<notiBox.length; ++i)  
         notiSaveQuery +="("+ notiBox[i].user_id+",'"+notiBox[i].notice_content+"','"+notiBox[i].notice_time+"'),";
       notiSaveQuery = notiSaveQuery.substring(0,notiSaveQuery.length-1);           
+      console.log(notiSaveQuery);
       connection.query(notiSaveQuery, function(err) {
           if(err){                        
             connection.release();
@@ -148,15 +148,31 @@ router.delete('/lists/remove', function(req, res) {
           connection.release();
           callback("Data is null or connection error2" + err, null);
         }
+        else {        
+          callback(null,owner_id,connection);
+        }
+      })
+    },
+    function(owner_id,connection,callback) {
+      let rmCountQuery = 'update owners set owner_reservationCount = owner_reservationCount-1 where owner_id = ?';
+      connection.query(rmCountQuery, owner_id, function(err) {
+        if (err) {
+          res.status(500).send({
+            status: "fail",
+            msg: "remove reservationcount data error"
+          });
+          connection.release();
+          callback("insert reservation data err : " + err, null);
+        }
         else {
           res.status(200).send({
             status: "success",            
             msg: "customer list get success"
           });
           connection.release();
-          callback(null, "end");
+          callback(null,"succesful remove reservation");
         }
-      })
+      });         
     }
   ]
   async.waterfall(taskArray, function(err, result) {
