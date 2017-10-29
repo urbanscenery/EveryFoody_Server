@@ -5,7 +5,7 @@ exports.sendMessege = function(length, messegeBox, pushList ) {
       messegeBox.push({
         messege: {
         to: pushList[0].user_deviceToken,
-        collapse_key: 'Updates Available2',
+        collapse_key: 'Owner',
         data: {           
           title: pushList[0].owner_storename,
           body: pushList[0].user_nickname+'님! '+Messegelist[0]
@@ -17,7 +17,7 @@ exports.sendMessege = function(length, messegeBox, pushList ) {
       messegeBox.push({
         messege: {
         to: pushList[1].user_deviceToken,
-        collapse_key: 'Updates Available3',
+        collapse_key: 'Owner',
         data: {
           title: pushList[0].owner_storename,
           body: pushList[1].user_nickname+'님! '+Messegelist[1]
@@ -29,7 +29,7 @@ exports.sendMessege = function(length, messegeBox, pushList ) {
       messegeBox.push({
       messege: {
         to: pushList[5].user_deviceToken,
-        collapse_key: 'Updates Available5',
+        collapse_key: 'Owner',
         data: {
           title: pushList[0].owner_storename,
           body: pushList[1].user_nickname+'님! '+Messegelist[2]

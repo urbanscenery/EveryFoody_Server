@@ -90,7 +90,7 @@ router.delete('/lists/remove', function(req, res) {
       let customerlistQuery = 'select o.owner_storename, u.user_deviceToken, u.user_nickname, r.reservation_time, u.user_id from users u '
       +'inner join reservation r inner join owners o '
       +'on u.user_id = r.user_id and r.owner_id = o.owner_id where r.owner_id = ? order by reservation_time';
-      connection.query(customerlistQuery,owner_id, function(err, pushList) {
+      connection.query(customerlistQuery, owner_id, function(err, pushList) {
         if (err) {
           callback("Data is null or connection error1" + err, null);
           connection.release();
