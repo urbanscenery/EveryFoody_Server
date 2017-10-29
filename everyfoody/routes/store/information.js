@@ -22,14 +22,22 @@ router.get('/:storeID', function(req, res) {
     //2. header의 token 값으로 user_email 받아옴.
     function(connection, callback) {
       let token = req.headers.token;
-      console.log(token);
-      if (token === "nonLoginUser") {
+      if (token === "apitest") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0
+          userEmail: "API_Test",
+          userID: 40,
+          userCategory: 101,
+          userName: "에브리푸디"
         }
-        callback(null, decoded.userID, connection);
+        callback(null, decoded, connection);
+      } else if (token === "nonLoginUser") {
+        let decoded = {
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: 101,
+          userName: "비로그인"
+        }
+        callback(null, decoded, connection);
       } else {
         jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
           if (err) {
@@ -39,18 +47,18 @@ router.get('/:storeID', function(req, res) {
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, connection);
+            callback(null, decoded, connection);
             //decoded가 하나의 JSON 객체. 이안에 userEmail userCategory userID 프로퍼티 존
           }
         });
       }
     },
     //3. 트럭 기본정보 가져오기
-    function(userID, connection, callback) {
+    function(userData, connection, callback) {
       let selectStoreInfoQuery = 'select * from owners tr ' +
         'inner join users u ' +
         'on u.user_id = ? ' +
-        'where tr.owner_id = ?'; 
+        'where tr.owner_id = ?';
       connection.query(selectStoreInfoQuery, [req.params.storeID, req.params.storeID], function(err, storeData) {
         if (err) {
           res.status(500).send({
@@ -72,17 +80,17 @@ router.get('/:storeID', function(req, res) {
             storeBreaktime: storeData[0].owner_breaktime,
             storePhone: storeData[0].user_phone,
             reservationCount: storeData[0].owner_reservationCount,
-            reservationCheck : 0,
-            bookmarkCheck : 0
+            reservationCheck: 0,
+            bookmarkCheck: 0
           };
-          callback(null, data, userID, connection);
+          callback(null, data, userData, connection);
         }
       });
     },
     //4. 트럭 메뉴정보 가져오기
-    function(basicInfo, userID, connection, callback){
+    function(basicInfo, userData, connection, callback) {
       let selectMenuQuery = 'select * from menu where owner_id = ?';
-      connection.query(selectMenuQuery, req.params.storeID, function(err, menuData){
+      connection.query(selectMenuQuery, req.params.storeID, function(err, menuData) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -90,26 +98,25 @@ router.get('/:storeID', function(req, res) {
           });
           connection.release();
           callback("get menu data err : " + err, null);
-        }
-        else{
+        } else {
           let dataList = [];
-          for(let i = 0, length = menuData.length ; i < length ; i++){
+          for (let i = 0, length = menuData.length; i < length; i++) {
             let data = {
-              menuID : menuData[i].menu_id,
-              menuTitle : menuData[i].menu_name,
-              menuPrice : menuData[i].menu_price,
-              menuImageURL : menuData[i].menu_imageURL
+              menuID: menuData[i].menu_id,
+              menuTitle: menuData[i].menu_name,
+              menuPrice: menuData[i].menu_price,
+              menuImageURL: menuData[i].menu_imageURL
             };
             dataList.push(data);
           }
-          callback(null, dataList, basicInfo, userID, connection);
+          callback(null, dataList, basicInfo, userData, connection);
         }
       });
     },
     //5. 예약정보가 있는지 확인
-    function(menuInfo, basicInfo, userID, connection, callback){
+    function(menuInfo, basicInfo, userData, connection, callback) {
       let selectReservationQuery = 'select * from reservation where user_id = ? and owner_id = ?';
-      connection.query(selectReservationQuery, [userID, req.params.storeID], function(err, reservationData){
+      connection.query(selectReservationQuery, [userData.userID, req.params.storeID], function(err, reservationData) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -117,19 +124,18 @@ router.get('/:storeID', function(req, res) {
           });
           connection.release();
           callback("get reservation data err : " + err, null);
-        }
-        else{
-          if(reservationData.length !== 0){
+        } else {
+          if (reservationData.length !== 0) {
             basicInfo.reservationCheck = 1;
           }
-          callback(null, menuInfo, basicInfo, userID, connection);
+          callback(null, menuInfo, basicInfo, userData, connection);
         }
       })
     },
     //6. 북마크된 정보가 있는지 확인
-    function(menuInfo, basicInfo, userID, connection, callback){
+    function(menuInfo, basicInfo, userData, connection, callback) {
       let selectBookmarkQuery = 'select * from bookmarks where user_id = ? and owner_id = ?';
-      connection.query(selectBookmarkQuery, [userID, req.params.storeID], function(err, bookmarkData){
+      connection.query(selectBookmarkQuery, [userData.userID, req.params.storeID], function(err, bookmarkData) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -137,9 +143,8 @@ router.get('/:storeID', function(req, res) {
           });
           connection.release();
           callback("get bookmark data err : " + err, null);
-        }
-        else{
-          if(bookmarkData.length !== 0){
+        } else {
+          if (bookmarkData.length !== 0) {
             basicInfo.bookmarkCheck = 1;
           }
           callback(null, menuInfo, basicInfo, connection);
@@ -147,14 +152,14 @@ router.get('/:storeID', function(req, res) {
       })
     },
     //6. 응답후 커넥션 해제
-    function(menuInfo, basicInfo, connection, callback){
+    function(menuInfo, basicInfo, connection, callback) {
       res.status(200).send({
-        status : "success",
-        data : {
-          basicInfo : basicInfo,
-          menuInfo : menuInfo
+        status: "success",
+        data: {
+          basicInfo: basicInfo,
+          menuInfo: menuInfo
         },
-        msg : "successful load store data"
+        msg: "successful load store data"
       });
       connection.release();
       callback(null, "successful load store data");

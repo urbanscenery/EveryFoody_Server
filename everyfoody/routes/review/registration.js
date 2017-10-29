@@ -8,7 +8,7 @@ const upload = require('../../modules/AWS-S3');
 const fcm = require('../../config/fcm_config')
 
 
-router.post('/', upload.single('image') ,function(req, res) {
+router.post('/', upload.single('image'), function(req, res) {
   let taskArray = [
     //1. connection 설정
     function(callback) {
@@ -25,11 +25,20 @@ router.post('/', upload.single('image') ,function(req, res) {
     //2. header의 token 값으로 user_email 받아옴.
     function(connection, callback) {
       let token = req.headers.token;
-      if (token === "nonLoginUser") {
+      if (token === "apitest") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0
+          userEmail: "API_Test",
+          userID: 40,
+          userCategory: 101,
+          userName: "에브리푸디"
+        }
+        callback(null, decoded, connection);
+      } else if (token === "nonLoginUser") {
+        let decoded = {
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: 101,
+          userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
@@ -48,35 +57,33 @@ router.post('/', upload.single('image') ,function(req, res) {
       }
     },
     //3. 리뷰 등록
-    function(userData, connection, callback){
+    function(userData, connection, callback) {
       let insertReviewQuery = 'insert into reviewes set ?';
       let imageURL;
-      if(typeof req.file === "undefined"){
+      if (typeof req.file === "undefined") {
         imageURL = null;
-      }else{
+      } else {
         imageURL = req.file.location;
       }
       let reviewData = {
-        user_id : userData.userID,
-        owner_id : req.body.storeID*1,
-        review_score : (req.body.score)*1,
-        review_content : req.body.content,
-        review_imageURL : imageURL
+        user_id: userData.userID,
+        owner_id: Number(req.body.storeID),
+        review_score: Number(req.body.score),
+        review_content: req.body.content,
+        review_imageURL: imageURL
       };
-      console.log(reviewData);
-      connection.query(insertReviewQuery, reviewData, function(err){
-        if(err){
+      connection.query(insertReviewQuery, reviewData, function(err) {
+        if (err) {
           res.status(500).send({
-            status : "fail",
-            msg : "regist review error"
+            status: "fail",
+            msg: "regist review error"
           });
           connection.release();
-          callback("regist review error : "+ err, null);
-        }
-        else{
+          callback("regist review error : " + err, null);
+        } else {
           res.status(201).send({
-            status : "success",
-            msg : "successful regist reivew"
+            status: "success",
+            msg: "successful regist reivew"
           });
           callback(null, userData, connection, "successful regist review");
         }
@@ -85,7 +92,7 @@ router.post('/', upload.single('image') ,function(req, res) {
     //5. FCM메세지 사업자에게 전송
     function(userData, connection, successMsg, callback) {
       let selectOwnerQuery = 'select user_deviceToken from users where user_id = ?';
-      connection.query(selectOwnerQuery, req.body.storeID*1, function(err, ownerDeviceToken) {
+      connection.query(selectOwnerQuery, Number(req.body.storeID), function(err, ownerDeviceToken) {
         if (err) {
           connection.release();
           callback(successMsg + " //get owner devicetoken data err : " + err, null);
@@ -98,14 +105,13 @@ router.post('/', upload.single('image') ,function(req, res) {
               body: userData.userName + "님이 리뷰를 남겼습니다!"
             }
           };
-          fcm.send(message, function(err, response){
-            if(err){
+          fcm.send(message, function(err, response) {
+            if (err) {
               connection.release();
-              callback(successMsg + " // send push msg error : "+ err, null);
-            }
-            else{
+              callback(successMsg + " // send push msg error : " + err, null);
+            } else {
               connection.release();
-              callback(null, successMsg + " // success send push msg : "+ response);
+              callback(null, successMsg + " // success send push msg : " + response);
             }
           });
         }

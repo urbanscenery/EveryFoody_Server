@@ -3,10 +3,10 @@ const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const pool = require('../../config/db_pool');
-var notifunc = require('../../modules/notisave.js');
-var fcm = require('../../config/fcm_config');
-var express = require('express');
-var router = express.Router();
+const notifunc = require('../../modules/notisave.js');
+const fcm = require('../../config/fcm_config');
+const express = require('express');
+const router = express.Router();
 
 
 router.get('/lists', function(req, res) {
@@ -45,11 +45,11 @@ router.get('/lists', function(req, res) {
             status: "success",
             data: user,
             msg: "customer list get success"
-          })
+          });
           connection.release();
           callback(null, "customer list get success");
         }
-      })
+      });
     }
   ];
   async.waterfall(taskArray, function(err, result) {
@@ -87,22 +87,20 @@ router.delete('/lists/remove', function(req, res) {
       });
     },
     function(owner_id, connection, callback) {
-      let customerlistQuery = 'select o.owner_storename, u.user_deviceToken, u.user_nickname, r.reservation_time, u.user_id from users u '
-      +'inner join reservation r inner join owners o '
-      +'on u.user_id = r.user_id and r.owner_id = o.owner_id where r.owner_id = ? order by reservation_time';
+      let customerlistQuery = 'select o.owner_storename, u.user_deviceToken, u.user_nickname, r.reservation_time, u.user_id from users u ' +
+        'inner join reservation r inner join owners o ' +
+        'on u.user_id = r.user_id and r.owner_id = o.owner_id where r.owner_id = ? order by reservation_time';
       connection.query(customerlistQuery, owner_id, function(err, pushList) {
         if (err) {
           callback("Data is null or connection error1" + err, null);
           connection.release();
-        }
-        else {        
+        } else {
           let messegeBox = []
           let notiBox = []
           let length = pushList.length;
           messegeBox = notifunc.sendMessege(length, messegeBox, pushList);
           notiBox = notifunc.saveMessege(notiBox, pushList);
-          for(var i =0; i< messegeBox.length; ++i)
-          {                      
+          for (let i = 0; i < messegeBox.length; ++i) {
             fcm.send(messegeBox[i].messege, function(err, response) {
               if (err) {
                 res.status(501).send({
@@ -110,50 +108,47 @@ router.delete('/lists/remove', function(req, res) {
                   msg: "user authorization error"
                 });
                 connection.release();
-                console.log("Something has gone wrong!" + err);                
-              }            
-            });          
-          } 
-          callback(null, owner_id, pushList, notiBox, connection);       
+                callback("Something has gone wrong!" + err, null);
+              }
+            });
+          }
+          callback(null, owner_id, pushList, notiBox, connection);
         }
       });
     },
-    function(owner_id, pushList, notiBox, connection, callback) {      
-      var notiSaveQuery= '';      
+    function(owner_id, pushList, notiBox, connection, callback) {
+      let notiSaveQuery = '';
       notiSaveQuery = "insert into notice(user_id, notice_content, notice_time) values ";
-      for(var i=0; i<notiBox.length; ++i)  
-        notiSaveQuery +="("+ notiBox[i].user_id+",'"+notiBox[i].notice_content+"','"+notiBox[i].notice_time+"'),";
-      notiSaveQuery = notiSaveQuery.substring(0,notiSaveQuery.length-1);           
-      console.log(notiSaveQuery);
+      for (let i = 0; i < notiBox.length; ++i)
+        notiSaveQuery += "(" + notiBox[i].user_id + ",'" + notiBox[i].notice_content + "','" + notiBox[i].notice_time + "'),";
+      notiSaveQuery = notiSaveQuery.substring(0, notiSaveQuery.length - 1);
       connection.query(notiSaveQuery, function(err) {
-          if(err){                        
-            connection.release();
-            res.status(501).send({
+        if (err) {
+          connection.release();
+          res.status(501).send({
             status: "fail",
             msg: "user authorization error"
-            });           
-            callback("Data is null or connection error3" + err, null);   
-          }
-          else callback(null, owner_id, pushList, notiBox, connection);                  
-        });       
-    },     
-    function(owner_id, pushList, notiBox, connection, callback) {      
+          });
+          callback("Data is null or connection error3" + err, null);
+        } else callback(null, owner_id, pushList, notiBox, connection);
+      });
+    },
+    function(owner_id, pushList, notiBox, connection, callback) {
       let rmReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
-      connection.query(rmReservationQuery, [ notiBox[0].user_id, owner_id], function(err) {
-        if (err) {          
+      connection.query(rmReservationQuery, [notiBox[0].user_id, owner_id], function(err) {
+        if (err) {
           res.status(500).send({
             status: 'fail',
             msg: 'fail'
-          })
+          });
           connection.release();
           callback("Data is null or connection error2" + err, null);
+        } else {
+          callback(null, owner_id, connection);
         }
-        else {        
-          callback(null,owner_id,connection);
-        }
-      })
+      });
     },
-    function(owner_id,connection,callback) {
+    function(owner_id, connection, callback) {
       let rmCountQuery = 'update owners set owner_reservationCount = owner_reservationCount-1 where owner_id = ?';
       connection.query(rmCountQuery, owner_id, function(err) {
         if (err) {
@@ -163,16 +158,15 @@ router.delete('/lists/remove', function(req, res) {
           });
           connection.release();
           callback("insert reservation data err : " + err, null);
-        }
-        else {
+        } else {
           res.status(200).send({
-            status: "success",            
+            status: "success",
             msg: "customer list get success"
           });
           connection.release();
-          callback(null,"succesful remove reservation");
+          callback(null, "succesful remove reservation");
         }
-      });         
+      });
     }
   ]
   async.waterfall(taskArray, function(err, result) {
@@ -183,6 +177,6 @@ router.delete('/lists/remove', function(req, res) {
       result = moment().format('MM/DDahh:mm:ss//') + result;
       console.log(result);
     }
-  })
-})
+  });
+});
 module.exports = router;

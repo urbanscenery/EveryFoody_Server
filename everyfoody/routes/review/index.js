@@ -1,7 +1,7 @@
-var express = require('express');
-var router = express.Router();
-var registration = require('./registration');
-var lists = require('./lists');
+const express = require('express');
+const router = express.Router();
+const registration = require('./registration');
+const lists = require('./lists');
 
 
 router.use('/registration', registration);

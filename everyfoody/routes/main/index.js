@@ -1,9 +1,9 @@
-var express = require('express');
-var router = express.Router();
-var main = require('./mainlist');
-var sidemenu = require('./sidemenu');
-var toggle = require('./toggle');
-var notice = require('./notice');
+const express = require('express');
+const router = express.Router();
+const main = require('./mainlist');
+const sidemenu = require('./sidemenu');
+const toggle = require('./toggle');
+const notice = require('./notice');
 
 router.use('/notice', notice);
 router.use('/lists', main);

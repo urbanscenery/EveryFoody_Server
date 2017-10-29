@@ -1,7 +1,7 @@
-var express = require('express');
-var router = express.Router();
-var information = require('./information');
-var location = require('./location');
+const express = require('express');
+const router = express.Router();
+const information = require('./information');
+const location = require('./location');
 
 
 router.use('/info', information);

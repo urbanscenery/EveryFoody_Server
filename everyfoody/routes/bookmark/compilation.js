@@ -25,11 +25,20 @@ router.get('/:storeID', function(req, res) {
     //2. header의 token 값으로 user_email 받아옴.
     function(connection, callback) {
       let token = req.headers.token;
-      if (token === "nonLoginUser") {
+      if (token === "apitest") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0
+          userEmail: "API_Test",
+          userID: 40,
+          userCategory: 101,
+          userName: "에브리푸디"
+        }
+        callback(null, decoded, connection);
+      } else if (token === "nonLoginUser") {
+        let decoded = {
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: 101,
+          userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
@@ -125,7 +134,6 @@ router.get('/:storeID', function(req, res) {
                 connection.release();
                 callback(successMsg + " // send push msg error : " + err, null);
               } else {
-                console.log(message);
                 connection.release();
                 callback(null, successMsg + " // success send push msg : " + response);
               }
@@ -135,11 +143,8 @@ router.get('/:storeID', function(req, res) {
             callback(null, successMsg);
           }
         }
-      })
+      });
     }
-
-
-
   ];
   async.waterfall(taskArray, function(err, result) {
     if (err) {
@@ -150,6 +155,6 @@ router.get('/:storeID', function(req, res) {
       console.log(result);
     }
   });
-})
+});
 
 module.exports = router;

@@ -4,12 +4,12 @@ const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const pool = require('../../config/db_pool');
 const upload = require('../../modules/AWS-S3');
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-router.put('/',upload.single('image'), function(req, res, next) {
+router.put('/', upload.single('image'), function(req, res, next) {
 
-  var user_imageURL = req.file.location;
+  let user_imageURL = req.file.location;
 
   let taskArray = [
     function(callback) {
@@ -19,7 +19,7 @@ router.put('/',upload.single('image'), function(req, res, next) {
           msg: "connection error"
         });
         else callback(null, connection);
-      })
+      });
     },
     function(connection, callback) {
       let token = req.headers.token;
@@ -32,7 +32,7 @@ router.put('/',upload.single('image'), function(req, res, next) {
           connection.release();
           callback("JWT decoded err : " + err, null);
         } else callback(null, decoded.userID, connection);
-      })
+      });
     },
     function(userID, connection, callback) {
 
@@ -53,7 +53,7 @@ router.put('/',upload.single('image'), function(req, res, next) {
           connection.release();
           callback(null, "modify success");
         }
-      })
+      });
     }
   ]
   async.waterfall(taskArray, function(err, result) {

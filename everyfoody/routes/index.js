@@ -1,16 +1,16 @@
-var express = require('express');
-var router = express.Router();
-var store = require('./store/index');
-var bookmark = require('./bookmark/index');
-var region = require('./main/index');
-var review = require('./review/index');
-var signin = require('./login/signin');
-var signup = require('./login/signup');
-var reservation = require('./reservation/index');
-var management = require('./management/index');
-var api = require('./apireference');
+const express = require('express');
+const router = express.Router();
+const store = require('./store/index');
+const bookmark = require('./bookmark/index');
+const region = require('./main/index');
+const review = require('./review/index');
+const signin = require('./login/signin');
+const signup = require('./login/signup');
+const reservation = require('./reservation/index');
+const management = require('./management/index');
+const api = require('./apireference');
 
-var registdata = require('./main/registdata');
+const registdata = require('./main/registdata');
 
 router.use('/store',store);
 router.use('/main', region);

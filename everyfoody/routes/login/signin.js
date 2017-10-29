@@ -120,7 +120,7 @@ router.post('/', function(req, res) {
       console.log(result);
     }
   });
-})
+});
 
 
 module.exports = router;

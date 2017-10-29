@@ -22,13 +22,22 @@ router.get('/:storeID', function(req, res) {
     //2. header의 token 값으로 user_email 받아옴.
     function(connection, callback) {
       let token = req.headers.token;
-      if (token === "nonLoginUser") {
+      if (token === "apitest") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0
+          userEmail: "API_Test",
+          userID: 40,
+          userCategory: 101,
+          userName: "에브리푸디"
         }
-        callback(null, decoded.userID, connection);
+        callback(null, decoded, connection);
+      } else if (token === "nonLoginUser") {
+        let decoded = {
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: 101,
+          userName: "비로그인"
+        }
+        callback(null, decoded, connection);
       } else {
         jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
           if (err) {
@@ -38,14 +47,14 @@ router.get('/:storeID', function(req, res) {
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, connection);
+            callback(null, decoded, connection);
             //decoded가 하나의 JSON 객체. 이안에 userEmail userCategory userID 프로퍼티 존
           }
         });
       }
     },
     //3. 리뷰 리스트 가져오기
-    function(userID, connection, callback) {
+    function(userData, connection, callback) {
       let selectReviewQuery = 'select r.review_score, r.review_content, r.review_imageURL, u.user_nickname from reviewes r ' +
         'inner join users u ' +
         'on r.user_id = u.user_id ' +
@@ -76,12 +85,12 @@ router.get('/:storeID', function(req, res) {
     //4. 응답후 커넥션해제
     function(reviewData, connection, callback) {
       res.status(200).send({
-        status : "success",
-        data : {
-          storeID : req.params.storeID,
-          reviews : reviewData
+        status: "success",
+        data: {
+          storeID: req.params.storeID,
+          reviews: reviewData
         },
-        msg : "successful load reviewes data"
+        msg: "successful load reviewes data"
       });
       connection.release();
       callback(null, "successful load reviewes data");

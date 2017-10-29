@@ -6,11 +6,11 @@ const distance = require('../../modules/distance');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 // 알림 리스트
-router.put('/lists', (req, res) => {  
-  
+router.put('/lists', (req, res) => {
+
   let taskArray = [
-    (callback) => {                     
-       pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection(function(err, connection) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -19,14 +19,23 @@ router.put('/lists', (req, res) => {
           callback("getConnection error : " + err, null);
         } else callback(null, connection);
       });
-     },
-     (connection, callback) => {
+    },
+    (connection, callback) => {
       let token = req.headers.token;
-      if (token === "nonLoginUser") {
+      if (token === "apitest") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0
+          userEmail: "API_Test",
+          userID: 40,
+          userCategory: 101,
+          userName: "에브리푸디"
+        }
+        callback(null, decoded, connection);
+      } else if (token === "nonLoginUser") {
+        let decoded = {
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: 101,
+          userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
@@ -38,18 +47,18 @@ router.put('/lists', (req, res) => {
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, connection);
+            callback(null, decoded, connection);
             //decoded가 하나의 JSON 객체. 이안에 userEmail userCategory userID 프로퍼티 존
           }
         });
       }
-     },
-     (userID, connection, callback) => {
+    },
+    (userData, connection, callback) => {
       let noticeListQuery;
       noticeListQuery = 'UPDATE users set user_accessTime = ? where user_id = ?';
-      var currentTime = moment().format('MM/DDahh:mm:ss');
+      let currentTime = moment().format('MM/DDahh:mm:ss');
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(noticeListQuery,[currentTime, userID], function(err, noticeData){
+      connection.query(noticeListQuery, [currentTime, userData.userID], function(err, noticeData) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -57,42 +66,40 @@ router.put('/lists', (req, res) => {
           });
           connection.release();
           callback("get reservation data err : " + err, null);
-        }
-        else {
-          callback(null, userID, connection);
+        } else {
+          callback(null, userData, connection);
         }
       });
     },
-     (userID, connection, callback) => {
+    (userData, connection, callback) => {
       let noticeListQuery;
       noticeListQuery = 'select * from notice where user_id = ? order by notice_time desc';
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(noticeListQuery,[userID], function(err, noticeData){
+      connection.query(noticeListQuery, [userData.userID], function(err, noticeData) {
         if (err) {
           res.status(500).send({
             status: "fail",
             msg: "notice list data error",
-            data : ""
+            data: ""
           });
           connection.release();
           callback("get reservation data err : " + err, null);
-        } else{
+        } else {
           res.status(200).send({
             status: 'success',
-            data : noticeData,
-            msg : "change bookmark status"
-          })      
+            data: noticeData,
+            msg: "change bookmark status"
+          });
           callback(null, "Successful notice list");
         }
       });
     }
   ]
-  async.waterfall(taskArray, (err, result) =>{
-    if (err){
+  async.waterfall(taskArray, (err, result) => {
+    if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
-    }
-    else{
+    } else {
       result = moment().format('MM/DDahh:mm:ss//') + result;
       console.log(result);
     }
@@ -100,12 +107,12 @@ router.put('/lists', (req, res) => {
 });
 
 // 알림 추가
-router.get('/addition', (req, res) => {  
-  var notice_content = req.body.notice_content;
-  var notice_time = moment().format('MM/DDahh:mm:ss//');
+router.get('/addition', (req, res) => {
+  let notice_content = req.body.notice_content;
+  let notice_time = moment().format('MM/DDahh:mm:ss//');
   let taskArray = [
-    (callback) => {                     
-       pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection(function(err, connection) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -114,14 +121,23 @@ router.get('/addition', (req, res) => {
           callback("getConnection error : " + err, null);
         } else callback(null, connection);
       });
-     },
-     (connection, callback) => {
+    },
+    (connection, callback) => {
       let token = req.headers.token;
-      if (token === "nonLoginUser") {
+      if (token === "apitest") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0
+          userEmail: "API_Test",
+          userID: 40,
+          userCategory: 101,
+          userName: "에브리푸디"
+        }
+        callback(null, decoded, connection);
+      } else if (token === "nonLoginUser") {
+        let decoded = {
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: 101,
+          userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
@@ -133,16 +149,16 @@ router.get('/addition', (req, res) => {
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, connection);
+            callback(null, decoded, connection);
             //decoded가 하나의 JSON 객체. 이안에 userEmail userCategory userID 프로퍼티 존
           }
         });
       }
-     },
-     (userID, connection, callback) => {
+    },
+    (userData, connection, callback) => {
       let addnoticeQuery;
-      addnoticeQuery = 'insert into notice values(? ,? ,?)';    
-      connection.query(addnoticeQuery,[userID, notice_content, notice_time], function(err){
+      addnoticeQuery = 'insert into notice values(? ,? ,?)';
+      connection.query(addnoticeQuery, [userData.userID, notice_content, notice_time], function(err) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -150,22 +166,22 @@ router.get('/addition', (req, res) => {
           });
           connection.release();
           callback("get reservation data err : " + err, null);
-        } else{
+        } else {
           res.status(200).send({
             status: 'success',
-            msg : "addition noticeData"
-          })      
+            msg: "addition noticeData"
+          });
+          connection.release();
           callback(null, "Successful caddition noticeData");
         }
       });
     }
   ]
-  async.waterfall(taskArray, (err, result) =>{
-    if (err){
+  async.waterfall(taskArray, (err, result) => {
+    if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
-    }
-    else{
+    } else {
       result = moment().format('MM/DDahh:mm:ss//') + result;
       console.log(result);
     }

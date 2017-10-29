@@ -10,7 +10,6 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
   let taskArray = [
     //1. connection 설정
     function(callback) {
-      console.log("latest token : " + req.headers.token);
       pool.getConnection(function(err, connection) {
         if (err) {
           res.status(500).send({
@@ -24,12 +23,20 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
     //2. header의 token 값으로 user_email 받아옴.
     function(connection, callback) {
       let token = req.headers.token;
-      if (token === "nonLoginUser") {
+      if (token === "apitest") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0,
-          userName : "nonSignin"
+          userEmail: "API_Test",
+          userID: 40,
+          userCategory: 101,
+          userName: "에브리푸디"
+        }
+        callback(null, decoded, connection);
+      } else if (token === "nonLoginUser") {
+        let decoded = {
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: 101,
+          userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
@@ -64,7 +71,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
           let dataList = [];
           let userLatitude = req.params.latitude;
           let userLongitude = req.params.longitude;
-          
+
           for (let i = 0, length = storeData.length; i < length; i++) {
             let data;
             if (storeData[i].owner_latitude === -1) {
@@ -86,7 +93,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
                 storeImage: storeData[i].owner_mainURL,
                 reservationCount: storeData[i].owner_reservationCount,
                 storeLocation: storeData[i].owner_locationDetail,
-                storeDistance: distanceData.distance * 1,
+                storeDistance: Number(distanceData.distance),
                 storeDistanceUnit: distanceData.unit
               }
               dataList.push(data);
@@ -94,7 +101,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
           }
           callback(null, dataList, decoded, connection);
         }
-      })
+      });
     },
     //4. 거리순 정렬
     function(dataList, decoded, connection, callback) {
@@ -120,8 +127,8 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
     //5. 
     (dataList, decoded, connection, callback) => {
       let getAccessTime;
-      getAccessTime = 'select count(n.notice_time) as c from EveryFoody.notice as n inner join '+
-      'EveryFoody.users as u on n.user_id = u.user_id and n.notice_time > u.user_accessTime where u.user_id = ?';
+      getAccessTime = 'select count(n.notice_time) as c from EveryFoody.notice as n inner join ' +
+        'EveryFoody.users as u on n.user_id = u.user_id and n.notice_time > u.user_accessTime where u.user_id = ?';
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
       connection.query(getAccessTime, [decoded.userID], function(err, timeData) {
         if (err) {
@@ -131,16 +138,15 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
           });
           connection.release();
           callback("get reservation data err : " + err, null);
-        }
-        else {
+        } else {
           let noticeCode;
-          if(timeData[0].c == 1) noticeCode = 801;
+          if (timeData[0].c == 1) noticeCode = 801;
           else noticeCode = 802;
           callback(null, dataList, noticeCode, decoded, connection);
         }
       });
     },
-    function(dataList, noticeCode, decoded, connection, callback){
+    function(dataList, noticeCode, decoded, connection, callback) {
       const secret = req.app.get('jwt-secret');
       let option = {
         algorithm: 'HS256',
@@ -157,13 +163,12 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
     },
     //5. 응답후 커넥션 해제
     function(dataList, noticeCode, token, connection, callback) {
-      console.log("Newest token : " + token);
       res.status(200).send({
         status: "success",
         data: {
-          store : dataList,
-          notice : noticeCode,
-          token : token
+          store: dataList,
+          notice: noticeCode,
+          token: token
         },
         msg: "Successful load store list"
       });
@@ -180,7 +185,6 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
       console.log(result);
     }
   });
-
 });
 
 module.exports = router;

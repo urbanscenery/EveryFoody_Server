@@ -24,7 +24,15 @@ router.get('/:latitude/:longitude', function(req, res) {
     //2. header의 token 값으로 user_email 받아옴.
     function(connection, callback) {
       let token = req.headers.token;
-      if (token === "nonLoginUser") {
+      if (token === "apitest") {
+        let decoded = {
+          userEmail: "API_Test",
+          userID: 40,
+          userCategory: 101,
+          userName: "에브리푸디"
+        }
+        callback(null, decoded, connection);
+      } else if (token === "nonLoginUser") {
         let decoded = {
           userEmail: "nonSignin",
           userID: 0,
@@ -40,20 +48,20 @@ router.get('/:latitude/:longitude', function(req, res) {
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, connection);
+            callback(null, decoded, connection);
             //decoded가 하나의 JSON 객체. 이안에 userEmail userCategory userID 프로퍼티 존
           }
         });
       }
     },
     //3. location, GPS정보로 열린 푸드트럭정보 찾기
-    function(userID, connection, callback) {
+    function(userData, connection, callback) {
       let selectMarkedStoreQuery = "select * " +
         "from bookmarks mark " +
         "inner join owners tr " +
         "on mark.owner_id = tr.owner_id " +
         "where mark.user_id = ?";
-      connection.query(selectMarkedStoreQuery, [userID, userID], function(err, markedStoreData) {
+      connection.query(selectMarkedStoreQuery, [userData.userID, userData.userID], function(err, markedStoreData) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -92,12 +100,12 @@ router.get('/:latitude/:longitude', function(req, res) {
               dataList.push(data);
             }
           }
-          callback(null, dataList, userID, connection);
+          callback(null, dataList, userData, connection);
         }
-      })
+      });
     },
     //4. 거리순 정렬
-    function(dataList, userID, connection, callback) {
+    function(dataList, userData, connection, callback) {
       dataList.sort(function(a, b) { // 오름차순
         if (a.storeDistance === -1 && b.storeDistance === -1) {
           return -1;
@@ -122,7 +130,7 @@ router.get('/:latitude/:longitude', function(req, res) {
       res.status(200).send({
         status: "success",
         data: {
-          store : dataList
+          store: dataList
         },
         msg: "Successful load bookmark store list"
       });
@@ -139,7 +147,6 @@ router.get('/:latitude/:longitude', function(req, res) {
       console.log(result);
     }
   });
-
 });
 
 module.exports = router;

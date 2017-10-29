@@ -20,14 +20,13 @@ router.post('/customer', function(req, res) {
     //1. connection 설정
     function(callback) {
       pool.getConnection(function(err, connection) {
-        if (err){
+        if (err) {
           res.status(500).send({
-            status : "fail",
-            msg : "get connection error"
+            status: "fail",
+            msg: "get connection error"
           });
           callback("getConnection error : " + err, null);
-        } 
-        else callback(null, connection);
+        } else callback(null, connection);
       });
     },
     //2. 이름 유효성 검사
@@ -87,7 +86,7 @@ router.post('/customer', function(req, res) {
           connection.release();
           callback(null, "successful customer signup");
         }
-      })
+      });
     }
   ];
   async.waterfall(taskArray, function(err, result) {
@@ -106,14 +105,13 @@ router.post('/owner', function(req, res) {
     //1. connection 설정
     function(callback) {
       pool.getConnection(function(err, connection) {
-        if (err){
+        if (err) {
           res.status(500).send({
-            status : "fail",
-            msg : "get connection error"
+            status: "fail",
+            msg: "get connection error"
           });
           callback("getConnection error : " + err, null);
-        } 
-        else callback(null, connection);
+        } else callback(null, connection);
       });
     },
     //2. 이름 유효성 검사
@@ -157,7 +155,7 @@ router.post('/owner', function(req, res) {
     //4. 회원가입 완료
     function(connection, callback) {
       let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?,?)';
-      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, code.NonAuthOwner, req.body.name, req.body.imageURL, req.body.phone,null], function(err) {
+      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, code.NonAuthOwner, req.body.name, req.body.imageURL, req.body.phone, null], function(err) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -173,7 +171,7 @@ router.post('/owner', function(req, res) {
           connection.release();
           callback(null, "successful owner signup");
         }
-      })
+      });
     }
   ];
   async.waterfall(taskArray, function(err, result) {
@@ -212,10 +210,9 @@ router.get('/checking/:user_uid', (req, res) => {
           });
           connection.release();
           callback("insert error :" + err, null);
-        }
-        else {
-          let data;        
-          if(resultData[0].c === 0) data = code.NonUid;
+        } else {
+          let data;
+          if (resultData[0].c === 0) data = code.NonUid;
           else data = code.ExistUid;
           res.status(201).send({
             status: "success",
@@ -225,7 +222,7 @@ router.get('/checking/:user_uid', (req, res) => {
           connection.release();
           callback(null, "checking uid success");
         }
-      })
+      });
     }
   ]
   async.waterfall(taskArray, function(err, result) {
@@ -237,7 +234,7 @@ router.get('/checking/:user_uid', (req, res) => {
       console.log(result);
     }
   });
-})
+});
 
 
 module.exports = router;

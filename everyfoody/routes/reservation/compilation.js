@@ -7,7 +7,7 @@ const moment = require('moment');
 const fcm = require('../../config/fcm_config')
 
 router.get('/:storeID', function(req, res) {
-  var owner_id = req.params.storeID;
+  let owner_id = req.params.storeID;
   let taskArray = [
     //1. connection 설정
     function(callback) {
@@ -24,11 +24,20 @@ router.get('/:storeID', function(req, res) {
     //2. header의 token 값으로 user_email 받아옴.
     function(connection, callback) {
       let token = req.headers.token;
-      if (token === "nonLoginUser") {
+      if (token === "apitest") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0
+          userEmail: "API_Test",
+          userID: 40,
+          userCategory: 101,
+          userName: "에브리푸디"
+        }
+        callback(null, decoded, connection);
+      } else if (token === "nonLoginUser") {
+        let decoded = {
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: 101,
+          userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
@@ -78,11 +87,9 @@ router.get('/:storeID', function(req, res) {
               msg: "insert reservation data error"
             });
             callback("insert reservation data err : " + err, null);
-          }
-          else {
+          } else {
             let addCountQuery = 'update owners set owner_reservationCount = owner_reservationCount+1 where owner_id = ?';
             connection.query(addCountQuery, owner_id, function(err) {
-              console.log("sefasefaesf");
               if (err) {
                 res.status(500).send({
                   status: "fail",
@@ -100,8 +107,7 @@ router.get('/:storeID', function(req, res) {
             });
           }
         });
-      }
-      else {
+      } else {
         let deleteReservationQuery = 'delete from reservation where user_id = ? and owner_id = ?';
         connection.query(deleteReservationQuery, [userData.userID, req.params.storeID], function(err) {
           if (err) {
@@ -111,8 +117,7 @@ router.get('/:storeID', function(req, res) {
             });
             connection.release();
             callback("delete reservation data err : " + err, null);
-          }
-          else {
+          } else {
             let rmCountQuery = 'update owners set owner_reservationCount = owner_reservationCount-1 where owner_id = ?';
             connection.query(rmCountQuery, owner_id, function(err) {
               if (err) {
@@ -167,7 +172,6 @@ router.get('/:storeID', function(req, res) {
               connection.release();
               callback(successMsg + " // send push msg error : " + err, null);
             } else {
-              console.log(message);
               connection.release();
               callback(null, successMsg + " // success send push msg : " + response);
             }

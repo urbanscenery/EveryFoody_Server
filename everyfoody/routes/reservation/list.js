@@ -22,11 +22,20 @@ router.get('/', function(req, res) {
     //2. header의 token 값으로 user_email 받아옴.
     function(connection, callback) {
       let token = req.headers.token;
-      if (token === "nonLoginUser") {
+      if (token === "apitest") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0
+          userEmail: "API_Test",
+          userID: 40,
+          userCategory: 101,
+          userName: "에브리푸디"
+        }
+        callback(null, decoded, connection);
+      } else if (token === "nonLoginUser") {
+        let decoded = {
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: 101,
+          userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
@@ -38,20 +47,20 @@ router.get('/', function(req, res) {
             connection.release();
             callback("JWT decoded err : " + err, null);
           } else {
-            callback(null, decoded.userID, connection);
+            callback(null, decoded, connection);
           }
         });
       }
     },
     //3. location, GPS정보로 푸드트럭정보 찾기
-    function(userID, connection, callback) {
+    function(userData, connection, callback) {
       let selectStoreQuery = "select tr.owner_id, tr.owner_storename, tr.owner_reservationCount, tr.owner_mainURL, res.reservation_time " +
         "from owners as tr " +
         "inner join reservation as res " +
         "on tr.owner_id = res.owner_id " +
         "where res.user_id = ?";
-        // "order by res.reservation_time desc";
-      connection.query(selectStoreQuery, userID ,function(err, storeData) {
+      // "order by res.reservation_time desc";
+      connection.query(selectStoreQuery, userData.userID, function(err, storeData) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -67,7 +76,7 @@ router.get('/', function(req, res) {
               storeName: storeData[i].owner_storename,
               storeImage: storeData[i].owner_mainURL,
               reservationCount: storeData[i].owner_reservationCount,
-              reservationTime : storeData[i].reservation_time
+              reservationTime: storeData[i].reservation_time
             }
             dataList.push(data);
           }
@@ -76,11 +85,11 @@ router.get('/', function(req, res) {
       })
     },
     //4. 응답후 커넥션 해제
-    function(dataList, connection, callback){
+    function(dataList, connection, callback) {
       res.status(200).send({
-        status : "success",
-        data : dataList,
-        msg : "Successful load reservation list"
+        status: "success",
+        data: dataList,
+        msg: "Successful load reservation list"
       });
       connection.release();
       callback(null, "Successful load reservation list");

@@ -7,7 +7,6 @@ var bodyParser = require('body-parser');
 var jwt = require('jsonwebtoken');
 var index = require('./routes/index');
 var config = require('./config/secretKey');
-var management = require('./routes/management/index');
 var app = express();
 var fs = require('fs');
 // view engine setup
@@ -37,7 +36,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/management', management);
 app.use('/swagger.json', function(req, res) {
   res.json(require('./swagger.json'));
 });

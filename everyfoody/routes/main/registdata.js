@@ -30,15 +30,12 @@ router.post('/', upload.single('image'), function(req, res) {
       } else {
         imageURL = req.file.location;
       }
-      console.log(req.body.storeID);
-      console.log(req.body.price);
       let reviewData = {
-        owner_id: (req.body.storeID) * 1,
+        owner_id: Number(req.body.storeID),
         menu_name: req.body.name,
-        menu_price: (req.body.price) * 1,
+        menu_price: Number(req.body.price),
         menu_imageURL: imageURL
       };
-      console.log(reviewData);
       connection.query(insertReviewQuery, reviewData, function(err) {
         if (err) {
           res.status(500).send({
@@ -67,6 +64,6 @@ router.post('/', upload.single('image'), function(req, res) {
       console.log(result);
     }
   });
-})
+});
 
 module.exports = router;
