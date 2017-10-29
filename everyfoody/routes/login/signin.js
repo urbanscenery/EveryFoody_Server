@@ -4,6 +4,7 @@ const router = express.Router();
 const pool = require('../../config/db_pool');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const code = require('../../modules/statuscode');
 
 
 
@@ -79,10 +80,10 @@ router.post('/', function(req, res) {
     function(userData, callback) {
       let categoryString = "KAKAO ";
       let statusString = "customer ";
-      if (userData[0].user_category === 102) {
+      if (userData[0].user_category === code.Facebook) {
         categoryString = "Facebook ";
       }
-      if (userData[0].user_status > 401) {
+      if (userData[0].user_status > code.User) {
         statusString = "owner ";
       }
       const secret = req.app.get('jwt-secret');
@@ -121,55 +122,5 @@ router.post('/', function(req, res) {
   });
 })
 
-router.get('/checking/:user_uid', (req, res) => {
-  var user_uid = req.params.user_uid;
-  let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
-        if (err) {
-          res.status(500).send({
-            status: "fail",
-            msg: "get connection error"
-          });
-          callback("getConnection error : " + err, null);
-        } else callback(null, connection);
-      });
-    },
-    function(connection, callback) {
-      let checkUidquery = 'select count(*) as c from users where user_uid = ?';
-      connection.query(checkUidquery, user_uid, function(err, resultData) {
-        if (err) {
-          res.status(500).send({
-            status: "fail",
-            msg: "owner info update error"
-          });
-          connection.release();
-          callback("insert error :" + err, null);
-        }
-        else {
-          var data;        
-          if(resultData[0].c === 0) data = 602;
-          else data = 601;
-          res.status(201).send({
-            status: "success",
-            msg: "checking uid success",
-            data: data
-          });
-          connection.release();
-          callback(null, "checking uid success");
-        }
-      })
-    }
-  ]
-  async.waterfall(taskArray, function(err, result) {
-    if (err) {
-      err = moment().format('MM/DDahh:mm:ss//') + err;
-      console.log(err);
-    } else {
-      result = moment().format('MM/DDahh:mm:ss//') + result;
-      console.log(result);
-    }
-  });
-})
 
 module.exports = router;

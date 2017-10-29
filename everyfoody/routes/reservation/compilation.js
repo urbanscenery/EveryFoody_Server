@@ -69,7 +69,7 @@ router.get('/:storeID', function(req, res) {
         let reservationData = {
           user_id: userData.userID,
           owner_id: req.params.storeID,
-          reservation_time: moment().format('YYYYMMDDhhmmss')
+          reservation_time: moment().format('YYYYMMDDHHmmss')
         }
         connection.query(insertReservationQuery, reservationData, function(err) {
           if (err) {

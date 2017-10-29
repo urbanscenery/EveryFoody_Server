@@ -121,7 +121,9 @@ router.get('/:latitude/:longitude', function(req, res) {
     function(dataList, connection, callback) {
       res.status(200).send({
         status: "success",
-        data: dataList,
+        data: {
+          store : dataList
+        },
         msg: "Successful load bookmark store list"
       });
       connection.release();
