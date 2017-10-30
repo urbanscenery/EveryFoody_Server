@@ -4,19 +4,21 @@ const moment = require('moment');
 const pool = require('../../config/db_pool');
 const express = require('express');
 const router = express.Router();
+const fcm = require('../../config/fcm_config');
+const code = require('../../modules/statuscode');
 
-router.get('/:ownerID', function(req, res) {
+router.get('/:ownerID', (req, res) => {
 
   let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) callback("DB connection error :" + err, null);
         else callback(null, connection)
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let updateOwnerQuery = 'update users set user_status = ? where user_id = ?';
-      connection.query(updateOwnerQuery, [404, req.params.ownerID], (err) => {
+      connection.query(updateOwnerQuery, [code.NonInfoOwner, req.params.ownerID], (err) => {
         if (err) {
           connection.release();
           callback("update owner status query error : " + err, null);
@@ -25,20 +27,20 @@ router.get('/:ownerID', function(req, res) {
         }
       });
     },
-    function(connection, successMSG, callback){
+    (connection, successMSG, callback) => {
       let deleteTruckQuery = 'delete from owners where owner_id = ?';
-      connection.query(deleteTruckQuery, req.params.ownerID, function(err){
-        if(err){
+      connection.query(deleteTruckQuery, req.params.ownerID, (err) => {
+        if (err) {
           connection.release();
-          callback(successMSG + " // delete truck query error : "+ err, null);
-        } else{
+          callback(successMSG + " // delete truck query error : " + err, null);
+        } else {
           callback(null, connection, successMSG + " // delete done ");
         }
       })
     },
-    function(connection, successMSG, callback) {
+    (connection, successMSG, callback) => {
       let selectDeviceTokenQuery = 'select user_deviceToken from users where user_id = ?';
-      connection.query(selectDeviceTokenQuery, req.params.ownerID, function(err, token) {
+      connection.query(selectDeviceTokenQuery, req.params.ownerID, (err, token) => {
         if (err) {
           connection.release();
           callback('select device token query error : ' + err, null);
@@ -47,7 +49,7 @@ router.get('/:ownerID', function(req, res) {
         }
       });
     },
-    function(connection, successMSG, deviceToken, callback) {
+    (connection, successMSG, deviceToken, callback) => {
       let message = {
         to: deviceToken,
         collapse_key: 'Updates Available',
@@ -56,7 +58,7 @@ router.get('/:ownerID', function(req, res) {
           body: "가게 인증이 거절되었습니다. 영업허가증 확인후 다시 등록해주세요."
         }
       };
-      fcm.send(message, function(err, response) {
+      fcm.send(message, (err, response) => {
         if (err) {
           connection.release();
           callback(successMsg + " // send push msg error : " + err, null);
@@ -67,7 +69,7 @@ router.get('/:ownerID', function(req, res) {
       });
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss// ') + err;
       console.log(err);
