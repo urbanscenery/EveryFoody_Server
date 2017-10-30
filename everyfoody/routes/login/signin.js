@@ -9,11 +9,11 @@ const code = require('../../modules/statuscode');
 
 
 //로그인 실제 작동코드
-router.post('/', function(req, res) {
+router.post('/', (req, res) => {
   let taskArray = [
     //1. connection 설정
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -24,9 +24,9 @@ router.post('/', function(req, res) {
       });
     },
     //2. 받은 email과 category로 DB검색
-    function(connection, callback) {
+    (connection, callback) => {
       let getMailQuery = 'select * from users where user_email = ? and user_category = ?';
-      connection.query(getMailQuery, [req.body.email, req.body.category], function(err, userData) {
+      connection.query(getMailQuery, [req.body.email, req.body.category], (err, userData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -40,7 +40,7 @@ router.post('/', function(req, res) {
       });
     },
     //3. 찾은 email로 회원가입여부 판정, 회원가입된 회원시 uid 비교
-    function(userData, connection, callback) {
+    (userData, connection, callback) => {
       if (userData.length === 0) {
         res.status(401).send({
           status: "fail",
@@ -77,7 +77,7 @@ router.post('/', function(req, res) {
       }
     },
     //4. JWT토큰발행
-    function(userData, callback) {
+    (userData, callback) => {
       let categoryString = "KAKAO ";
       let statusString = "customer ";
       if (userData[0].user_category === code.Facebook) {
@@ -111,7 +111,7 @@ router.post('/', function(req, res) {
       callback(null, "successful " + statusString + categoryString + "login");
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);

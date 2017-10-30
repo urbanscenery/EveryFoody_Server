@@ -15,11 +15,11 @@ function chkName(str) {
   return true;
 }
 
-router.post('/customer', function(req, res) {
+router.post('/customer', (req, res) => {
   let taskArray = [
     //1. connection 설정
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -30,7 +30,7 @@ router.post('/customer', function(req, res) {
       });
     },
     //2. 이름 유효성 검사
-    function(connection, callback) {
+    (connection, callback) => {
       if (!chkName(req.body.name)) {
         res.status(400).send({
           status: "fail",
@@ -43,9 +43,9 @@ router.post('/customer', function(req, res) {
       }
     },
     //3. email 중복검사
-    function(connection, callback) {
+    (connection, callback) => {
       let selectEmailQuery = 'select user_email from users where user_email = ? and user_category = ?';
-      connection.query(selectEmailQuery, [req.body.email, req.body.category], function(err, email) {
+      connection.query(selectEmailQuery, [req.body.email, req.body.category], (err, email) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -68,9 +68,9 @@ router.post('/customer', function(req, res) {
       });
     },
     //4. 회원가입 완료
-    function(connection, callback) {
+    (connection, callback) => {
       let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?,?,?)';
-      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, code.User, req.body.name, req.body.imageURL, req.body.phone, null, null], function(err) {
+      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, code.User, req.body.name, req.body.imageURL, req.body.phone, null, null], (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -89,7 +89,7 @@ router.post('/customer', function(req, res) {
       });
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
@@ -100,11 +100,11 @@ router.post('/customer', function(req, res) {
   });
 });
 
-router.post('/owner', function(req, res) {
+router.post('/owner', (req, res) => {
   let taskArray = [
     //1. connection 설정
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -115,7 +115,7 @@ router.post('/owner', function(req, res) {
       });
     },
     //2. 이름 유효성 검사
-    function(connection, callback) {
+    (connection, callback) => {
       if (!chkName(req.body.name)) {
         res.status(400).send({
           status: "fail",
@@ -128,9 +128,9 @@ router.post('/owner', function(req, res) {
       }
     },
     //3. email 중복검사
-    function(connection, callback) {
+    (connection, callback) => {
       let selectEmailQuery = 'select user_email from users where user_email = ? and user_category = ?';
-      connection.query(selectEmailQuery, [req.body.email, req.body.category], function(err, email) {
+      connection.query(selectEmailQuery, [req.body.email, req.body.category], (err, email) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -153,9 +153,9 @@ router.post('/owner', function(req, res) {
       });
     },
     //4. 회원가입 완료
-    function(connection, callback) {
+    (connection, callback) => {
       let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?,?,?)';
-      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, code.NonInfoOwner, req.body.name, req.body.imageURL, req.body.phone, null, null], function(err) {
+      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, code.NonInfoOwner, req.body.name, req.body.imageURL, req.body.phone, null, null], (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -174,7 +174,7 @@ router.post('/owner', function(req, res) {
       });
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
@@ -189,8 +189,8 @@ router.post('/owner', function(req, res) {
 router.get('/checking/:user_uid', (req, res) => {
   let user_uid = req.params.user_uid;
   let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -200,9 +200,9 @@ router.get('/checking/:user_uid', (req, res) => {
         } else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let checkUidquery = 'select count(*) as c from users where user_uid = ?';
-      connection.query(checkUidquery, user_uid, function(err, resultData) {
+      connection.query(checkUidquery, user_uid, (err, resultData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -225,7 +225,7 @@ router.get('/checking/:user_uid', (req, res) => {
       });
     }
   ]
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
