@@ -47,21 +47,21 @@ exports.saveMessege = (notiInfo, pushList) => {
      notiInfo.push({
       user_id : pushList[0].user_id,
       notice_content : "예약하신 ''"+pushList[0].owner_storename+"'' 의 \n"+Messegelist[0],
-      notice_time : moment().format('YYYY-MM-DD hh:mm:ss')
+      notice_time : moment().format('YYYYMMDDHHmmss')
     });
   }
   if (length >= 2) {
     notiInfo.push({
       user_id : pushList[1].user_id,
       notice_content : "예약하신 ''"+pushList[0].owner_storename+"'' 의 \n"+Messegelist[1],
-      notice_time : moment().format('YYYY-MM-DD hh:mm:ss')
+      notice_time : moment().format('YYYYMMDDHHmmss')
     });
   }
   if (length >= 6) {
     notiInfo.push({
       user_id : pushList[5].user_id,
       notice_content : "예약하신 <"+pushList[0].owner_storename+"> 의 \n"+Messegelist[5],
-      notice_time : moment().format('YYYY-MM-DD hh:mm:ss')
+      notice_time : moment().format('YYYYMMDDHHmmss')
     });
   }
   return notiInfo;

@@ -85,9 +85,19 @@ router.put('/lists', (req, res) => {
           connection.release();
           callback("get reservation data err : " + err, null);
         } else {
+          let noticeList = [];
+          for(let i = 0 ; i < noticeData.length ; i++){
+            let notice = {
+              id : noticeData[i].id,
+              user_id : noticeData[i].user_id,
+              notice_content : noticeData[i].notice_content,
+              notice_time : moment(noticeData[i].notice_time,"YYYYMMDDHHmmss").format('YYYY-MM-DD HH:mm:ss')
+            }
+            noticeList.push(notice)
+          }
           res.status(200).send({
             status: 'success',
-            data: noticeData,
+            data: noticeList,
             msg: "change bookmark status"
           });
           callback(null, "Successful notice list");

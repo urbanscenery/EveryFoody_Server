@@ -3,7 +3,7 @@ module.exports = {
 	Facebook : 102,
 	User : 401,
 	AuthOwner : 402,
-	NonAuthOwner : 403,
+	WaitAuthOwner : 403,
 	NonInfoOwner : 404,
 	ExpiredOwner : 405,
 	ExistUid : 601,

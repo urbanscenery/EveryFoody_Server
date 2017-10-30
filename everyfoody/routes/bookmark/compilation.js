@@ -112,7 +112,7 @@ router.get('/:storeID', function(req, res) {
         });
       }
     },
-    //5. FCM메세지 사업자에게 전송
+    //5. FCM메세지 설정
     function(userData, connection, successMsg, statusCode, callback) {
       let selectOwnerQuery = 'select user_deviceToken from users where user_id = ?';
       connection.query(selectOwnerQuery, req.params.storeID, function(err, ownerDeviceToken) {
@@ -120,16 +120,34 @@ router.get('/:storeID', function(req, res) {
           connection.release();
           callback(successMsg + " //get owner devicetoken data err : " + err, null);
         } else {
-          if (statusCode === 301) {
-            let message = {
-              to: ownerDeviceToken[0].user_deviceToken,
-              collapse_key: 'Updates Available',
-              data: {
-                title: "Every Foody",
-                body: userData.userName + "님이 가게를 즐겨찾기에 추가했습니다!"
-              }
-            };
-            fcm.send(message, function(err, response) {
+          let message = {
+            to: ownerDeviceToken[0].user_deviceToken,
+            collapse_key: 'Updates Available',
+            data: {
+              title: "즐겨찾기 추가 알림",
+              body: userData.userName + "님이 가게를 즐겨찾기에 추가했습니다!"
+            }
+          };
+          callback(null, userData, connection, successMsg, statusCode, message);
+        }
+      });
+    },
+    //6. FCM전송 및 notice list 추가
+    function(userData, connection, successMsg, statusCode, FCM, callback) {
+      let notice = {
+        id: null,
+        user_id: req.params.storeID,
+        notice_content: FCM.data.body,
+        notice_time: moment().format('YYYYMMDDHHmmss')
+      };
+      let insertNoticeQuery = 'insert into notice set ?';
+      if (statusCode === 301) {
+        connection.query(insertNoticeQuery, notice, function(err) {
+          if (err) {
+            connection.release();
+            callback(successMsg + " // Save notice error : " + err, null);
+          } else {
+            fcm.send(FCM, function(err, response) {
               if (err) {
                 connection.release();
                 callback(successMsg + " // send push msg error : " + err, null);
@@ -138,12 +156,12 @@ router.get('/:storeID', function(req, res) {
                 callback(null, successMsg + " // success send push msg : " + response);
               }
             });
-          } else {
-            connection.release();
-            callback(null, successMsg);
           }
-        }
-      });
+        });
+      } else{
+        connection.release();
+        callback(null, successMsg);
+      }
     }
   ];
   async.waterfall(taskArray, function(err, result) {

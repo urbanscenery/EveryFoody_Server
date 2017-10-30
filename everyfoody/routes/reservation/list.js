@@ -58,8 +58,8 @@ router.get('/', function(req, res) {
         "from owners as tr " +
         "inner join reservation as res " +
         "on tr.owner_id = res.owner_id " +
-        "where res.user_id = ?";
-      // "order by res.reservation_time desc";
+        "where res.user_id = ? "+
+        "order by res.reservation_time desc";
       connection.query(selectStoreQuery, userData.userID, function(err, storeData) {
         if (err) {
           res.status(500).send({
@@ -76,7 +76,7 @@ router.get('/', function(req, res) {
               storeName: storeData[i].owner_storename,
               storeImage: storeData[i].owner_mainURL,
               reservationCount: storeData[i].owner_reservationCount,
-              reservationTime: storeData[i].reservation_time
+              reservationTime: moment(storeData[i].reservation_time, "YYYYMMDDHHmmss").format('YYYY-MM-DD HH:mm:ss')
             }
             dataList.push(data);
           }

@@ -34,9 +34,10 @@ router.get('/:latitude/:longitude', function(req, res) {
         callback(null, decoded, connection);
       } else if (token === "nonLoginUser") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: 101,
+          userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {

@@ -69,8 +69,8 @@ router.post('/customer', function(req, res) {
     },
     //4. 회원가입 완료
     function(connection, callback) {
-      let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?,?)';
-      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, code.User, req.body.name, req.body.imageURL, req.body.phone, null], function(err) {
+      let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?,?,?)';
+      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, code.User, req.body.name, req.body.imageURL, req.body.phone, null, null], function(err) {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -154,8 +154,8 @@ router.post('/owner', function(req, res) {
     },
     //4. 회원가입 완료
     function(connection, callback) {
-      let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?,?)';
-      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, code.NonAuthOwner, req.body.name, req.body.imageURL, req.body.phone, null], function(err) {
+      let insertUserDataQuery = 'insert into users values(?,?,?,?,?,?,?,?,?,?)';
+      connection.query(insertUserDataQuery, [null, req.body.email, req.body.category, req.body.uid, code.NonInfoOwner, req.body.name, req.body.imageURL, req.body.phone, null, null], function(err) {
         if (err) {
           res.status(500).send({
             status: "fail",

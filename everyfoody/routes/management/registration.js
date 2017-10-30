@@ -5,6 +5,7 @@ const pool = require('../../config/db_pool');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const upload = require('../../modules/AWS-S3');
+const mailer = require('../../modules/mail');
 const fcm = require('../../config/fcm_config');
 
 
@@ -62,7 +63,22 @@ router.post('/store', upload.single('image'), function(req, res, next) {
             msg: "Success"
           });
           connection.release();
-          callback(null, "successful update user category");
+          callback(null, owner_id, "successful update user category");
+        }
+      });
+    },
+    function(owner_id, successMSG, callback) {
+      let html = mailer.html1 + authURL + mailer.html2 + owner_id + mailer.html3 + owner_id + mailer.html4;
+      let option = mailer.option;
+      let transport = mailer.transport;
+      option.html = html;
+      transport.sendMail(option, function(err, response) {
+        if (err) {
+          transport.close();
+          callback(successMSG + " // fail send mail : " + err, null);
+        } else {
+          transport.close();
+          callback(null, successMSG + " // Successful send mail : " + response);
         }
       });
     }

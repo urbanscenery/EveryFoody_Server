@@ -101,11 +101,29 @@ router.post('/', upload.single('image'), function(req, res) {
             to: ownerDeviceToken[0].user_deviceToken,
             collapse_key: 'Updates Available',
             data: {
-              title: "Every Foody",
+              title: "새로운 리뷰 등록",
               body: userData.userName + "님이 리뷰를 남겼습니다!"
             }
           };
-          fcm.send(message, function(err, response) {
+          callback(null, userData, connection, successMsg, message);
+        }
+      });
+    },
+    //6. FCM 전송 및 notice list 추가
+    function(userData, connection, successMsg, FCM, callback) {
+      let notice = {
+        id: null,
+        user_id: req.params.storeID,
+        notice_content: FCM.data.body,
+        notice_time: moment().format('YYYYMMDDHHmmss')
+      };
+      let insertNoticeQuery = 'insert into notice set ?';
+      connection.query(insertNoticeQuery, notice, function(err) {
+        if (err) {
+          connection.release();
+          callback(successMsg + " // Save notice error : " + err, null);
+        } else {
+          fcm.send(FCM, function(err, response) {
             if (err) {
               connection.release();
               callback(successMsg + " // send push msg error : " + err, null);
@@ -115,7 +133,7 @@ router.post('/', upload.single('image'), function(req, res) {
             }
           });
         }
-      })
+      });
     }
   ];
   async.waterfall(taskArray, function(err, result) {

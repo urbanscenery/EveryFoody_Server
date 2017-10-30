@@ -34,16 +34,25 @@ router.get('/lists', function(req, res) {
       });
     },
     function(owner_id, connection, callback) {
-      let customerlistQuery = 'select u.user_nickname, u.user_phone ,r.reservation_time, u.user_id from users u inner join reservation r on u.user_id = r.user_id where r.owner_id = ? order by reservation_time desc';
+      let customerlistQuery = 'select u.user_nickname, u.user_phone ,r.reservation_time, u.user_id from users u inner join reservation r on u.user_id = r.user_id where r.owner_id = ? order by reservation_time';
       connection.query(customerlistQuery, owner_id, function(err, lists) {
         if (err) {
           callback("Data is null or connection error" + err, null);
           connection.release();
         } else {
-          let user = lists;
+          let userList = [];
+          for(let i = 0 ; i < lists.length ; i++){
+            let data = {
+              user_nickname : lists[i].user_nickname,
+              user_phone : lists[i].user_phone,
+              reservation_time : moment(lists[i].reservation_time, "YYYYMMDDHHmmss").format('YYYY-MM-DD HH:mm:ss'),
+              user_id : lists[i].user_id
+            }
+            userList.push(data);
+          }
           res.status(200).send({
             status: "success",
-            data: user,
+            data: userList,
             msg: "customer list get success"
           });
           connection.release();

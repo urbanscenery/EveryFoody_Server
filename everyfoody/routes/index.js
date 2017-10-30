@@ -9,6 +9,7 @@ const signup = require('./login/signup');
 const reservation = require('./reservation/index');
 const management = require('./management/index');
 const api = require('./apireference');
+const admin = require('./admin/index');
 
 const registdata = require('./main/registdata');
 
@@ -22,6 +23,7 @@ router.use('/signup', signup);
 router.use('/management', management);
 router.use('/api', api);
 router.use('/registdata', registdata);
+router.use('/admin', admin);
 
 
 module.exports = router;

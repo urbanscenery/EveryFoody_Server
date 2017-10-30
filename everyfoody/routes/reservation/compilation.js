@@ -153,21 +153,43 @@ router.get('/:storeID', function(req, res) {
               to: ownerDeviceToken[0].user_deviceToken,
               collapse_key: 'Updates Available',
               data: {
-                title: "Every Foody",
+                title: "주문 예약 알림 ",
                 body: userData.userName + "님이 주문예약을 했습니다!"
               }
             };
+            console.log("FCM Messege : ");
+            console.log(message);
+            callback(null, userData, connection, successMsg, statusCode, message);
           } else {
             message = {
               to: ownerDeviceToken[0].user_deviceToken,
               collapse_key: 'Updates Available',
               data: {
-                title: "Every Foody",
+                title: "주문 취소 알림",
                 body: userData.userName + "님이 주문예약을 취소했습니다"
               }
             };
+            console.log("FCM Messege : ");
+            console.log(message);
+            callback(null, userData, connection, successMsg, statusCode, message);
           }
-          fcm.send(message, function(err, response) {
+        }
+      });
+    },
+    function(userData, connection, successMsg, statusCode, FCM, callback) {
+      let notice = {
+        id : null,
+        user_id: owner_id,
+        notice_content: FCM.data.body,
+        notice_time: moment().format('YYYYMMDDHHmmss')
+      }
+      let insertNoticeQuery = 'insert into notice set ?';
+      connection.query(insertNoticeQuery, notice, function(err) {
+        if (err) {
+          connection.release();
+          callback(successMsg + " // Save notice error : " + err, null);
+        } else {
+          fcm.send(FCM, function(err, response) {
             if (err) {
               connection.release();
               callback(successMsg + " // send push msg error : " + err, null);
@@ -178,6 +200,7 @@ router.get('/:storeID', function(req, res) {
           });
         }
       })
+
     }
   ];
   async.waterfall(taskArray, function(err, result) {
