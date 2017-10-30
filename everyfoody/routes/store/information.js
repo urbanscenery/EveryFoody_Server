@@ -4,12 +4,13 @@ const router = express.Router();
 const pool = require('../../config/db_pool');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const code = require('../../modules/statuscode');
 
-router.get('/:storeID', function(req, res) {
+router.get('/:storeID', (req, res) => {
   let taskArray = [
     //1. connection 설정
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -20,13 +21,13 @@ router.get('/:storeID', function(req, res) {
       });
     },
     //2. header의 token 값으로 user_email 받아옴.
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
       if (token === "apitest") {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
@@ -34,12 +35,12 @@ router.get('/:storeID', function(req, res) {
         let decoded = {
           userEmail: "nonLogin",
           userID: 41,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               msg: "user authorization error"
@@ -54,12 +55,12 @@ router.get('/:storeID', function(req, res) {
       }
     },
     //3. 트럭 기본정보 가져오기
-    function(userData, connection, callback) {
+    (userData, connection, callback) => {
       let selectStoreInfoQuery = 'select * from owners tr ' +
         'inner join users u ' +
         'on u.user_id = ? ' +
         'where tr.owner_id = ?';
-      connection.query(selectStoreInfoQuery, [req.params.storeID, req.params.storeID], function(err, storeData) {
+      connection.query(selectStoreInfoQuery, [req.params.storeID, req.params.storeID], (err, storeData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -80,17 +81,17 @@ router.get('/:storeID', function(req, res) {
             storeBreaktime: storeData[0].owner_breaktime,
             storePhone: storeData[0].user_phone,
             reservationCount: storeData[0].owner_reservationCount,
-            reservationCheck: 0,
-            bookmarkCheck: 0
+            reservationCheck: code.NonReservation,
+            bookmarkCheck: code.NonBookmark
           };
           callback(null, data, userData, connection);
         }
       });
     },
     //4. 트럭 메뉴정보 가져오기
-    function(basicInfo, userData, connection, callback) {
+    (basicInfo, userData, connection, callback) => {
       let selectMenuQuery = 'select * from menu where owner_id = ?';
-      connection.query(selectMenuQuery, req.params.storeID, function(err, menuData) {
+      connection.query(selectMenuQuery, req.params.storeID, (err, menuData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -114,9 +115,9 @@ router.get('/:storeID', function(req, res) {
       });
     },
     //5. 예약정보가 있는지 확인
-    function(menuInfo, basicInfo, userData, connection, callback) {
+    (menuInfo, basicInfo, userData, connection, callback) => {
       let selectReservationQuery = 'select * from reservation where user_id = ? and owner_id = ?';
-      connection.query(selectReservationQuery, [userData.userID, req.params.storeID], function(err, reservationData) {
+      connection.query(selectReservationQuery, [userData.userID, req.params.storeID], (err, reservationData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -126,16 +127,16 @@ router.get('/:storeID', function(req, res) {
           callback("get reservation data err : " + err, null);
         } else {
           if (reservationData.length !== 0) {
-            basicInfo.reservationCheck = 1;
+            basicInfo.reservationCheck = code.ExistReservation;
           }
           callback(null, menuInfo, basicInfo, userData, connection);
         }
       })
     },
     //6. 북마크된 정보가 있는지 확인
-    function(menuInfo, basicInfo, userData, connection, callback) {
+    (menuInfo, basicInfo, userData, connection, callback) => {
       let selectBookmarkQuery = 'select * from bookmarks where user_id = ? and owner_id = ?';
-      connection.query(selectBookmarkQuery, [userData.userID, req.params.storeID], function(err, bookmarkData) {
+      connection.query(selectBookmarkQuery, [userData.userID, req.params.storeID], (err, bookmarkData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -145,14 +146,14 @@ router.get('/:storeID', function(req, res) {
           callback("get bookmark data err : " + err, null);
         } else {
           if (bookmarkData.length !== 0) {
-            basicInfo.bookmarkCheck = 1;
+            basicInfo.bookmarkCheck = code.ExistBookmark;
           }
           callback(null, menuInfo, basicInfo, connection);
         }
       })
     },
     //6. 응답후 커넥션 해제
-    function(menuInfo, basicInfo, connection, callback) {
+    (menuInfo, basicInfo, connection, callback) => {
       res.status(200).send({
         status: "success",
         data: {
@@ -165,7 +166,7 @@ router.get('/:storeID', function(req, res) {
       callback(null, "successful load store data");
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);

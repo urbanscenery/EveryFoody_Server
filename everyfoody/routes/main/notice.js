@@ -5,12 +5,13 @@ const pool = require('../../config/db_pool');
 const distance = require('../../modules/distance');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const code = require('../../modules/statuscode');
+
 // 알림 리스트
 router.put('/lists', (req, res) => {
-
   let taskArray = [
     (callback) => {
-      pool.getConnection(function(err, connection) {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -26,7 +27,7 @@ router.put('/lists', (req, res) => {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
@@ -34,12 +35,12 @@ router.put('/lists', (req, res) => {
         let decoded = {
           userEmail: "nonLogin",
           userID: 41,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               msg: "user authorization error"
@@ -58,7 +59,7 @@ router.put('/lists', (req, res) => {
       noticeListQuery = 'UPDATE users set user_accessTime = ? where user_id = ?';
       let currentTime = moment().format('MM/DDahh:mm:ss');
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(noticeListQuery, [currentTime, userData.userID], function(err, noticeData) {
+      connection.query(noticeListQuery, [currentTime, userData.userID], (err, noticeData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -75,7 +76,7 @@ router.put('/lists', (req, res) => {
       let noticeListQuery;
       noticeListQuery = 'select * from notice where user_id = ? order by notice_time desc';
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(noticeListQuery, [userData.userID], function(err, noticeData) {
+      connection.query(noticeListQuery, [userData.userID], (err, noticeData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -86,12 +87,12 @@ router.put('/lists', (req, res) => {
           callback("get reservation data err : " + err, null);
         } else {
           let noticeList = [];
-          for(let i = 0 ; i < noticeData.length ; i++){
+          for (let i = 0; i < noticeData.length; i++) {
             let notice = {
-              id : noticeData[i].id,
-              user_id : noticeData[i].user_id,
-              notice_content : noticeData[i].notice_content,
-              notice_time : moment(noticeData[i].notice_time,"YYYYMMDDHHmmss").format('YYYY-MM-DD HH:mm:ss')
+              id: noticeData[i].id,
+              user_id: noticeData[i].user_id,
+              notice_content: noticeData[i].notice_content,
+              notice_time: moment(noticeData[i].notice_time, "YYYYMMDDHHmmss").format('YYYY-MM-DD HH:mm:ss')
             }
             noticeList.push(notice)
           }
@@ -122,7 +123,7 @@ router.get('/addition', (req, res) => {
   let notice_time = moment().format('MM/DDahh:mm:ss//');
   let taskArray = [
     (callback) => {
-      pool.getConnection(function(err, connection) {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -138,7 +139,7 @@ router.get('/addition', (req, res) => {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
@@ -146,12 +147,12 @@ router.get('/addition', (req, res) => {
         let decoded = {
           userEmail: "nonLogin",
           userID: 41,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               msg: "user authorization error"
@@ -168,7 +169,7 @@ router.get('/addition', (req, res) => {
     (userData, connection, callback) => {
       let addnoticeQuery;
       addnoticeQuery = 'insert into notice values(? ,? ,?)';
-      connection.query(addnoticeQuery, [userData.userID, notice_content, notice_time], function(err) {
+      connection.query(addnoticeQuery, [userData.userID, notice_content, notice_time], (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",

@@ -8,17 +8,17 @@ const express = require('express');
 const router = express.Router();
 
 
-router.get('/lists', function(req, res, next) {
+router.get('/lists', (req, res, next) => {
   let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) callback("getConneciton error : " + err, null);
         else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
-      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+      jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
         if (err) {
           res.status(501).send({
             status: "fail",
@@ -29,9 +29,9 @@ router.get('/lists', function(req, res, next) {
         } else callback(null, decoded.userID, connection);
       });
     },
-    function(owner_id, connection, callback) {
+    (owner_id, connection, callback) => {
       let modifyQuery = 'select menu_id, menu_name, menu_price, menu_imageURL from menu where owner_id = ?';
-      connection.query(modifyQuery, [owner_id], function(err, menuinfo) {
+      connection.query(modifyQuery, [owner_id], (err, menuinfo) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -60,9 +60,9 @@ router.get('/lists', function(req, res, next) {
           callback(null, "menu list success");
         }
       });
-    },
+    }
   ]
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
@@ -74,13 +74,13 @@ router.get('/lists', function(req, res, next) {
 });
 
 //메뉴정보 삭제
-router.delete('/remove/:menu_id', function(req, res, next) {
+router.delete('/remove/:menu_id', (req, res, next) => {
 
   let menu_id = req.params.menu_id;
 
   let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) res.status(500).send({
           status: "fail",
           msg: "connection error"
@@ -88,9 +88,9 @@ router.delete('/remove/:menu_id', function(req, res, next) {
         else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
-      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+      jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
         if (err) {
           res.status(501).send({
             status: "fail",
@@ -101,9 +101,9 @@ router.delete('/remove/:menu_id', function(req, res, next) {
         } else callback(null, decoded.userID, connection);
       });
     },
-    function(owner_id, connection, callback) {
+    (owner_id, connection, callback) => {
       let menuRemoveQuery = 'delete from menu where owner_id = ? and menu_id = ?';
-      connection.query(menuRemoveQuery, [owner_id, menu_id], function(err) {
+      connection.query(menuRemoveQuery, [owner_id, menu_id], (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -122,7 +122,7 @@ router.delete('/remove/:menu_id', function(req, res, next) {
       });
     }
   ]
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
@@ -134,15 +134,15 @@ router.delete('/remove/:menu_id', function(req, res, next) {
 });
 
 //메뉴 정보 추가
-router.put('/addition', upload.single('image'), function(req, res, next) {
+router.put('/addition', upload.single('image'), (req, res, next) => {
 
   let menu_name = req.body.menu_name;
   let menu_price = req.body.menu_price;
   let menu_imageURL = req.file.location;
 
   let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) res.status(500).send({
           status: "fail",
           msg: "connection error"
@@ -150,9 +150,9 @@ router.put('/addition', upload.single('image'), function(req, res, next) {
         else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
-      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+      jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
         if (err) {
           res.status(501).send({
             status: "fail",
@@ -163,9 +163,9 @@ router.put('/addition', upload.single('image'), function(req, res, next) {
         } else callback(null, decoded.userID, connection);
       });
     },
-    function(owner_id, connection, callback) {
+    (owner_id, connection, callback) => {
       let menuAddQuery = 'insert into menu(owner_id, menu_name, menu_price, menu_imageURL) values(?,?,?,?)';
-      connection.query(menuAddQuery, [owner_id, menu_name, menu_price, menu_imageURL], function(err) {
+      connection.query(menuAddQuery, [owner_id, menu_name, menu_price, menu_imageURL], (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -184,7 +184,7 @@ router.put('/addition', upload.single('image'), function(req, res, next) {
       });
     }
   ]
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
@@ -196,15 +196,16 @@ router.put('/addition', upload.single('image'), function(req, res, next) {
 });
 
 //메뉴 정보 수정
-router.put('/modification/:menu_id', upload.single('image'), function(req, res, next) {
+router.put('/modification/:menu_id', upload.single('image'), (req, res, next) => {
 
   let menu_name = req.body.menu_name;
   let menu_price = req.body.menu_price;
   let menu_imageURL = req.file.location;
   let menu_id = req.params.menu_id;
+
   let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) res.status(500).send({
           status: "fail",
           msg: "connection error"
@@ -212,9 +213,9 @@ router.put('/modification/:menu_id', upload.single('image'), function(req, res, 
         else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
-      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+      jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
         if (err) {
           res.status(501).send({
             status: "fail",
@@ -225,7 +226,7 @@ router.put('/modification/:menu_id', upload.single('image'), function(req, res, 
         } else callback(null, decoded.userID, connection);
       });
     },
-    function(owner_id, connection, callback) {
+    (owner_id, connection, callback) => {
 
       let menuUpdate = {
         menu_name: menu_name,
@@ -235,7 +236,7 @@ router.put('/modification/:menu_id', upload.single('image'), function(req, res, 
         owner_id: owner_id
       }
       let menumodifyQuery = 'update menu set menu_name = ?, menu_price = ?, menu_imageURL = ? where menu_id = ? and owner_id = ?';
-      connection.query(menumodifyQuery, [menuUpdate.menu_name, menuUpdate.menu_price, menuUpdate.imageURL, menuUpdate.menu_id, menuUpdate.owner_id], function(err) {
+      connection.query(menumodifyQuery, [menuUpdate.menu_name, menuUpdate.menu_price, menuUpdate.imageURL, menuUpdate.menu_id, menuUpdate.owner_id], (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -254,7 +255,7 @@ router.put('/modification/:menu_id', upload.single('image'), function(req, res, 
       });
     }
   ]
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
@@ -266,7 +267,7 @@ router.put('/modification/:menu_id', upload.single('image'), function(req, res, 
 });
 
 
-router.post('/modification/:menu_id', function(req, res, next) {
+router.post('/modification/:menu_id', (req, res, next) => {
 
   let menu_name = req.body.menu_name;
   let menu_price = req.body.menu_price;
@@ -274,8 +275,8 @@ router.post('/modification/:menu_id', function(req, res, next) {
   let menu_id = req.params.menu_id;
 
   let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) res.status(500).send({
           status: "fail",
           msg: "connection error"
@@ -283,9 +284,9 @@ router.post('/modification/:menu_id', function(req, res, next) {
         else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
-      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+      jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
         if (err) {
           res.status(501).send({
             status: "fail",
@@ -296,7 +297,7 @@ router.post('/modification/:menu_id', function(req, res, next) {
         } else callback(null, decoded.userID, connection);
       });
     },
-    function(owner_id, connection, callback) {
+    (owner_id, connection, callback) => {
       let menuUpdate = {
         menu_name: menu_name,
         menu_price: menu_price,
@@ -305,7 +306,7 @@ router.post('/modification/:menu_id', function(req, res, next) {
         owner_id: owner_id
       }
       let menumodifyQuery = 'update menu set menu_name = ?, menu_price = ?, menu_imageURL = ? where menu_id = ? and owner_id = ?';
-      connection.query(menumodifyQuery, [menuUpdate.menu_name, menuUpdate.menu_price, menuUpdate.menu_imageURL, menuUpdate.menu_id, menuUpdate.owner_id], function(err) {
+      connection.query(menumodifyQuery, [menuUpdate.menu_name, menuUpdate.menu_price, menuUpdate.menu_imageURL, menuUpdate.menu_id, menuUpdate.owner_id], (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -324,7 +325,7 @@ router.post('/modification/:menu_id', function(req, res, next) {
       });
     }
   ]
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);

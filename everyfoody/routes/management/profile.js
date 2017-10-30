@@ -7,13 +7,13 @@ const upload = require('../../modules/AWS-S3');
 const express = require('express');
 const router = express.Router();
 
-router.put('/', upload.single('image'), function(req, res, next) {
+router.put('/', upload.single('image'), (req, res) => {
 
   let user_imageURL = req.file.location;
 
   let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) res.status(500).send({
           status: "fail",
           msg: "connection error"
@@ -21,9 +21,9 @@ router.put('/', upload.single('image'), function(req, res, next) {
         else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
-      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+      jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
         if (err) {
           res.status(501).send({
             status: "fail",
@@ -34,10 +34,9 @@ router.put('/', upload.single('image'), function(req, res, next) {
         } else callback(null, decoded.userID, connection);
       });
     },
-    function(userID, connection, callback) {
-
+    (userID, connection, callback) => {
       let menumodifyQuery = 'update users set user_imageURL = ? where user_id = ?';
-      connection.query(menumodifyQuery, [user_imageURL, userID], function(err) {
+      connection.query(menumodifyQuery, [user_imageURL, userID], (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -56,7 +55,7 @@ router.put('/', upload.single('image'), function(req, res, next) {
       });
     }
   ]
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);

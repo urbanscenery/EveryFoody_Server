@@ -4,12 +4,13 @@ const router = express.Router();
 const pool = require('../../config/db_pool');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const code = require('../../modules/statuscode');
 
-router.get('/:storeID', function(req, res) {
+router.get('/:storeID', (req, res) => {
   let taskArray = [
     //1. connection 설정
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -20,13 +21,13 @@ router.get('/:storeID', function(req, res) {
       });
     },
     //2. header의 token 값으로 user_email 받아옴.
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
       if (token === "apitest") {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
@@ -34,12 +35,12 @@ router.get('/:storeID', function(req, res) {
         let decoded = {
           userEmail: "nonLogin",
           userID: 41,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               msg: "user authorization error"
@@ -54,10 +55,10 @@ router.get('/:storeID', function(req, res) {
       }
     },
     //3. 푸드트럭 GPS 얻어오기.
-    function(userData, connection, callback) {
+    (userData, connection, callback) => {
       let selectStoreLocationQuery = 'select owner_id, owner_latitude, owner_longitude, owner_reservationCount ' +
         'from owners where owner_id = ?'
-      connection.query(selectStoreLocationQuery, req.params.storeID, function(err, locationData) {
+      connection.query(selectStoreLocationQuery, req.params.storeID, (err, locationData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -77,7 +78,7 @@ router.get('/:storeID', function(req, res) {
       });
     },
     //4. 응답 후 커넥션 해제.
-    function(locationInfo, connection, callback) {
+    (locationInfo, connection, callback) => {
       res.status(200).send({
         status: "success",
         data: locationInfo,
@@ -87,7 +88,7 @@ router.get('/:storeID', function(req, res) {
       callback(null, "successful load location data");
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);

@@ -5,13 +5,14 @@ const pool = require('../../config/db_pool');
 const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const code = require('../../modules/statuscode');
 
-router.get('/:user_status', function(req, res) {
+router.get('/:user_status', (req, res) => {
   let user_status = req.params.user_status;
   let taskArray = [
     //1. connection 설정
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -22,13 +23,13 @@ router.get('/:user_status', function(req, res) {
       });
     },
     //2. header의 token 값으로 user_email 받아옴.
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
       if (token === "apitest") {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
@@ -36,12 +37,12 @@ router.get('/:user_status', function(req, res) {
         let decoded = {
           userEmail: "nonLogin",
           userID: 41,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               msg: "user authorization error"
@@ -56,13 +57,13 @@ router.get('/:user_status', function(req, res) {
       }
     },
     //3. 예약내역 갯수 불러오기.
-    function(userData, connection, callback) {
+    (userData, connection, callback) => {
       let selectReservationQuery;
-      if (user_status == 401) selectReservationQuery = 'select * from reservation where user_id = ?';
-      else if (user_status > 401) selectReservationQuery = 'select * from reservation where owner_id = ?';
+      if (Number(user_status) === code.User) selectReservationQuery = 'select * from reservation where user_id = ?';
+      else if (user_status > code.User) selectReservationQuery = 'select * from reservation where owner_id = ?';
 
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(selectReservationQuery, userData.userID, function(err, reservationData) {
+      connection.query(selectReservationQuery, userData.userID, (err, reservationData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -82,11 +83,11 @@ router.get('/:user_status', function(req, res) {
       });
     },
     //4. 북마크 갯수 불러오기. 사용자일 경우 자신의 북마크 개수, 사업자일 경우 자신을 북마크한 사람들 수
-    function(responseData, userData, connection, callback) {
+    (responseData, userData, connection, callback) => {
       let selectBookmarkQuery;
-      if (user_status == 401) selectBookmarkQuery = 'select b.owner_id, o.owner_storename, b.bookmark_toggle FROM bookmarks as b inner join owners as o on o.owner_id = b.owner_id where user_id = ?';
-      else if (user_status > 401) selectBookmarkQuery = 'select count(*) as c from bookmarks where owner_id = ?';
-      connection.query(selectBookmarkQuery, userData.userID, function(err, bookmarkData) {
+      if (Number(user_status) === code.User) selectBookmarkQuery = 'select b.owner_id, o.owner_storename, b.bookmark_toggle FROM bookmarks as b inner join owners as o on o.owner_id = b.owner_id where user_id = ?';
+      else if (user_status > code.User) selectBookmarkQuery = 'select count(*) as c from bookmarks where owner_id = ?';
+      connection.query(selectBookmarkQuery, userData.userID, (err, bookmarkData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -95,7 +96,7 @@ router.get('/:user_status', function(req, res) {
           connection.release();
           callback("get bookmark data err : " + err, null);
         } else {
-          if (user_status == 401) {
+          if (Number(user_status) === code.User) {
             let bookmarkinfo = [];
             for (let i = 0; i < bookmarkData.length; ++i) {
               bookmarkinfo.push({
@@ -111,10 +112,10 @@ router.get('/:user_status', function(req, res) {
         }
       });
     },
-    function(responseData, userData, connection, callback) {
-      if (user_status > 401) {
+    (responseData, userData, connection, callback) => {
+      if (user_status > code.User) {
         let toggleQuery = "select owner_addorder, owner_addreview, owner_addbookmark from owners where owner_id = ?";
-        connection.query(toggleQuery, userData.userID, function(err, toggleData) {
+        connection.query(toggleQuery, userData.userID, (err, toggleData) => {
           if (err) {
             res.status(500).send({
               status: "fail",
@@ -130,9 +131,9 @@ router.get('/:user_status', function(req, res) {
         });
       } else callback(null, userData, responseData, connection);
     },
-    function(userData, responseData, connection, callback) {
+    (userData, responseData, connection, callback) => {
       let selectImageQuery = 'select user_imageURL from users where user_id = ?';
-      connection.query(selectImageQuery, [userData.userID], function(err, imageData) {
+      connection.query(selectImageQuery, [userData.userID], (err, imageData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -153,7 +154,7 @@ router.get('/:user_status', function(req, res) {
       });
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);

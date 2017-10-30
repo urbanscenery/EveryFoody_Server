@@ -5,12 +5,13 @@ const pool = require('../../config/db_pool');
 const distance = require('../../modules/distance');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const code = require('../../modules/statuscode');
 
-router.get('/:location/:latitude/:longitude', function(req, res) {
+router.get('/:location/:latitude/:longitude', (req, res) => {
   let taskArray = [
     //1. connection 설정
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -21,13 +22,13 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
       });
     },
     //2. header의 token 값으로 user_email 받아옴.
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
       if (token === "apitest") {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
@@ -35,12 +36,12 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
         let decoded = {
           userEmail: "nonLogin",
           userID: 41,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               msg: "user authorization error"
@@ -55,11 +56,11 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
       }
     },
     //3. location, GPS정보로 푸드트럭정보 찾기
-    function(decoded, connection, callback) {
+    (decoded, connection, callback) => {
       let selectStoreQuery = "select owner_id, owner_storename, owner_mainURL, owner_reservationCount, owner_locationDetail, owner_latitude, owner_longitude " +
         "from owners " +
         "where owner_location = ?";
-      connection.query(selectStoreQuery, req.params.location, function(err, storeData) {
+      connection.query(selectStoreQuery, req.params.location, (err, storeData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -104,8 +105,8 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
       });
     },
     //4. 거리순 정렬
-    function(dataList, decoded, connection, callback) {
-      dataList.sort(function(a, b) { // 오름차순
+    (dataList, decoded, connection, callback) => {
+      dataList.sort((a, b) => { // 오름차순
         if (a.storeDistance === -1 && b.storeDistance === -1) {
           return -1;
         } else if (a.storeDistance === -1 && b.storeDistance > 0) {
@@ -130,7 +131,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
       getAccessTime = 'select count(n.notice_time) as c from EveryFoody.notice as n inner join ' +
         'EveryFoody.users as u on n.user_id = u.user_id and n.notice_time > u.user_accessTime where u.user_id = ?';
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(getAccessTime, [decoded.userID], function(err, timeData) {
+      connection.query(getAccessTime, [decoded.userID], (err, timeData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -140,13 +141,13 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
           callback("get reservation data err : " + err, null);
         } else {
           let noticeCode;
-          if (timeData[0].c == 1) noticeCode = 801;
-          else noticeCode = 802;
+          if (timeData[0].c == 1) noticeCode = code.ExistNotice;
+          else noticeCode = code.NonNotice;
           callback(null, dataList, noticeCode, decoded, connection);
         }
       });
     },
-    function(dataList, noticeCode, decoded, connection, callback) {
+    (dataList, noticeCode, decoded, connection, callback) => {
       const secret = req.app.get('jwt-secret');
       let option = {
         algorithm: 'HS256',
@@ -162,7 +163,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
       callback(null, dataList, noticeCode, token, connection);
     },
     //5. 응답후 커넥션 해제
-    function(dataList, noticeCode, token, connection, callback) {
+    (dataList, noticeCode, token, connection, callback) => {
       res.status(200).send({
         status: "success",
         data: {
@@ -176,7 +177,7 @@ router.get('/:location/:latitude/:longitude', function(req, res) {
       callback(null, "Successful load store list");
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);

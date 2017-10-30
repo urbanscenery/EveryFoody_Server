@@ -7,11 +7,11 @@ const moment = require('moment');
 const upload = require('../../modules/AWS-S3');
 
 
-router.post('/', upload.single('image'), function(req, res) {
+router.post('/', upload.single('image'), (req, res) => {
   let taskArray = [
     //1. connection 설정
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -22,7 +22,7 @@ router.post('/', upload.single('image'), function(req, res) {
       });
     },
     //사진 등록
-    function(connection, callback) {
+    (connection, callback) => {
       let insertReviewQuery = 'insert into menu set ?';
       let imageURL;
       if (typeof req.file === "undefined") {
@@ -36,7 +36,7 @@ router.post('/', upload.single('image'), function(req, res) {
         menu_price: Number(req.body.price),
         menu_imageURL: imageURL
       };
-      connection.query(insertReviewQuery, reviewData, function(err) {
+      connection.query(insertReviewQuery, reviewData, (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -55,7 +55,7 @@ router.post('/', upload.single('image'), function(req, res) {
       });
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);

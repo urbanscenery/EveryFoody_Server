@@ -5,14 +5,16 @@ const pool = require('../../config/db_pool');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
 const upload = require('../../modules/AWS-S3');
-const fcm = require('../../config/fcm_config')
+const fcm = require('../../config/fcm_config');
+const code = require('../../modules/statuscode');
 
 
-router.post('/', upload.single('image'), function(req, res) {
+
+router.post('/', upload.single('image'), (req, res) => {
   let taskArray = [
     //1. connection 설정
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -23,13 +25,13 @@ router.post('/', upload.single('image'), function(req, res) {
       });
     },
     //2. header의 token 값으로 user_email 받아옴.
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
       if (token === "apitest") {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
@@ -37,12 +39,12 @@ router.post('/', upload.single('image'), function(req, res) {
         let decoded = {
           userEmail: "nonLogin",
           userID: 41,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               msg: "user authorization error"
@@ -57,7 +59,7 @@ router.post('/', upload.single('image'), function(req, res) {
       }
     },
     //3. 리뷰 등록
-    function(userData, connection, callback) {
+    (userData, connection, callback) => {
       let insertReviewQuery = 'insert into reviewes set ?';
       let imageURL;
       if (typeof req.file === "undefined") {
@@ -72,7 +74,7 @@ router.post('/', upload.single('image'), function(req, res) {
         review_content: req.body.content,
         review_imageURL: imageURL
       };
-      connection.query(insertReviewQuery, reviewData, function(err) {
+      connection.query(insertReviewQuery, reviewData, (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -90,9 +92,9 @@ router.post('/', upload.single('image'), function(req, res) {
       });
     },
     //5. FCM메세지 사업자에게 전송
-    function(userData, connection, successMsg, callback) {
+    (userData, connection, successMsg, callback) => {
       let selectOwnerQuery = 'select user_deviceToken from users where user_id = ?';
-      connection.query(selectOwnerQuery, Number(req.body.storeID), function(err, ownerDeviceToken) {
+      connection.query(selectOwnerQuery, Number(req.body.storeID), (err, ownerDeviceToken) => {
         if (err) {
           connection.release();
           callback(successMsg + " //get owner devicetoken data err : " + err, null);
@@ -110,7 +112,7 @@ router.post('/', upload.single('image'), function(req, res) {
       });
     },
     //6. FCM 전송 및 notice list 추가
-    function(userData, connection, successMsg, FCM, callback) {
+    (userData, connection, successMsg, FCM, callback) => {
       let notice = {
         id: null,
         user_id: req.params.storeID,
@@ -118,12 +120,12 @@ router.post('/', upload.single('image'), function(req, res) {
         notice_time: moment().format('YYYYMMDDHHmmss')
       };
       let insertNoticeQuery = 'insert into notice set ?';
-      connection.query(insertNoticeQuery, notice, function(err) {
+      connection.query(insertNoticeQuery, notice, (err) => {
         if (err) {
           connection.release();
           callback(successMsg + " // Save notice error : " + err, null);
         } else {
-          fcm.send(FCM, function(err, response) {
+          fcm.send(FCM, (err, response) => {
             if (err) {
               connection.release();
               callback(successMsg + " // send push msg error : " + err, null);
@@ -136,7 +138,7 @@ router.post('/', upload.single('image'), function(req, res) {
       });
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);

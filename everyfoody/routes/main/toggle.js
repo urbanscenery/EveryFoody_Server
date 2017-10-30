@@ -5,13 +5,14 @@ const pool = require('../../config/db_pool');
 const mysql = require('mysql');
 const jwt = require('jsonwebtoken');
 const moment = require('moment');
+const code = require('../../modules/statuscode');
 
 // 사용자 토글 닫기
 router.put('/user/closing/:owner_id', (req, res) => {
   var owner_id = req.params.owner_id;
   let taskArray = [
     (callback) => {
-      pool.getConnection(function(err, connection) {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -27,7 +28,7 @@ router.put('/user/closing/:owner_id', (req, res) => {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
@@ -35,12 +36,12 @@ router.put('/user/closing/:owner_id', (req, res) => {
         let decoded = {
           userEmail: "nonLogin",
           userID: 41,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               status: 'fail',
@@ -59,7 +60,7 @@ router.put('/user/closing/:owner_id', (req, res) => {
       let selectReservationQuery;
       selectReservationQuery = 'UPDATE bookmarks SET bookmark_toggle = ? where user_id = ? and owner_id = ?';
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(selectReservationQuery, [502, userData.userID, owner_id], function(err, reservationData) {
+      connection.query(selectReservationQuery, [code.ToogleOff, userData.userID, owner_id], (err, reservationData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -93,7 +94,7 @@ router.put('/user/opening/:owner_id', (req, res) => {
   var owner_id = req.params.owner_id;
   let taskArray = [
     (callback) => {
-      pool.getConnection(function(err, connection) {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -109,7 +110,7 @@ router.put('/user/opening/:owner_id', (req, res) => {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
@@ -117,12 +118,12 @@ router.put('/user/opening/:owner_id', (req, res) => {
         let decoded = {
           userEmail: "nonLogin",
           userID: 41,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               msg: "user authorization error"
@@ -140,7 +141,7 @@ router.put('/user/opening/:owner_id', (req, res) => {
       let selectReservationQuery;
       selectReservationQuery = 'UPDATE bookmarks SET bookmark_toggle = ? where user_id = ? and owner_id = ?';
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(selectReservationQuery, [501, userData.userID, owner_id], function(err, reservationData) {
+      connection.query(selectReservationQuery, [code.ToogleOn, userData.userID, owner_id], (err, reservationData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -174,7 +175,7 @@ router.put('/owner/opening/:kind', (req, res) => {
   var kind = req.params.kind;
   let taskArray = [
     (callback) => {
-      pool.getConnection(function(err, connection) {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -190,7 +191,7 @@ router.put('/owner/opening/:kind', (req, res) => {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
@@ -198,12 +199,12 @@ router.put('/owner/opening/:kind', (req, res) => {
         let decoded = {
           userEmail: "nonLogin",
           userID: 41,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               msg: "user authorization error"
@@ -219,11 +220,10 @@ router.put('/owner/opening/:kind', (req, res) => {
     },
     (userData, connection, callback) => {
       let selectReservationQuery;
-
-      if (kind == 701) selectReservationQuery = 'UPDATE owners SET owner_addorder = ? where owner_id = ?';
-      if (kind == 702) selectReservationQuery = 'UPDATE owners SET owner_addreview = ? where owner_id = ?';
-      if (kind == 703) selectReservationQuery = 'UPDATE owners SET owner_addbookmark = ? where owner_id = ?';
-      connection.query(selectReservationQuery, [501, userData.userID], function(err, reservationData) {
+      if (Number(kind) === code.ToogleTurn) selectReservationQuery = 'UPDATE owners SET owner_addorder = ? where owner_id = ?';
+      if (Number(kind) === code.ToogleReview) selectReservationQuery = 'UPDATE owners SET owner_addreview = ? where owner_id = ?';
+      if (Number(kind) === code.ToogleBookmark) selectReservationQuery = 'UPDATE owners SET owner_addbookmark = ? where owner_id = ?';
+      connection.query(selectReservationQuery, [code.ToogleOn, userData.userID], (err, reservationData) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -257,7 +257,7 @@ router.put('/owner/closing/:kind', (req, res) => {
   var kind = req.params.kind * 1;
   let taskArray = [
     (callback) => {
-      pool.getConnection(function(err, connection) {
+      pool.getConnection((err, connection) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -273,19 +273,20 @@ router.put('/owner/closing/:kind', (req, res) => {
         let decoded = {
           userEmail: "API_Test",
           userID: 40,
-          userCategory: 101,
+          userCategory: code.KAKAO,
           userName: "에브리푸디"
         }
         callback(null, decoded, connection);
       } else if (token === "nonLoginUser") {
         let decoded = {
-          userEmail: "nonSignin",
-          userID: 0,
-          userCategory: 0
+          userEmail: "nonLogin",
+          userID: 41,
+          userCategory: code.KAKAO,
+          userName: "비로그인"
         }
         callback(null, decoded, connection);
       } else {
-        jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+        jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
           if (err) {
             res.status(500).send({
               msg: "user authorization error"
@@ -301,11 +302,11 @@ router.put('/owner/closing/:kind', (req, res) => {
     },
     (userData, connection, callback) => {
       let selectReservationQuery;
-      if (1) selectReservationQuery = 'UPDATE owners SET owner_addorder = ? where owner_id = ?';
-      if (kind == 702) selectReservationQuery = 'UPDATE owners SET owner_addreview = ? where owner_id = ?';
-      if (kind == 703) selectReservationQuery = 'UPDATE owners SET owner_addbookmark = ? where owner_id = ?';
+      if (Number(kind) === code.ToogleTurn) selectReservationQuery = 'UPDATE owners SET owner_addorder = ? where owner_id = ?';
+      if (Number(kind) === code.ToogleReview) selectReservationQuery = 'UPDATE owners SET owner_addreview = ? where owner_id = ?';
+      if (Number(kind) === code.ToogleBookmark) selectReservationQuery = 'UPDATE owners SET owner_addbookmark = ? where owner_id = ?';
       // 사용자의 경우 예약 내역, 사업자의 경우 순번 내역
-      connection.query(selectReservationQuery, [502, userData.userID], function(err, reservationData) {
+      connection.query(selectReservationQuery, [code.ToogleOff, userData.userID], (err, reservationData) => {
         if (err) {
           res.status(500).send({
             status: "fail",

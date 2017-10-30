@@ -8,19 +8,19 @@ const express = require('express');
 const router = express.Router();
 
 // 정보 수정 처음 들어왔을 때
-router.get('/basicinfo', function(req, res, next) {
+router.get('/basicinfo', (req, res) => {
 
   let taskArray = [
     // 1. connection setting
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) callback("getConneciton error : " + err, null);
         else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
-      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+      jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
         if (err) {
           res.status(501).send({
             status: "fail",
@@ -31,9 +31,9 @@ router.get('/basicinfo', function(req, res, next) {
         } else callback(null, decoded.userID, connection);
       });
     },
-    function(owner_id, connection, callback) {
+    (owner_id, connection, callback) => {
       let selectQuery = 'select * from owners o inner join users u on u.user_id = o.owner_id where o.owner_id =?';
-      connection.query(selectQuery, owner_id, function(err, basicinfo) {
+      connection.query(selectQuery, owner_id, (err, basicinfo) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -55,9 +55,9 @@ router.get('/basicinfo', function(req, res, next) {
         }
       });
     },
-    function(owner_id, basicInfo, connection, callback) {
+    (owner_id, basicInfo, connection, callback) => {
       let modifyQuery = 'select menu_id, menu_name, menu_price, menu_imageURL from menu where owner_id = ?';
-      connection.query(modifyQuery, [owner_id], function(err, menuinfo) {
+      connection.query(modifyQuery, [owner_id], (err, menuinfo) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -80,7 +80,7 @@ router.get('/basicinfo', function(req, res, next) {
         }
       });
     },
-    function(basicInfo, menuInfo2, callback) {
+    (basicInfo, menuInfo2, callback) => {
       res.status(200).send({
         status: 'success',
         data: {
@@ -92,7 +92,7 @@ router.get('/basicinfo', function(req, res, next) {
       callback(null, "owner info success");
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
@@ -104,19 +104,19 @@ router.get('/basicinfo', function(req, res, next) {
 });
 
 
-router.get('/basicinfo/modi', function(req, res, next) {
+router.get('/basicinfo/modi', (req, res) => {
 
   let taskArray = [
     // 1. connection setting
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) callback("getConneciton error : " + err, null);
         else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
-      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+      jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
         if (err) {
           res.status(501).send({
             status: "fail",
@@ -127,9 +127,9 @@ router.get('/basicinfo/modi', function(req, res, next) {
         } else callback(null, decoded.userID, connection);
       });
     },
-    function(owner_id, connection, callback) {
+    (owner_id, connection, callback) => {
       let selectQuery = 'select * from owners o inner join users u on u.user_id = o.owner_id where o.owner_id =?';
-      connection.query(selectQuery, owner_id, function(err, basicinfo) {
+      connection.query(selectQuery, owner_id, (err, basicinfo) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -154,7 +154,7 @@ router.get('/basicinfo/modi', function(req, res, next) {
         }
       });
     },
-    function(basicInfo, callback) {
+    (basicInfo, callback) => {
       res.status(200).send({
         status: 'success',
         data: {
@@ -165,7 +165,7 @@ router.get('/basicinfo/modi', function(req, res, next) {
       callback(null, "owner info success");
     }
   ];
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
@@ -177,7 +177,7 @@ router.get('/basicinfo/modi', function(req, res, next) {
 });
 
 //기본정보 수정시
-router.post('/basicmodi', function(req, res, next) {
+router.post('/basicmodi', (req, res) => {
 
   let owner_breaktime = req.body.storeBreaktime;
   let owner_phone = req.body.storePhone;
@@ -187,15 +187,15 @@ router.post('/basicmodi', function(req, res, next) {
   let owner_instagramURL = req.body.storeInstagramURL;
 
   let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) callback("getConneciton error : " + err, null);
         else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
-      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+      jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
         if (err) {
           res.status(501).send({
             status: "fail",
@@ -206,10 +206,10 @@ router.post('/basicmodi', function(req, res, next) {
         } else callback(null, decoded.userID, connection);
       });
     },
-    function(owner_id, connection, callback) {
+    (owner_id, connection, callback) => {
       let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set o.owner_breaktime = ?, u.user_phone = ?,' +
         'o.owner_hashtag =?, o.owner_facebookURL = ?, o.owner_twitterURL =?, o.owner_instagramURL = ? where o.owner_id = ?';
-      connection.query(setStoreinfoQuery, [owner_breaktime, owner_phone, owner_hashtag, owner_facebookURL, owner_twitterURL, owner_instagramURL, owner_id], function(err) {
+      connection.query(setStoreinfoQuery, [owner_breaktime, owner_phone, owner_hashtag, owner_facebookURL, owner_twitterURL, owner_instagramURL, owner_id], (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -228,7 +228,7 @@ router.post('/basicmodi', function(req, res, next) {
       });
     }
   ]
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
@@ -239,19 +239,19 @@ router.post('/basicmodi', function(req, res, next) {
   });
 });
 
-router.put('/imagemodi', upload.any(), function(req, res, next) {
+router.put('/imagemodi', upload.any(), (req, res) => {
   let owner_detailURL = req.files[1].location;
   let owner_mainURL = req.files[0].location;
   let taskArray = [
-    function(callback) {
-      pool.getConnection(function(err, connection) {
+    (callback) => {
+      pool.getConnection((err, connection) => {
         if (err) callback("getConneciton error : " + err, null);
         else callback(null, connection);
       });
     },
-    function(connection, callback) {
+    (connection, callback) => {
       let token = req.headers.token;
-      jwt.verify(token, req.app.get('jwt-secret'), function(err, decoded) {
+      jwt.verify(token, req.app.get('jwt-secret'), (err, decoded) => {
         if (err) {
           res.status(501).send({
             status: "fail",
@@ -262,10 +262,10 @@ router.put('/imagemodi', upload.any(), function(req, res, next) {
         } else callback(null, decoded.userID, connection);
       });
     },
-    function(owner_id, connection, callback) {
+    (owner_id, connection, callback) => {
       let setStoreinfoQuery = 'update owners as o inner join users as u on o.owner_id = u.user_id set ' +
         'owner_detailURL = ?, owner_mainURL = ? where owner_id = ?';
-      connection.query(setStoreinfoQuery, [owner_detailURL, owner_mainURL, owner_id], function(err) {
+      connection.query(setStoreinfoQuery, [owner_detailURL, owner_mainURL, owner_id], (err) => {
         if (err) {
           res.status(500).send({
             status: "fail",
@@ -284,7 +284,7 @@ router.put('/imagemodi', upload.any(), function(req, res, next) {
       });
     }
   ]
-  async.waterfall(taskArray, function(err, result) {
+  async.waterfall(taskArray, (err, result) => {
     if (err) {
       err = moment().format('MM/DDahh:mm:ss//') + err;
       console.log(err);
