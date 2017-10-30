@@ -2046,8 +2046,6 @@
         }
       }
     },
-
-
     "/management/customers/lists":
     {
       "get":
@@ -2214,11 +2212,6 @@
     }
 
   },
-
-
-
-
-
   "definitions":
   {
     "failMessage":
