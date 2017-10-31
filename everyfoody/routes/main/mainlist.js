@@ -151,7 +151,7 @@ router.get('/:location/:latitude/:longitude', (req, res) => {
       const secret = req.app.get('jwt-secret');
       let option = {
         algorithm: 'HS256',
-        expiresIn: 3600 * 24 * 10 // 토큰의 유효기간이 10일
+        expiresIn: 3600 * 24 * 60 // 토큰의 유효기간이 10일
       };
       let payload = {
         userEmail: decoded.userEmail,
