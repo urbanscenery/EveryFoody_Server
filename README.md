@@ -47,7 +47,7 @@
 ## EveryFoody 개발 정보
 
 * 클라이언트 환경 : Android Icecream Sandwitch 이상
-* 서버 환경 : Node.js, Naver Cloud Platfrom, MySQL, Google Firebase
+* 서버 환경 : Node.js, Naver Cloud Platform, MySQL, Google Firebase
 * 서버 API Reference : http://220.230.114.8:3444/api
 
 
